@@ -581,7 +581,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/tasks/?max=2&order=0",
+							"raw": "{{url}}/api/tasks/?max=2",
 							"host": [
 								"{{url}}"
 							],
@@ -597,7 +597,8 @@
 								},
 								{
 									"key": "order",
-									"value": "0"
+									"value": "1",
+									"disabled": true
 								}
 							]
 						},
@@ -1097,12 +1098,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/tasks/",
-							"protocol": "http",
+							"raw": "{{url}}/api/tasks/",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"tasks",
