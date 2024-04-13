@@ -63,6 +63,7 @@ MANIFEST
 fast_dummy_api/
 fast_dummy_api/**
 venv*/
+test/
 env*/
 env/
 .env
