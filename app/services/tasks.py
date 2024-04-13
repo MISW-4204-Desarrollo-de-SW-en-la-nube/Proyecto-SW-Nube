@@ -135,7 +135,8 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
 
         unique_id = uuid.uuid4()
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
-        new_file_name = str(unique_id) + '_' + file.filename
+        new_file_name = str(unique_id) + '_' + file.filename.replace(" ", "_")
+       
 
         file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
         proccessed_file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, new_file_name)
