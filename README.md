@@ -3,15 +3,94 @@
 
 Este proyecto utiliza FastAPI como framework para crear una API web. A continuación se detallan los pasos necesarios para configurar el entorno de desarrollo, instalar las dependencias, manejar las variables de entorno y ejecutar el servidor FastAPI.
 
-### Configuración del Entorno de Desarrollo
+Este proyecto esta basado en un sistema de gestión de archivos de video (mp4),  que permite a los usuarios subir archivos de video, convertirlos a otros formatos, y descargar los archivos convertidos. Además, se implementa un sistema de autenticación y autorización de usuarios, y un sistema de tareas asíncronas utilizando Celery y Redis.
 
-Clona este repositorio en tu máquina local: 
 
+## Instalación y Configuración Rápida
+
+Siga los siguientes pasos para instalar y configurar el proyecto rápidamente en una máquina Windows:
+
+ > Si usted está utilizando un sistema operativo basado en MacOS, puede que tenga problemas con la instalación de las dependencias, por lo que se recomienda ver el siguiente Discusion de StackOverflow: [Discusión](https://stackoverflow.com/questions/66888087/cannot-install-psycopg2-with-pip3-on-m1-mac), esto dado que psycopg2 no es compatible con MacOS, por lo que se recomienda instalar la libreria `psycopg2-binary` en su lugar.
+
+ > Se asume que ud ya tiene instalado y corriendo docker en su máquina. además este tutorial se basa en u sistema operativo Windows, por lo que los comandos pueden variar dependiendo del sistema operativo que esté utilizando.
+
+
+1. Clone el repositorio usando https:
 
 ```bash
-git clone <URL del repositorio>
-cd <nombre del directorio>
+git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git
+cd .\Proyecto-SW-Nube\
 ```
+
+2. Crea un archivo .env en el directorio raíz del proyecto y define las variables de entorno necesarias:
+
+```bash
+DB_URL="postgresql://fpv_user_dev:pfv_user_pwd@localhost:5080/fpv_db_dev"
+SECRET_KEY="supreSecretKey123."
+DEBUG=True
+```
+
+3. Ejecuta el siguiente comando para construir las imágenes de Docker y ejecutar los contenedores:
+
+```bash
+docker-compose build
+```
+
+4. Ejecuta el siguiente comando para iniciar todos los contenedores de Docker-Compose:
+
+```bash
+docker-compose up -d
+```
+ > El comando `docker-compose up -d` ejecuta los contenedores en segundo plano, si desea ver los logs de los contenedores, ejecute el comando `docker-compose logs -f`.
+
+5. Accede a la documentación de la API:
+
+Abra el siguiente link: [DOCUMENTACIÓN](https://documenter.getpostman.com/view/10832015/2sA3Bj7DMh#b5624372-4c4a-45eb-bcad-9e0948f1efe0)
+
+6. Ingresar a los registros de los contenendores:
+
+```bash
+docker-compose logs -f
+```
+
+7. Detener los contenedores de Docker:
+
+```bash
+docker-compose down
+```
+ > Adicionalmente, si desea eliminar los volúmenes asociados a los contenedores, ejecute el comando `docker-compose down -v`.
+
+
+----
+## Estructura del proyecto
+
+Este proyecto se divide en varios módulos, definidos y configurados gracias a docker-compose.yml, a continuación se detallan los módulos y su funcionalidad:
+
+ > Definimos los servicios con el nombre declarado en el archivo docker-compose.yml.
+
+1. **fastapiback**: Contiene el código fuente de la API web, desarrollada con FastAPI. Este módulo se ejecuta en un contenedor de Docker y se comunica con la base de datos PostgreSQL y el servidor Redis.
+2. **postgres**: Contiene la base de datos PostgreSQL, que almacena la información de los usuarios y los archivos de video.
+3. **nginx**: Contiene el servidor Nginx, que se utiliza como proxy inverso para redirigir las solicitudes a la API web.
+4. **redis**: Contiene el servidor Redis, que se utiliza para almacenar las tareas asíncronas de Celery.
+5. **workertres**: Contiene el servicio de Celery, que se encarga de ejecutar las tareas asíncronas de conversión de archivos de video.
+
+ > Opcionalmente, puede ejecutar el servicio de pgadmin para visualizar y gestionar la base de datos de PostgreSQL
+
+
+La siguiente imagen describe la arquitectura del proyecto:
+
+<br>
+<br>
+<div align="center">
+  <img src="./assets/diagrama.png" alt="diagrama" width="80%"/>
+</div>
+<br>
+<br>
+
+
+
+----
+## Configuración local del Proyecto
 
 Crea un entorno virtual para el proyecto:
 
@@ -40,12 +119,20 @@ pip install -r requirements.txt
 ```
 
 Las dependencias necesarias para este proyecto son:
+- bcrypt
+- celery
+- colorlog
 - fastapi
+- gevent
+- pydantic
 - uvicorn
 - sqlalchemy
 - asyncpg
 - pyjwt
 - redis
+- python-dotenv
+- python-multipart
+
 
 Las versiones pueden variar dependiendo del sistema operativo y/o la versión de Python que estés utilizando, etc.
 
@@ -75,14 +162,18 @@ Para iniciar el servidor FastAPI, ejecuta el siguiente comando:
 uvicorn src.main:app --reload --workers 1 --host 0.0.0.0 --port 8080
 ```
 
-### Documentación de la API - Swagger
+Este servidor se basa en unicorn, un servidor ASGI de Python, y es ejecutado como ambiente productivo. No necesita configuracón adicional.
 
-Accede a la API en http://localhost:8080 en tu navegador o con herramientas como Postman o curl.
+### Documentación de la API - Swagger UI
+
+Accede a la API autogenerada de Swagger en http://localhost:8080/docs (o en el puerto que esté corriendo el proyecto) en el navegador  de su preferencia.
+
+Tenga en cuenta que esta es una documentación interactiva de la API, generada automáticamente por FastAPI. Puede probar los endpoints directamente desde la interfaz de usuario de Swagger UI. o se recomientda revisar la generada por el equipo en el siguiente link: [DOCUMENTACIÓN](https://documenter.getpostman.com/view/10832015/2sA3Bj7DMh#b5624372-4c4a-45eb-bcad-9e0948f1efe0)
 
 
 ### Ejecutar Docker
 
-Para ejecutar el proyecto con Docker, sigue los siguientes pasos:
+Para ejecutar solo el contenedor del backend de este proyecto en Docker, sigue los siguientes pasos:
 
 1. Construye la imagen de Docker:
 
@@ -98,14 +189,17 @@ docker run -e DB_URL=postgresql://fpv_user_dev:pfv_user_pwd@localhost:5080/fpv_d
  
  > Ejecutar solo este contenedor genera un error, ya que este proyecto necesita una base de datos PostgreSQL, además de un servidor de redis para la cola de tareas y el servicio del proceso batch, por lo que se recomienda ejecutar el archivo docker-compose.yml.
 
- > Si todo sale bien, y ejecuto el mismo comando anterior, deberia ver este error en la consola: `ERROR:    Application startup failed. Exiting.`, indicandole que no se ha poddo contectar con la base de datos, para esto necesitamos ejecutar el archivo docker-compose.yml. ya que nos permite tener una red de contenedores y servicios que se comunican entre si.
+ > Si todo sale bien, y ejecuto el mismo comando anterior, deberia ver este error en la consola: `ERROR: Application startup failed. Exiting.`, indicandole que no se ha poddo contectar con la base de datos, para esto necesitamos ejecutar el archivo docker-compose.yml. ya que nos permite tener una red de contenedores y servicios que se comunican entre si. Si ya tiene el contenedor de postgresql podrá hacer uso básico de la API, pero no podrá hacer uso de los servicios de Celery.
 
 
-### Docker Compose del Worker
+#### Docker-Compose
+
+### Ejecutar Servicios
 
 Para ejecutar el servicio de Celery, sigue los siguientes pasos:
 
 1. Ejecuta el siguiente comando para iniciar el servicio de redis:
+
 ```bash	
 docker-compose up -d redis
 ```
