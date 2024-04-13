@@ -16,7 +16,7 @@ Siga los siguientes pasos para instalar y configurar el proyecto rápidamente en
 
 <br>
 
-#### 1. **Clone el repositorio usando https:**
+### 1. **Clone el repositorio usando https:**
 
 ```bash
 git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git
@@ -24,7 +24,7 @@ cd .\Proyecto-SW-Nube\
 ```
 <br>
 
-#### 2. **Crea un archivo .env en el directorio raíz del proyecto y define las variables de entorno necesarias:**
+### 2. **Crea un archivo .env en el directorio raíz del proyecto y define las variables de entorno necesarias:**
 
 ```bash
 DB_URL="postgresql://fpv_user_dev:pfv_user_pwd@localhost:5080/fpv_db_dev"
@@ -33,7 +33,7 @@ DEBUG=True
 ```
 <br>
 
-#### 3. **Ejecuta el siguiente comando para construir las imágenes de Docker y ejecutar los contenedores:**
+### 3. **Ejecuta el siguiente comando para construir las imágenes de Docker y ejecutar los contenedores:**
 
 ```bash
 docker-compose build
@@ -41,7 +41,7 @@ docker-compose build
 
 <br>
 
-#### 4. **Ejecuta el siguiente comando para iniciar todos los contenedores de Docker-Compose:**
+### 4. **Ejecuta el siguiente comando para iniciar todos los contenedores de Docker-Compose:**
 
 ```bash
 docker-compose up -d
@@ -50,20 +50,20 @@ docker-compose up -d
 
 <br>
 
-#### 5. **Accede a la documentación de la API:**
+### 5. **Accede a la documentación de la API:**
 
 Abra el siguiente link: [DOCUMENTACIÓN](https://documenter.getpostman.com/view/10832015/2sA3Bj7DMh#b5624372-4c4a-45eb-bcad-9e0948f1efe0)
 
 <br>
 
-#### 6. **Ingresar a los registros de los contenendores:**
+### 6. **Ingresar a los registros de los contenendores:**
 
 ```bash
 docker-compose logs -f
 ```
 <br>
 
-#### 7. **Detener los contenedores de Docker:**
+### 7. **Detener los contenedores de Docker:**
 
 ```bash
 docker-compose down
