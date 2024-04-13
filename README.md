@@ -14,50 +14,62 @@ Siga los siguientes pasos para instalar y configurar el proyecto rápidamente en
 
  > Se asume que ud ya tiene instalado y corriendo docker en su máquina. además este tutorial se basa en u sistema operativo Windows, por lo que los comandos pueden variar dependiendo del sistema operativo que esté utilizando.
 
+<br>
 
-1. Clone el repositorio usando https:
+#### 1. **Clone el repositorio usando https:**
 
 ```bash
 git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git
 cd .\Proyecto-SW-Nube\
 ```
+<br>
 
-2. Crea un archivo .env en el directorio raíz del proyecto y define las variables de entorno necesarias:
+#### 2. **Crea un archivo .env en el directorio raíz del proyecto y define las variables de entorno necesarias:**
 
 ```bash
 DB_URL="postgresql://fpv_user_dev:pfv_user_pwd@localhost:5080/fpv_db_dev"
 SECRET_KEY="supreSecretKey123."
 DEBUG=True
 ```
+<br>
 
-3. Ejecuta el siguiente comando para construir las imágenes de Docker y ejecutar los contenedores:
+#### 3. **Ejecuta el siguiente comando para construir las imágenes de Docker y ejecutar los contenedores:**
 
 ```bash
 docker-compose build
 ```
 
-4. Ejecuta el siguiente comando para iniciar todos los contenedores de Docker-Compose:
+<br>
+
+#### 4. **Ejecuta el siguiente comando para iniciar todos los contenedores de Docker-Compose:**
 
 ```bash
 docker-compose up -d
 ```
  > El comando `docker-compose up -d` ejecuta los contenedores en segundo plano, si desea ver los logs de los contenedores, ejecute el comando `docker-compose logs -f`.
 
-5. Accede a la documentación de la API:
+<br>
+
+#### 5. **Accede a la documentación de la API:**
 
 Abra el siguiente link: [DOCUMENTACIÓN](https://documenter.getpostman.com/view/10832015/2sA3Bj7DMh#b5624372-4c4a-45eb-bcad-9e0948f1efe0)
 
-6. Ingresar a los registros de los contenendores:
+<br>
+
+#### 6. **Ingresar a los registros de los contenendores:**
 
 ```bash
 docker-compose logs -f
 ```
+<br>
 
-7. Detener los contenedores de Docker:
+#### 7. **Detener los contenedores de Docker:**
 
 ```bash
 docker-compose down
 ```
+
+
  > Adicionalmente, si desea eliminar los volúmenes asociados a los contenedores, ejecute el comando `docker-compose down -v`.
 
 
