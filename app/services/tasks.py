@@ -103,7 +103,7 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
                 video_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), video_url_relative)
                 #valida si el archivo existe
                 print("Ruta del archivo a eliminar 1")
-                print(video_url_local)
+                # print(video_url_local)
                 if os.path.exists(video_url_local):
                     os.remove(video_url_local)
 
@@ -111,7 +111,7 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
                 processed_url_relative  = task.video_processed_url.replace(public_folder, "").replace("\\", "/")
                 processed_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), processed_url_relative)
                 print("Ruta del archivo a eliminar 2")
-                print(processed_url_local)
+                # print(processed_url_local)
                 #valida si el archivo existe
                 if os.path.exists(processed_url_local):
                     os.remove(processed_url_local)
@@ -144,7 +144,7 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
             f.write(file.file.read())
         video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
         video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
-        print(video_url)
+        #print(video_url)
         new_task = Task(
             originalFileName=file.filename,
             fileName=new_file_name,

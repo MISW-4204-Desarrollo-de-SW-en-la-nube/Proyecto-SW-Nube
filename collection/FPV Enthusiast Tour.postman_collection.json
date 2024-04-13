@@ -1,0 +1,1642 @@
+{
+	"info": {
+		"_postman_id": "93a7c99c-b61a-4a91-948e-c19cf6c84301",
+		"name": "FPV Enthusiast Tour",
+		"description": "# 📄 Documentación\n\nEsta documentación consiste en la explicación del desarrollo de un applicativo llamado **FPV Enthusiast Tour,** desarrollado en este [repositorio](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube), el cual, permite a los usuarios subir, editar y gestionar vídeos de forma sencilla y asincrona. A continuación, se detallan los aspectos más relevantes del proyecto.\n\n### 👨🏻‍💻 Integrantes\n\n| Nombre | Correo |\n| --- | --- |\n| Paula Alejandra Bohorquez Alfonso | [p.bohorqueza@uniandes.edu.co](https://mailto:p.bohorqueza@uniandes.edu.co) |\n| Oscar Andrés García | [oa.garcia2@uniandes.edu.co](https://mailto:oa.garcia2@uniandes.edu.co) |\n| Felipe Valencia | [jf.valencia23@uniandes.edu.co](https://mailto:jf.valencia23@uniandes.edu.co) |\n| Nicolás Potier Anzola | [n.potier@uniandes.edu.co](https://mailto:n.potier@uniandes.edu.co) |\n\n## 📎 Resumen\n\nLa aplicación proporciona funcionalidades para crear cuentas de usuario, iniciar sesión, subir vídeos, realizar tareas de edición en segundo plano y gestionar los vídeos procesados. Utiliza un sistema de autenticación basado en tokens para garantizar la seguridad de las cuentas de usuario.\n\n### 🤖 Tecnologías Utilizadas\n\n- **FastAPI:** Framework de desarrollo web rápido para Python.\n- **Celery**: Sistema de ejecución de tareas distribuido en segundo plano.\n- **PostgreSQL**: Sistema de gestión de bases de datos relacional.\n- **Redis**: Almacenamiento en memoria para el backend de Celery.\n- **Nginx**: Servidor web para servir la aplicación y archivos estáticos.\n- **Docker y Docker Compose**: Herramientas para contenerizar y orquestar la aplicación.\n    \n\n#### ⚙️ Distribución de la Aplicación\n\nLa aplicación está dividida en varios servicios Docker que se comunican entre sí a través de una red interna. Los servicios principales son:\n\n- **FastAPI**: Proporciona la interfaz RESTful para la aplicación web.\n- **PostgreSQL**: Base de datos relacional para almacenar datos de la aplicación.\n- **Redis**: Almacena la cola de tareas de Celery y otros datos en memoria.\n- **Celery Worker**: Procesa tareas en segundo plano, como la edición de vídeos.\n- **Nginx**: Actúa como servidor web para servir la aplicación y archivos estáticos.\n    \n\n### 💻 **APIs Desarrolladas:**\n\n- La siguiente tabla contiene las distintas apis implementadas y un link a su descripción dentro de este mismo documento\n    \n\n| Nombre | URL | Verbo | Ruta Protegida |\n| --- | --- | --- | --- |\n| [Crear Una cuenta](#crear-cuenta) | `/api/auth/signup` | POST | ❌ |\n| [Iniciar sesión](#Iniciar-sesion) | `/api/auth/login` | POST | ❌ |\n| [Listar tareas](#listar-tareas) | `/api/tasks` | GET | ✅ |\n| [Subir vídeo](#subir-video) | `/api/tasks` | POST | ✅ |\n| [Obtener información Tarea](#Obtener-informacion) | `/api/tasks/` | GET | ✅ |\n| [Borrar tarea](#Borrar-video) | `/api/tasks/` | DELETE | ✅ |\n\n---\n\n## **Antes de Iniciar**\n\nAsegurese de que tiene el proyecto se esta ejecutando y la url corresponde a la desplegada en el contenedor del servicio `fpv-nginx` como se puede ver en la siguiente imagen:\n\n<img src=\"https://content.pstmn.io/bbc3b019-690b-4678-8385-49450e3191dd/aW1hZ2UucG5n\" alt=\"\" height=\"362\" width=\"1625\">\n\nEn este caso esta corriendo por el puerto 8080, ese es el punto de entrada para poder consumir las apis desarrolladas\n\n## Autenticación\n\nPara consumir las apis protegidas, es necesario estar autenticado en la aplicación, para esto consuma priimero el api de `\"Iniciar Sesión\"`. Esta suministra el `JWT ,` esta api esta automatizada para guardar el token en una variable de entorno, por lo que asegurese de que tiene seleccionada el ambiente correspondiente a este proyecto `FPV-DEV`\n\n### Respuesta de Error en Autenticación\n\nSi no provee de un token de autenticación (JWT) al consumir las APIS que están protegidas, o este último se encuentra vencido, el backend responderá con un error `401` con el siguiente resultado:\n\n``` json\n{\n    \"detail\": \"Not authenticated\"\n}\n\n ```\n\n### **¿Tiene alguna pregunta?**\n\nSi tiene alguna duda sobre este proyecto, puede ponerse en contacto por medio de correo a cualquiera de los integrantes de este proyecto.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10832015"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Crear Cuenta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"JoseLuis\",\r\n  \"password1\": \"Contraseña1\",\r\n  \"password2\": \"Contraseña1\",\r\n  \"email\": \"jose-luis@yopmal.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/signup",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						},
+						"description": "Esta api permite crear una cuenta con los campos de nombre de usuario, correo electrónico y contraseña. El nombre y el correo electrónico deben ser únicos en la plataforma, mientras que la contraseña debe seguir unos lineamientos mínimos de seguridad. Adicionalmente, la clave debe ser solicitada dos veces para que el usuario confirme que la ingresa de forma correcta.\n\n**Recuerde:**\n\n- El correo del usuario a registrar debe ser único\n- El nombre del usuario debe ser único\n    \n\n**Lineamientos de seguridad**\n\n- Contraseña mínima de 8 caracteres\n- Mínimo 1 letra mayúscula\n- Mínimo 1 letra minúscula\n- Mínimo un número"
+					},
+					"response": [
+						{
+							"name": "User Already Exist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Nicolas4\",\r\n  \"password1\": \"Contraseña1\",\r\n  \"password2\": \"Contraseña1\",\r\n  \"email\": \"nicolas4@yopmal.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/signup",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:01:04 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "43"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"El nombre de usuario ya existe\"\n}"
+						},
+						{
+							"name": "Successfull Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Nicolas5\",\r\n  \"password1\": \"Contraseña1\",\r\n  \"password2\": \"Contraseña1\",\r\n  \"email\": \"nicolas5@yopmal.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/signup",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:01:18 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "65"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"La cuenta ha sido creada exitosamente\",\n    \"result\": true\n}"
+						},
+						{
+							"name": "Bad Credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Nicolas5\",\r\n  \"password1\": \"Contraeña1\",\r\n  \"password2\": \"Contraseña1\",\r\n  \"email\": \"nicolas5@yopmal.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/auth/signup",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:01:36 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "42"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"Las contraseñas no coinciden\"\n}"
+						},
+						{
+							"name": "Email Already Exist",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Nicolas6\",\r\n  \"password1\": \"Contraseña1\",\r\n  \"password2\": \"Contraseña1\",\r\n  \"email\": \"nicolas5@yopmal.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/auth/signup",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:01:58 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "55"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"El correo electrónico ya está registrado\"\n}"
+						},
+						{
+							"name": "Bad Body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Nicolas6\",\r\n  \"password\": \"Contraseña1\",\r\n  \"password2\": \"Contraseña1\",\r\n  \"email\": \"nicolas5@yopmal.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/auth/signup",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:02:26 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "246"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": [\n        {\n            \"type\": \"missing\",\n            \"loc\": [\n                \"body\",\n                \"password1\"\n            ],\n            \"msg\": \"Field required\",\n            \"input\": {\n                \"username\": \"Nicolas6\",\n                \"password\": \"Contraseña1\",\n                \"password2\": \"Contraseña1\",\n                \"email\": \"nicolas5@yopmal.com\"\n            },\n            \"url\": \"https://errors.pydantic.dev/2.6/v/missing\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Iniciar Sesión",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check if status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check if response has format JSON\", function() {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check if json has an access key\", function() {\r",
+									"    pm.response.to.have.jsonBody(\"jwt\");\r",
+									"    var json = JSON.parse(responseBody);\r",
+									"    pm.environment.set(\"jwt\", `${json.jwt}`);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"jose-luis@yopmal.com\",\r\n  \"password\": \"Contraseña1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Esta api permite recuperar el token de autorización para consumir los recursos del API suministrando el nombre de usuario y la contraseña de una cuenta previamente registrada.\n\n**Recuerde:**\n\n- Los campos de email y password son obligatorios"
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"nicolas3@yopmal.com\",\r\n  \"password\": \"Contraseña1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 16:59:03 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "233"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"ha ingresado correctamente\",\n    \"jwt\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjEsInVzZXJuYW1lIjoiTmljb2xhczMifSwiZXhwIjoxNzEyMzQ3MTQzfQ.TToQEmj0TC2glH15NpWIlSKvEtnkeTBM1aHxkrsDEOE\",\n    \"user\": \"nicolas3@yopmal.com\"\n}"
+						},
+						{
+							"name": "Bad Credentials",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"nicolas@yopmal.com\",\r\n  \"password\": \"Contraseña1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:00:15 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "37"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"Credenciales incorrectas\"\n}"
+						},
+						{
+							"name": "Bad Body",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email2\": \"pepito@yopmal.com\",\r\n  \"password\": \"Contraseña1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "date",
+									"value": "Fri, 05 Apr 2024 17:00:44 GMT"
+								},
+								{
+									"key": "server",
+									"value": "uvicorn"
+								},
+								{
+									"key": "content-length",
+									"value": "192"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": [\n        {\n            \"type\": \"missing\",\n            \"loc\": [\n                \"body\",\n                \"email\"\n            ],\n            \"msg\": \"Field required\",\n            \"input\": {\n                \"email2\": \"pepito@yopmal.com\",\n                \"password\": \"Contraseña1\"\n            },\n            \"url\": \"https://errors.pydantic.dev/2.6/v/missing\"\n        }\n    ]\n}"
+						}
+					]
+				}
+			],
+			"description": "El manejo de los datos para la Autenticación y Registro de los usuarios en la plataforma se hace con el endpoint de prefijo `/api/auth`\n\nEsta carpeta contiene con dos apis\n\n- `/api/auth/signup` -> Creación de usuarios\n- `/api/auth/login` -> Autenticación de Usuarios",
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "Listar tareas del usuario",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/tasks/?max=2&order=0",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								""
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "2"
+								},
+								{
+									"key": "order",
+									"value": "0"
+								}
+							]
+						},
+						"description": "Esta api permite recuperar todas las tareas de edición de un usuario autorizado en la aplicación, en esta puede enviar opcionalmente cualquiera de los **Query Params** de `max` y `order`, estos ayudan a obtener un máximo o límite de resultados y ordenarlos de manera alfabética (1 = descendente, 0 = ascendente), ascendente o descendente.\n\nSi los **Query Params** no son enviados, el api obtendrá todos los resultados y los organizara de forma ascendente.\n\n**Recuerde:**\n\n- max -> cantidad de registros devueltos\n- order -> orden de los datos por su id de registros, 1 descendente, sino, es descendente"
+					},
+					"response": [
+						{
+							"name": "Usuario sin tareas",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/?max=10&order=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										""
+									],
+									"query": [
+										{
+											"key": "max",
+											"value": "10"
+										},
+										{
+											"key": "order",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:27:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "13"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"result\": []\n}"
+						},
+						{
+							"name": "Usuario con tareas",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/?max=10&order=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										""
+									],
+									"query": [
+										{
+											"key": "max",
+											"value": "10"
+										},
+										{
+											"key": "order",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:28:14 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"result\": [\n        {\n            \"id\": 6,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"uploaded\"\n        },\n        {\n            \"id\": 5,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"uploaded\"\n        },\n        {\n            \"id\": 4,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Usuario con max 2 tareas",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/?max=2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										""
+									],
+									"query": [
+										{
+											"key": "max",
+											"value": "2"
+										},
+										{
+											"key": "order",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 22:30:37 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"result\": [\n        {\n            \"id\": 9,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        },\n        {\n            \"id\": 10,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Listar todas las tareas",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/tasks/all?max=5&order=1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"all"
+							],
+							"query": [
+								{
+									"key": "max",
+									"value": "5"
+								},
+								{
+									"key": "order",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Esta api permite recuperar todas las tareas de edición que se encuentran registradas en la base de datos, pero solo puede ser consultadas por un usuario autorizado en la aplicación, así como en la anterior, en esta puede enviar opcionalmente cualquiera de los **Query Params** de `max` y `order`, estos ayudan a obtener un máximo o límite de resultados y ordenarlos de manera alfabética (1 = descendente, 0 = ascendente), ascendente o descendente.\n\nSi los **Query Params** no son enviados, el api obtendrá todos los resultados y los organizara de forma ascendente.\n\n**Recuerde:**\n\n- max -> cantidad de registros devueltos\n    \n- order -> orden de los datos por su id de registros, 1 descendente, sino, es descendente"
+					},
+					"response": [
+						{
+							"name": "Con tareas registradas",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/all?max=10&order=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										"all"
+									],
+									"query": [
+										{
+											"key": "max",
+											"value": "10"
+										},
+										{
+											"key": "order",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 19:45:43 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"result\": [\n        {\n            \"id\": 3,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        },\n        {\n            \"id\": 2,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        },\n        {\n            \"id\": 1,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Sin tareas registradas",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/tasks/all?max=10&order=1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"all"
+									],
+									"query": [
+										{
+											"key": "max",
+											"value": "10"
+										},
+										{
+											"key": "order",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 19:47:50 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "13"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"result\": []\n}"
+						},
+						{
+							"name": "Listar 5 tareas descendentes",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/all?max=5&order=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										"all"
+									],
+									"query": [
+										{
+											"key": "max",
+											"value": "5"
+										},
+										{
+											"key": "order",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 22:28:13 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"result\": [\n        {\n            \"id\": 8,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        },\n        {\n            \"id\": 7,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        },\n        {\n            \"id\": 6,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        },\n        {\n            \"id\": 5,\n            \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n            \"status\": \"processed\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Cargar Video",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"warning": "This is a duplicate header and will be overridden by the Content-Type header generated by Postman.",
+								"key": "Content-Type",
+								"value": "multipart/form-data",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/nicol/Downloads/Epic FPV Drone Flying UK!.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								""
+							]
+						},
+						"description": "Esta api ermite crear una nueva tarea al subir un archivo de video con formato **mp4**. El usuario requiere estar autenticado en la aplicación.\n\n**Recuerde:**\n\n- El archivo deberá ser formato mp4\n- Se recomienda que no supere los 500 Mb\n- Tenga una duración de mínimo 20 segundos\n- El usuario que sube el archivo debe estar autenticado\n    \n- Suministrar la ruta en la que se encuentra el video, si lo está haciendo desde **CURL**\n    \n\nSi desea probar esta api desde su equipo, puede utilizar este recurso de [video](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/video), al descargarlo y anexarlo en la petición"
+					},
+					"response": [
+						{
+							"name": "Video Cargado",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"warning": "This is a duplicate header and will be overridden by the Content-Type header generated by Postman.",
+										"key": "Content-Type",
+										"value": "multipart/form-data",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/nicol/Downloads/Epic FPV Drone Flying UK!.mp4"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:35:56 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Tarea en proceso\",\n    \"result\": true\n}"
+						},
+						{
+							"name": "Video No Cargado",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"warning": "This is a duplicate header and will be overridden by the Content-Type header generated by Postman.",
+										"key": "Content-Type",
+										"value": "multipart/form-data",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/nicol/Downloads/mucura (1).json"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										""
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:36:39 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "38"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"No se pudo crear la tarea\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Obtener información de una tarea",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/tasks/5",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"5"
+							]
+						},
+						"description": "Permite recuperar la información de una tarea en la aplicación. El usuario requiere autorización.\n\nEl usuario podrá obtener la url o enlace del video, si este se encuentra en un estado de **processed.**\n\nSi elvideo no se ha procesado, no devolvera la url para poder visualizar el video.\n\n**Recuerde:**\n\n- El usuario debe estar autenticado\n- Conocer el id del registro de la tarea¿ con el que se creo al subir el video\n- Estar seguro de que el id de registro de tarea está asociado al usuario autenticado\n- El registro del video no se ha eliminado"
+					},
+					"response": [
+						{
+							"name": "Tarea no existe",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										"2"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:34:24 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"Tarea no encontrada\"\n}"
+						},
+						{
+							"name": "información de tarea",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										"5"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:35:01 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 5,\n    \"timeStamp\": \"2024-04-13 20:28:10\",\n    \"fileName\": \"Epic FPV Drone Flying UK!.mp4\",\n    \"video_processed_url\": \"http://localhost:8080/public/processed/ef76b223-9f27-4457-bfd8-9b1d447edbbe_Epic_FPV_Drone_Flying_UK!.mp4\",\n    \"status\": \"processed\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Eliminar una Tarea",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/api/tasks/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"4"
+							]
+						},
+						"description": "Permite eliminar una tarea en la aplicación. El usuario requiere autorización. El video procesado y subido ambién sera eliminado de la aplicación y no podrá ser recuperados. El api no devuelve ningun valor.\n\n**Recuerde:**\n\n- El usuario debe estar autenticado\n- Conocer el id del registro de la tarea con el que se creo al subir el video\n    \n- Estar seguro de que el id de registro de tarea está asociado al usuario autenticado\n- El registro del video no se ha eliminado previamente"
+					},
+					"response": [
+						{
+							"name": "Tarea no encontrada",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJOaWNvbGFzMiIsImVtYWlsIjoibmljb2xhczJAeW9wbWFsLmNvbSIsImV4cCI6MTcxMjMwODE5OX0.ZiLFLkI-ChRl...",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										"1"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:32:52 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Encoding",
+									"value": "gzip"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"detail\": \"Tarea no encontrada\"\n}"
+						},
+						{
+							"name": "Tarea Eliminada",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJOaWNvbGFzMiIsImVtYWlsIjoibmljb2xhczJAeW9wbWFsLmNvbSIsImV4cCI6MTcxMjMwODE5OX0.ZiLFLkI-ChRl...",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/tasks/4",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"tasks",
+										"4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.25.4"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 13 Apr 2024 20:33:04 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "4"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "null"
+						}
+					]
+				}
+			],
+			"description": "El manejo de los datos para la Carga, Eliminación y Obtención de los videos en la plataforma se hace con el endpoint de prefijo `/api/task`\n\nEsta carpeta contiene cinco apis\n\n- `GET /api/task` -> Listar Tareas del usuario\n- `GET /api/task/all` -> Listar todas las tareas\n- `POST /api/task/` -> Cargar video\n- `GET /api/task/{{id}}` -> Obtener información de una tarea\n    \n- `DELETE /api/task/{{id}}` -> Eliminar un video",
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "inherit"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "jwt",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJOaWNvbGFzMiIsImVtYWlsIjoibmljb2xhczJAeW9wbWFsLmNvbSIsImV4cCI6MTcxMjMwODE5OX0.ZiLFLkI-ChRlG-wmqdn4ZgrJ59q80Fu6X00FqmKAShg",
+			"type": "string"
+		}
+	]
+}
