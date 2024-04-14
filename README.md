@@ -73,6 +73,8 @@ docker-compose down
  > Adicionalmente, si desea eliminar los volúmenes asociados a los contenedores, ejecute el comando `docker-compose down -v`.
 
 
+ > También puede ver el siguiente video para ver como instalar el proyecto: [![](https://i9.ytimg.com/vi/6ZJAS_i0okg/mqdefault.jpg?sqp=CKS68LAG-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEEgXyhlMA8=&rs=AOn4CLCDxFBrDknyzdFog7NQhrugwV5cOw)](https://youtu.be/6ZJAS_i0okg)
+
 ----
 ## Estructura del proyecto
 
