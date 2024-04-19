@@ -13,11 +13,12 @@ services:
       - DEBUG=False
     ports:
       - "3500:8080"
+      - "4444:4444"
     depends_on:
       - postgres
       - redis
     volumes:
-      - .:/app
+      - ./public:/app/public
     networks:
       - fpv-network
 
@@ -92,7 +93,7 @@ services:
     depends_on:
       - redis
     volumes:
-      - .:/app
+      - ./public:/app/public
     networks:
       - fpv-network
 

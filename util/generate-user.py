@@ -4,13 +4,15 @@ import os
 
 fake = Faker()
 
+usersQuantity = 950
+
 # Generar inserción de datos para 50 usuarios
 insert_query = "INSERT INTO public.users (username, email, hashed_password) VALUES\n"
 email_set = set()
 username_set = set()
 
 #SE GENERAN 200 USUARIOS
-for _ in range(200):
+for _ in range(usersQuantity):
     username = fake.unique.first_name()
     while username in username_set:
         username = fake.unique.first_name()

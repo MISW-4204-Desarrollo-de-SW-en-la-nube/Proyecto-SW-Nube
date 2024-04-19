@@ -335,3 +335,14 @@ ffmpeg -i imagen_video.mp4 -i output_video.mp4 -i imagen_video.mp4  -filter_comp
 
 > En este comando se concatenan varios videos, el parametro `-i imagen_video.mp4 -i output_video.mp4 -i imagen_video.mp4` indica los videos que se van a concatenar, el parametro `-filter_complex "[0:v][1:v][2:v]concat=n=3:v=1:a=0[outv]"` indica la concatenación de los videos, y el parametro `-map "[outv]" output.mp4` indica el nombre del video que se va a generar.
 Repositorio para proyecto de Desarrollo de software en la nube
+
+
+## IP de contenedores
+
+Se debe de listar todos los contenedores que estan corriendo para poder obtener la IP de los contenedores, y con el id se puede filtrar la información para obtener la IP de un contenedor en especifico.
+
+
+```bash
+docker ps
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <id_contenedor>   
+```
