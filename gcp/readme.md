@@ -7,8 +7,8 @@ En esta carpeta se encuentran dos scripts para desplegar la aplicación en Googl
 Descargue sobre el cli de GCP los scripts de despliegue `create.sh` y `delete.sh`, hagalo usando CURL
 
 ```bash
-sudo curl --no-cache -L -o create.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/create.sh
-sudo curl --no-cache -L -o delete.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/delete.sh
+sudo curl -L -o create.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/create.sh
+sudo curl -L -o delete.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/delete.sh
 ```
 
 ### Despliegue
