@@ -54,8 +54,7 @@ gcloud compute instances create $NFS_INSTANCE_NAME \
     --zone $ZONE \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script='#! /bin/bash
-    sudo apt update && sudo apt install -y nfs-kernel-server
-    sudo mkdir -p /nube/public
+        sudo apt update && sudo apt install -y nfs-kernel-server
     '
     # sudo mkdir -p /nube/public
     # sudo chown nobody:nogroup /nube/public
