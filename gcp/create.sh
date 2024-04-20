@@ -52,16 +52,16 @@ gcloud compute instances create $NFS_INSTANCE_NAME \
     --machine-type $MACHINE_TYPE \
     --image $IMAGE \
     --zone $ZONE \
-    --provisioning-model $INSTANCE_TYPE
-    # --metadata=startup-script='#! /bin/bash
-    # sudo apt update && sudo apt install -y nfs-kernel-server
-    # sudo mkdir -p /nube/public
-    # sudo chown nobody:nogroup /nube/public
-    # sudo chmod 777 /nube/public
-    # echo "/nube/public *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
-    # sudo exportfs -a
-    # sudo systemctl restart nfs-kernel-server
-    # '
+    --provisioning-model $INSTANCE_TYPE \
+    --metadata=startup-script='#! /bin/bash
+    sudo apt update && sudo apt install -y nfs-kernel-server
+    sudo mkdir -p /nube/public
+    sudo chown nobody:nogroup /nube/public
+    sudo chmod 777 /nube/public
+    echo "/nube/public *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
+    sudo exportfs -a
+    sudo systemctl restart nfs-kernel-server
+    '
 
 # AÑADIR TAGS A LA INSTANCIA NFS
 gcloud compute instances add-tags $NFS_INSTANCE_NAME \
@@ -116,7 +116,7 @@ gcloud compute instances create $INSTANCE_NAME \
     --service-account $DB_VM_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script='#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
+    sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip nfs-common
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
@@ -125,6 +125,7 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     sudo sh ./server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444
+    sudo mount -t nfs $(gcloud compute instances list --filter=name:$NFS_INSTANCE_NAME --format='value(INTERNAL_IP)'):/nube/public /nube/public
     '
 
 # AÑADIR TAGS A LA INSTANCIA
@@ -171,12 +172,13 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     --service-account $DB_VM_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script='#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io git python3
+    sudo apt update && sudo apt install -y docker.io git python3 nfs-common
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git  nube
     cd nube
     sudo docker-compose build redis workertres
+    sudo mount -t nfs $(gcloud compute instances list --filter=name:$NFS_INSTANCE_NAME --format='value(INTERNAL_IP)'):/nube/public /nube/public
     '
 
 # AÑADIR TAGS A LA INSTANCIA
