@@ -10,7 +10,7 @@ export PROJECT_ID="misw-4204-cloud"
 export INSTANCE_NAME="mv1-backend"
 export INSTANCE_NAME_BATCH="mv3-batch"
 export MACHINE_TYPE="e2-small"
-export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20231212" 
+export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240110" 
 export REGION="us-west1"
 export ZONE="us-west1-b"
 export MACHINE_TAG="http-server,https-server"
@@ -63,16 +63,6 @@ gcloud compute instances create $NFS_INSTANCE_NAME \
     --zone $ZONE \
     --provisioning-model $INSTANCE_TYPE \
     --metadata-from-file=startup-script=nfs_config.sh
-    # --metadata=startup-script='#! /bin/bash
-    #     sudo apt update && sudo apt install -y nfs-kernel-server
-    #     sudo mkdir -p /nube/public
-    #     sudo chown nobody:nogroup /nube/public
-    #     sudo chmod 777 /nube/public
-    #     echo "/nube/public *(rw,sync,no_subtree_check)" > /tmp/nfs_exports
-    # '
-    #
-    # sudo exportfs -a
-    # sudo systemctl restart nfs-kernel-server
 
 # AÑADIR TAGS A LA INSTANCIA NFS
 gcloud compute instances add-tags $NFS_INSTANCE_NAME \
