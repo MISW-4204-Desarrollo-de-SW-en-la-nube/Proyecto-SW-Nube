@@ -2,19 +2,29 @@
 
 En esta carpeta se encuentran dos scripts para desplegar la aplicación en Google Cloud Platform (GCP) y otro para eliminar los recursos creados.
 
+### Implementación
+
+Descargue sobre el cli de GCP los scripts de despliegue `create.sh` y `delete.sh`, hagalo usando CURL
+
+```bash
+sudo curl -L -o create.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/create.sh
+sudo curl -L -o delete.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/delete.sh
+```
+
+
 ### Despliegue
 
 Para desplegar la aplicación en GCP, se debe ejecutar el script `create.sh`. Este script se encarga de crear varias instancia VM, y base de datos PostgreSQL en Cloud SQL.
 
 ```bash
-./create.sh <PASSWORD_DB>
+sh create.sh <PASSWORD_DB>
 ```
  > **Nota:** El script `create.sh` requiere de un argumento que es la contraseña de la base de datos y del usuario root de la base de datos.
 
 Para eliminar la infraestructura creada, ejecutar el script `delete.sh`. No requiere argumentos.
 
 ```bash
-./delete.sh
+sh delete.sh
 ```
 
 ## Posterior a la creación de la infraestructura
