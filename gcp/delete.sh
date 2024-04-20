@@ -17,7 +17,15 @@ export FIREWALL_RULE_VM2_5="allow-celery-port"
 export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_DISPLAY_NAME="DB VM Service Account"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
+# TAGS DEL SERVIDOR NFS
+export NFS_INSTANCE_NAME="mv4-nfs"
+export MACHINE_TAG_NFS="nfs-server"
 
+# Eliminar instancia de NFS SERVER
+gcloud compute instances delete $NFS_INSTANCE_NAME \
+    --project $PROJECT_ID \
+    --zone $ZONE \
+    --quiet
 
 # Eliminar instancia de VM - BACKEND
 gcloud compute instances delete $INSTANCE_NAME \

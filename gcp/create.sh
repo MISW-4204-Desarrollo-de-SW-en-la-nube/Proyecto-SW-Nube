@@ -32,9 +32,8 @@ export DB_NAME="db-test"
 export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # TAGS DEL SERVIDOR NFS
-export NFS_INSTANCE_NAME="mv2-nfs"
-export NFS_IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20230814"
-export NFS_MACHINE_TAG="nfs-server"
+export NFS_INSTANCE_NAME="mv4-nfs"
+export MACHINE_TAG_NFS="nfs-server"
 
 # CONFIGURAR PROYECTO Y ZONA
 gcloud auth list
@@ -44,6 +43,32 @@ gcloud config set project $PROJECT_ID
 gcloud config set compute/region $REGION
 gcloud config set compute/zone $ZONE
 echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
+
+## ==================== SERVIDOR NFS ====================
+
+# # CREAR INSTANCIA NFS SERVER
+gcloud compute instances create $NFS_INSTANCE_NAME \
+    --project $PROJECT_ID \
+    --machine-type $MACHINE_TYPE \
+    --image $IMAGE \
+    --zone $ZONE \
+    --provisioning-model $INSTANCE_TYPE \
+    --metadata=startup-script='#! /bin/bash
+    sudo apt update && sudo apt install -y nfs-kernel-server
+    sudo mkdir -p /nube/public
+    sudo chown nobody:nogroup /nube/public
+    sudo chmod 777 /nube/public
+    echo "/nube/public *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
+    sudo exportfs -a
+    sudo systemctl restart nfs-kernel-server
+    '
+
+# AÑADIR TAGS A LA INSTANCIA NFS
+gcloud compute instances add-tags $NFS_INSTANCE_NAME \
+    --tags $MACHINE_TAG_NFS
+
+## ==================== BASE DE DATOS ====================
+
 
 ## CREAR INSTANCIA DE BASE DE DATOS
 gcloud sql instances create $DB_INSTANCE_NAME \
@@ -185,23 +210,3 @@ gcloud sql instances patch $DB_INSTANCE_NAME \
 # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
 # sudo apt-get install postgresql-client -y
 # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
-
-
-
-# # CREAR INSTANCIA NFS SERVER
-# gcloud compute instances create $NFS_INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --machine-type $MACHINE_TYPE \
-#     --image $IMAGE \
-#     --zone $ZONE \
-#     --provisioning-model $INSTANCE_TYPE \
-#     --metadata=startup-script='#! /bin/bash
-#     sudo apt update && sudo apt install -y nfs-kernel-server
-#     sudo mkdir -p /mnt/nfs_share
-#     sudo chown nobody:nogroup /mnt/nfs_share
-#     sudo chmod 777 /mnt/nfs_share
-#     echo "/mnt/nfs_share *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
-#     sudo exportfs -a
-#     sudo systemctl restart nfs-kernel-server
-#     '
- 

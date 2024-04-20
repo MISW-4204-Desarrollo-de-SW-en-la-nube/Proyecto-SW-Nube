@@ -11,7 +11,6 @@ sudo curl -L -o create.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo
 sudo curl -L -o delete.sh https://raw.githubusercontent.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/main/gcp/delete.sh
 ```
 
-
 ### Despliegue
 
 Para desplegar la aplicación en GCP, se debe ejecutar el script `create.sh`. Este script se encarga de crear varias instancia VM, y base de datos PostgreSQL en Cloud SQL.
