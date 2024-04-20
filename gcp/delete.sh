@@ -42,36 +42,29 @@ gcloud compute instances delete $INSTANCE_NAME_BATCH \
 # Eliminar regla de firewall
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_1 \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_4 \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_5 \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --quiet
 
 # Eliminar base de datos
 gcloud sql databases delete $DB_NAME \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --instance=$DB_INSTANCE_NAME \
     --quiet
 
 # Eliminar instancia de base de datos
 gcloud sql instances delete $DB_INSTANCE_NAME \
     --project $PROJECT_ID \
-    --zone $ZONE \
     --quiet
 
 # Eliminar ROLES ASOCIADOS A LA CUENTA DE SERVICIO
@@ -84,6 +77,4 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID \
 
 
 # Eliminar CUENTA DE SERVICIO QUE PERMITE CONECTAR A LA BASE DE DATOS
-gcloud iam service-accounts delete $DB_VM_EMAIL \
-    --project $PROJECT_ID \
-    --quiet
+gcloud iam service-accounts delete $DB_VM_EMAIL --quiet
