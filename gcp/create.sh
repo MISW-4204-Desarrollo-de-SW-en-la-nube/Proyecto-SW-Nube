@@ -46,15 +46,15 @@ echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
 
 ## ==================== SERVIDOR NFS ====================
 
-echo "#! /bin/bash
+echo '#! /bin/bash
 sudo apt update && sudo apt install -y nfs-kernel-server
 sudo mkdir -p /nube/public
 sudo chown nobody:nogroup /nube/public
 sudo chmod 777 /nube/public
-echo /nube/public *(rw,sync,no_subtree_check) | sudo tee -a /etc/exports
+echo "/nube/public *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
 sudo exportfs -a
 sudo systemctl restart nfs-kernel-server
-" > nfs_config.sh
+' > nfs_config.sh
 
 # # CREAR INSTANCIA NFS SERVER
 gcloud compute instances create $NFS_INSTANCE_NAME \
