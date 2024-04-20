@@ -25,22 +25,6 @@ services:
     networks:
       - fpv-network
 
-  # se usa cloud
-  # postgres:
-  #   image: postgres:13.2
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_HOST=localhost
-  #     - POSTGRES_DB=fpv_db_dev
-  #     - POSTGRES_USER=fpv_user_dev
-  #     - POSTGRES_PASSWORD=pfv_user_pwd
-  #   ports:
-  #     - "5080:5432"
-  #   networks:
-  #     - fpv-network
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-
   nginx:
     image: nginx:latest
     container_name: fpv-nginx
