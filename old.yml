@@ -7,39 +7,36 @@ services:
     restart: always
     command: uvicorn app.main:app --host 0.0.0.0 --port 8080
     environment:
-      - DB_URL=postgresql://postgres:password@postgres:5432/db-test
+      - DB_URL=postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev
       - SECRET_KEY="supreSecretKey123."
-      # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA
       - BASE_URL=http://localhost:8080
       # DEJAR EN FALSE PARA PRODUCCION
       - DEBUG=False
-      # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA REDIS
-      - REDIS_URL=redis://redis:6379
     ports:
       - "3500:8080"
       - "4444:4444"
-      - "5432:5432"
-      - "6379:6379"
+    depends_on:
+      - postgres
+      - redis
     volumes:
       - ./public:/app/public
     networks:
       - fpv-network
 
-  # se usa cloud
-  # postgres:
-  #   image: postgres:13.2
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_HOST=localhost
-  #     - POSTGRES_DB=fpv_db_dev
-  #     - POSTGRES_USER=fpv_user_dev
-  #     - POSTGRES_PASSWORD=pfv_user_pwd
-  #   ports:
-  #     - "5080:5432"
-  #   networks:
-  #     - fpv-network
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
+  postgres:
+    image: postgres:13.2
+    restart: always
+    environment:
+      - POSTGRES_HOST=localhost
+      - POSTGRES_DB=fpv_db_dev
+      - POSTGRES_USER=fpv_user_dev
+      - POSTGRES_PASSWORD=pfv_user_pwd
+    ports:
+      - '5080:5432'
+    networks:
+      - fpv-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   nginx:
     image: nginx:latest
@@ -54,11 +51,28 @@ services:
     networks:
       - fpv-network
 
+  # Desomentar para usar pgadmin en su navegador
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: fpv-pgadmin4
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+  #     - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+  #   ports:
+  #     - '5050:80'
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - fpv-network
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+
   redis:
     image: redis:latest
     restart: always
     ports:
-      - "6379:6379"
+      - '6379:6379'
+    # command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     networks:
       - fpv-network
     volumes:
@@ -70,14 +84,11 @@ services:
       dockerfile: dockerfile-worker
     restart: always
     ports:
-      - "5556:5555"
-      - "5432:5432"
+      - 5556:5555
     environment:
-      - DB_URL=postgresql://postgres:password@postgres:5432/db-test
-      #- CELERY_BROKER_URL=redis://redis:6379/0
-      #- CELERY_RESULT_BACKEND=redis://redis:6379/0
-      # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA REDIS
-      - REDIS_URL=redis://redis:6379
+      - DB_URL=postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
       #  DIRECTORIO DE ARCHIVOS ESTATICOS
       - PUBLIC_DIR=http://localhost:8080
     depends_on:
@@ -93,4 +104,5 @@ networks:
 
 volumes:
   postgres_data:
+  # pgadmin_data:
   redis_data:
