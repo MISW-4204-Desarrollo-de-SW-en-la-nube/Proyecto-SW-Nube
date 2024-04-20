@@ -53,8 +53,7 @@ sudo chown nobody:nogroup /nube/public
 sudo chmod 777 /nube/public
 echo "/nube/public *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
 sudo exportfs -a
-sudo systemctl restart nfs-kernel-server
-' > nfs_config.sh
+sudo systemctl restart nfs-kernel-server' > nfs_config.sh
 
 # # CREAR INSTANCIA NFS SERVER
 gcloud compute instances create $NFS_INSTANCE_NAME \
