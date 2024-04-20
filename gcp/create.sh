@@ -128,6 +128,7 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo chmod +x /usr/local/bin/docker-compose
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     cd nube
+    sudo chmod -R 777 /nube
     sudo docker-compose build fastapiback nginx
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
@@ -184,6 +185,7 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     sudo chmod +x /usr/local/bin/docker-compose
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git  nube
     cd nube
+    sudo chmod -R 777 /nube
     sudo docker-compose build redis workertres
     sudo mount -t nfs $NFS_INSTANCE_INT_IP:/nube/public /nube/public
     "
