@@ -58,8 +58,6 @@ services:
       - "5432:5432"
     environment:
       - DB_URL=postgresql://postgres:password@postgres:5432/db-test
-      #- CELERY_BROKER_URL=redis://redis:6379/0
-      #- CELERY_RESULT_BACKEND=redis://redis:6379/0
       # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA REDIS
       - REDIS_URL=redis://redis:6379
       #  DIRECTORIO DE ARCHIVOS ESTATICOS
