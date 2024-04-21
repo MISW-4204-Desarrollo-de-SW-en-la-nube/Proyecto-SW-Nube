@@ -132,6 +132,9 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         # CREAR DIRECTORIO SI NO EXISTE
         if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
             os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
+        # CREAR DIRECTORIO SI NO EXISTE
+        if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
+            os.makedirs(settings.PUBLIC_DIR_PROCESSED)
 
         unique_id = uuid.uuid4()
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
