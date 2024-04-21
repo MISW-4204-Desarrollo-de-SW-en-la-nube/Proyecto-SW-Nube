@@ -21,12 +21,6 @@ COPY . .
 # Dar permisos de ejecución a todos los archivos .py
 RUN find /app -type f -name "*.py" -exec chmod +x {} +
 
-# INSTALAR AGENTE DE ESCUCHA
-RUN curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
-RUN unzip -q /tmp/ServerAgent-2.2.3.zip  -d /app/server-agent && rm /tmp/ServerAgent-2.2.3.zip
-# Ejecutar el agente de escucha internamente en el contenedor - solo pruebas
-# ./server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444
-
 # Exponer el puerto 8080 en el contenedor
 EXPOSE 8080
 

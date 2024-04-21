@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  jmeter:
+    build: .
+    container_name: jmeter
+    restart: always
+    volumes:
+      - ./jmeter_scripts:/jmeter/jmeter_scripts
+    stdin_open: true
+    ports:
+      - "6000:6000"
+    tty: true
+    networks:
+      - jmeter-network
+
+networks:
+  jmeter-network:
+    driver: bridge
+
+# VOLUMEN ANONIMO
+# volumes:
+#   jmeter_scripts:

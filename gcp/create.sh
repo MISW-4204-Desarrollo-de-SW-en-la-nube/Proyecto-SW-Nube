@@ -135,7 +135,6 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo docker-compose build fastapiback nginx
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
-    sudo sh ./server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444
     sudo mount -t nfs $NFS_INSTANCE_INT_IP:/nube/public /nube/public
     "
 

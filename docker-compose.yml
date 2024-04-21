@@ -17,7 +17,6 @@ services:
       - REDIS_URL=redis://redis:6379
     ports:
       - "3500:8080"
-      - "4444:4444"
       - "5432:5432"
       - "6379:6379"
     volumes:
