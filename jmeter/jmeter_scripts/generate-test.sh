@@ -67,7 +67,7 @@ for i in `seq 1 $ITERATIONS`; do
     echo "Ejecutando el plan de pruebas $PLAN_ITERATION_FILE"
     jmeter -n -t $PLAN_ITERATION_FILE -l $PLAN_ITERATION_FOLDER"/results/results.csv"
     #GENERAR LOS GRAFICOS
-    ./generate-results.sh $PLAN_ITERATION_FOLDER"/graphs" $PLAN_ITERATION_FOLDER"/results/results-performance.csv" $PLAN_ITERATION_FOLDER"/results/results.csv"
+    sh generate-results.sh $PLAN_ITERATION_FOLDER"/graphs" $PLAN_ITERATION_FOLDER"/results/results-performance.csv" $PLAN_ITERATION_FOLDER"/results/results.csv"
     # GENERAR REPORTE FINAL
     jmeter -g $PLAN_ITERATION_FOLDER"/results/results.csv" -o $PLAN_ITERATION_FOLDER"/report"
 
