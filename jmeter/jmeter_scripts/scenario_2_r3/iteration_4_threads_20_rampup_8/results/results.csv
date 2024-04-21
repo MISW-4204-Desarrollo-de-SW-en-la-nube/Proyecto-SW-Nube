@@ -1,0 +1,21 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1713721458491,11181,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-1,text,true,,198,36861296,20,20,http://34.145.117.48:8080/api/tasks/,11175,0,106
+1713721458782,17652,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-2,text,true,,198,36861311,19,19,http://34.145.117.48:8080/api/tasks/,17652,0,64
+1713721459201,22694,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-3,text,true,,198,36861296,18,18,http://34.145.117.48:8080/api/tasks/,22694,0,63
+1713721460043,26092,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-5,text,true,,198,36861311,17,17,http://34.145.117.48:8080/api/tasks/,26092,0,63
+1713721460464,27414,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-6,text,true,,198,36861296,16,16,http://34.145.117.48:8080/api/tasks/,27414,0,63
+1713721462571,28078,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-11,text,true,,198,36861290,15,15,http://34.145.117.48:8080/api/tasks/,28078,0,65
+1713721462151,31231,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-10,text,true,,198,36861302,14,14,http://34.145.117.48:8080/api/tasks/,31231,0,65
+1713721461308,32099,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-8,text,true,,198,36861311,13,13,http://34.145.117.48:8080/api/tasks/,32099,0,68
+1713721460887,33519,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-7,text,true,,198,36861287,12,12,http://34.145.117.48:8080/api/tasks/,33519,0,64
+1713721459622,35742,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-4,text,true,,198,36861299,11,11,http://34.145.117.48:8080/api/tasks/,35742,0,67
+1713721461729,34905,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-9,text,true,,198,36861296,10,10,http://34.145.117.48:8080/api/tasks/,34905,0,76
+1713721464675,34462,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-16,text,true,,198,36861305,9,9,http://34.145.117.48:8080/api/tasks/,34462,0,67
+1713721462992,37174,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-12,text,true,,198,36861296,8,8,http://34.145.117.48:8080/api/tasks/,37174,0,74
+1713721463412,39669,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-13,text,true,,198,36861311,7,7,http://34.145.117.48:8080/api/tasks/,39669,0,63
+1713721463833,39287,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-14,text,true,,198,36861293,6,6,http://34.145.117.48:8080/api/tasks/,39287,0,64
+1713721466350,37761,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-20,text,true,,198,36861296,5,5,http://34.145.117.48:8080/api/tasks/,37761,0,67
+1713721465930,40428,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-19,text,true,,198,36861296,4,4,http://34.145.117.48:8080/api/tasks/,40428,0,67
+1713721465093,41277,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-17,text,true,,198,36861293,3,3,http://34.145.117.48:8080/api/tasks/,41276,0,63
+1713721464255,43111,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-15,text,true,,198,36861308,2,2,http://34.145.117.48:8080/api/tasks/,43111,0,67
+1713721465511,42855,HTTP Request -Crear Tarea  (Video),200,OK,Primer Escenario 1-18,text,true,,198,36861293,1,1,http://34.145.117.48:8080/api/tasks/,42855,0,73
