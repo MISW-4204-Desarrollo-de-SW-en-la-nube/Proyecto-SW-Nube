@@ -7,8 +7,8 @@ if [ -z "$1" ]; then
 fi
 
 export PROJECT_ID="misw-4204-cloud"
-export INSTANCE_NAME="Web Server"
-export INSTANCE_NAME_BATCH="Worker"
+export INSTANCE_NAME="web-server"
+export INSTANCE_NAME_BATCH="worker"
 export MACHINE_TYPE="e2-small"
 export DISK_SIZE_MACHINE="20GB"
 export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240213" 
@@ -33,7 +33,7 @@ export DB_NAME="db-test"
 export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # TAGS DEL SERVIDOR NFS
-export NFS_INSTANCE_NAME="File Server"
+export NFS_INSTANCE_NAME="file-server"
 export MACHINE_TAG_NFS="nfs-server"
 
 # CONFIGURAR PROYECTO Y ZONA
