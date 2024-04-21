@@ -1,8 +1,8 @@
 #!/bin/bash
 
 export PROJECT_ID="misw-4204-cloud"
-export INSTANCE_NAME="mv1-backend"
-export INSTANCE_NAME_BATCH="mv3-batch"
+export INSTANCE_NAME="Web Server"
+export INSTANCE_NAME_BATCH="Worker"
 export REGION="us-west1"
 export ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
@@ -18,7 +18,7 @@ export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_DISPLAY_NAME="DB VM Service Account"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # TAGS DEL SERVIDOR NFS
-export NFS_INSTANCE_NAME="mv4-nfs"
+export NFS_INSTANCE_NAME="File Server"
 export MACHINE_TAG_NFS="nfs-server"
 
 # Eliminar instancia de NFS SERVER

@@ -7,9 +7,10 @@ if [ -z "$1" ]; then
 fi
 
 export PROJECT_ID="misw-4204-cloud"
-export INSTANCE_NAME="mv1-backend"
-export INSTANCE_NAME_BATCH="mv3-batch"
+export INSTANCE_NAME="Web Server"
+export INSTANCE_NAME_BATCH="Worker"
 export MACHINE_TYPE="e2-small"
+export DISK_SIZE_MACHINE="20GB"
 export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240213" 
 export REGION="us-west1"
 export ZONE="us-west1-b"
@@ -32,7 +33,7 @@ export DB_NAME="db-test"
 export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # TAGS DEL SERVIDOR NFS
-export NFS_INSTANCE_NAME="mv4-nfs"
+export NFS_INSTANCE_NAME="File Server"
 export MACHINE_TAG_NFS="nfs-server"
 
 # CONFIGURAR PROYECTO Y ZONA
@@ -59,6 +60,7 @@ sudo systemctl restart nfs-kernel-server' > nfs_config.sh
 gcloud compute instances create $NFS_INSTANCE_NAME \
     --project $PROJECT_ID \
     --machine-type $MACHINE_TYPE \
+    --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
     --provisioning-model $INSTANCE_TYPE \
@@ -118,6 +120,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$DB_V
 gcloud compute instances create $INSTANCE_NAME \
     --project $PROJECT_ID \
     --machine-type $MACHINE_TYPE \
+    --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
     --service-account $DB_VM_EMAIL \
@@ -175,6 +178,7 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
 gcloud compute instances create $INSTANCE_NAME_BATCH \
     --project $PROJECT_ID \
     --machine-type $MACHINE_TYPE \
+    --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
     --service-account $DB_VM_EMAIL \
