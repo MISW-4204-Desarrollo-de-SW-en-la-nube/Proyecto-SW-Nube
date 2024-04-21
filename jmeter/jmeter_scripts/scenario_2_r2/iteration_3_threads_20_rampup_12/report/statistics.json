@@ -1,0 +1,34 @@
+{
+  "HTTP Request -Crear Tarea  (Video)" : {
+    "transaction" : "HTTP Request -Crear Tarea  (Video)",
+    "sampleCount" : 20,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 29674.4,
+    "medianResTime" : 31799.5,
+    "minResTime" : 5856.0,
+    "maxResTime" : 40599.0,
+    "pct1ResTime" : 38743.3,
+    "pct2ResTime" : 40511.9,
+    "pct3ResTime" : 40599.0,
+    "throughput" : 0.3945162244797317,
+    "receivedKBytesPerSec" : 0.07628341059276063,
+    "sentKBytesPerSec" : 14201.542369655537
+  },
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 20,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 29674.4,
+    "medianResTime" : 31799.5,
+    "minResTime" : 5856.0,
+    "maxResTime" : 40599.0,
+    "pct1ResTime" : 38743.3,
+    "pct2ResTime" : 40511.9,
+    "pct3ResTime" : 40599.0,
+    "throughput" : 0.3945162244797317,
+    "receivedKBytesPerSec" : 0.07628341059276063,
+    "sentKBytesPerSec" : 14201.542369655537
+  }
+}
