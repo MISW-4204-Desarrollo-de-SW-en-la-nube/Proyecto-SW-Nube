@@ -36,9 +36,9 @@
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
           <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
             <collectionProp name="HTTPFileArgs.files">
-              <elementProp name="\test.mp4" elementType="HTTPFileArg">
+              <elementProp name="/home/ec2-user/Proyecto-SW-Nube/jmeter/jmeter_scripts/test.mp4" elementType="HTTPFileArg">
                 <stringProp name="File.mimetype">video/mp4</stringProp>
-                <stringProp name="File.path">\test.mp4</stringProp>
+                <stringProp name="File.path">/home/ec2-user/Proyecto-SW-Nube/jmeter/jmeter_scripts/test.mp4</stringProp>
                 <stringProp name="File.paramname">file</stringProp>
               </elementProp>
             </collectionProp>
@@ -372,7 +372,7 @@
           </elementProp>
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">Authorization</stringProp>
-            <stringProp name="Header.value">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjIsInVzZXJuYW1lIjoiSm9zZUx1aXMyIn0sImV4cCI6MTcxMzY4MTg5NX0.rH0LNu83IFaUhOBvdnYJR7M1dE7kxMHR934GvmURsVY</stringProp>
+            <stringProp name="Header.value">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjIsInVzZXJuYW1lIjoiSm9zZUx1aXMyIn0sImV4cCI6MTcxMzY5MTM5MH0.y7NXlx64h_5tTqd7g1oKazC0xBz2mVcDM3fYXHTTs58</stringProp>
           </elementProp>
         </collectionProp>
       </HeaderManager>
