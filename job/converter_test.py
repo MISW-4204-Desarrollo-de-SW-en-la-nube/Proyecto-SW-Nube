@@ -53,10 +53,9 @@ def ejecutar_script_sh(id):
             print("video_url local: " + video_url_local)
             print("processed_url local: " + processed_url_local)
 
-
             ruta_script_sh = os.path.join(os.path.dirname(os.path.realpath(__file__)), "process.sh")
             video_logo = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagen_video.mp4")
-            comando = ["sudo", "sh", ruta_script_sh, video_url_local, processed_url_local, video_logo]
+            comando = ["sh", ruta_script_sh, video_url_local, processed_url_local, video_logo]
             subprocess.run(comando, check=True)
 
             update_stmt = text("UPDATE tasks SET status='processed' WHERE id = :id").bindparams(id=id)
