@@ -5,8 +5,22 @@ Este proyecto utiliza FastAPI como framework para crear una API web. A continuac
 
 Este proyecto esta basado en un sistema de gestión de archivos de video (mp4),  que permite a los usuarios subir archivos de video, convertirlos a otros formatos, y descargar los archivos convertidos. Además, se implementa un sistema de autenticación y autorización de usuarios, y un sistema de tareas asíncronas utilizando Celery y Redis.
 
+## Actualización - Entrega 2
 
+Para poder desplegar este proyecto es necesario que siga los pasos del readme ubicado en la carpeta [`gcp`](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/gcp), ya que para esta entrega es necesario el uso de la nube de Google para migrar la solución.
+
+Importante que revise la wiki de este proyecto para poder realizar la correcta configuración y despliegue del mismo.
+
+
+Solución desplegada y actualizada.
+![image](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/30fc87a0-4671-4d1d-a090-e8c5555c5ab4)
+
+
+
+---
 ## Instalación y Configuración Rápida
+
+> !Importante esta configuración solo será posible si el despliegue del proyecto es en local y utilizan el archivo de `old-yml` como archivo de definición de servicios de docker
 
 Siga los siguientes pasos para instalar y configurar el proyecto rápidamente en una máquina Windows:
 
@@ -70,10 +84,10 @@ docker-compose down
 ```
 
 
- > Adicionalmente, si desea eliminar los volúmenes asociados a los contenedores, ejecute el comando `docker-compose down -v`.
-
-
- > También puede ver el siguiente video para ver como instalar el proyecto: [![](https://i9.ytimg.com/vi/6ZJAS_i0okg/mqdefault.jpg?sqp=CKS68LAG-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGEEgXyhlMA8=&rs=AOn4CLCDxFBrDknyzdFog7NQhrugwV5cOw)](https://youtu.be/6ZJAS_i0okg)
+> Adicionalmente, si desea eliminar los volúmenes asociados a los contenedores, ejecute el comando `docker-compose down -v`. 
+> También puede ver el siguiente video para ver como instalar el proyecto:
+>
+>  [![](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/b5d81b32-f095-4bc6-abb8-9a2ba702de12)](https://youtu.be/6ZJAS_i0okg)
 
 ----
 ## Estructura del proyecto
