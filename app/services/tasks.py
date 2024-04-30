@@ -1,10 +1,12 @@
 
+import subprocess
+import os
+import uuid
+import io
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Optional
-import os
-import uuid
 
 from app.models import Task
 from app.core.logger_config import logger
@@ -129,47 +131,41 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         if not validate_content_type(file.content_type):
             return False
 
-        # # CREAR DIRECTORIO SI NO EXISTE
-        # if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
-        #     os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
-        # # CREAR DIRECTORIO SI NO EXISTE
-        # if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
-        #     os.makedirs(settings.PUBLIC_DIR_PROCESSED)
-
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
         unique_id = uuid.uuid4()
-        new_file_name = str(unique_id) + '_' + file.filename.replace(" ", "_")
-       
+        new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
 
-        #file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
-        #proccessed_file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, new_file_name)
-        # TODO: GUARDARLO EN GOOGLE STORAGE
-        # TODO: IMPLEMENTAR SUBPROCESS PARA LLAMAR A LA HERRAMIENTA GSUTIL
+        upload_file_to_bucket(file.file, settings.BUCKET_NAME, new_file_name)
+
         # with open(file_path, 'wb') as f:
         #     f.write(file.file.read())
         #video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
         #video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
-        #print(video_url)
-        
-        
-        new_task = Task(
-            originalFileName=file.filename,
-            fileName=new_file_name,
-            # video_url=video_url,
-            video_url="",
-            # video_processed_url=video_processed_url,
-            video_processed_url="",
-            owner_id=user
-        )
-        db.add(new_task)
-        db.commit()
-        logger.info('Tarea creada con id -> ' + str(new_task.id))
 
+        # Subir los datos al bucket de Cloud Storage
+        if upload_file_to_bucket(file_bytes_io, settings.DB_URL, new_file_name):
 
-        # TODO: DESCOMENTAR HASTA IMPLEMENTAR TODA LA SOLUCION
-        # TODO: MEJORA - IMPLEMENTAR REDIS DE OTRA NUBE
-        #process_video.delay(new_task.id)
-        return True
+            # TODO: OBTENER LA URL DEL VIDEO SUBIDO
+            video_url = get_video_url(settings.DB_URL, new_file_name)
+
+            new_task = Task(
+                originalFileName=file.filename,
+                fileName=new_file_name,
+                video_url=video_url,
+                # video_processed_url=video_processed_url,
+                video_processed_url="",
+                owner_id=user
+            )
+            db.add(new_task)
+            db.commit()
+            logger.info('Tarea creada con id -> ' + str(new_task.id))
+
+            # TODO: DESCOMENTAR HASTA IMPLEMENTAR TODA LA SOLUCION
+            #process_video.delay(new_task.id)
+            return True
+        else:
+            return False
+
     except Exception as e:
         logger.error('Error al crear tarea')
         logger.error(e)
@@ -179,3 +175,20 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
 
 def validate_content_type(content_type: str) -> bool:
     return True if content_type == 'video/mp4' else False
+
+def upload_file_to_bucket(file_path: str, bucket_name: str, destination_path: str) -> bool:
+    try:
+        logger.error(f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}")
+        command = f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}"
+        subprocess.run(command, shell=True, check=True)
+        # Permitir el acceso público al archivo subido
+        command = f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{destination_path}"
+        subprocess.run(command, shell=True, check=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error('Error al subir archivo a Cloud Storage')
+        logger.error(e)
+        return False
+
+def get_video_url(bucket_name: str, file_name: str) -> str:
+    return f"https://storage.googleapis.com/{bucket_name}/{file_name}"
