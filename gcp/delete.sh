@@ -14,7 +14,7 @@ export FIREWALL_RULE_VM2_4="allow-redis-port"
 export FIREWALL_RULE_VM2_5="allow-celery-port"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
-# BUCKET_ROLE_ID="custom.storage.admin"
+BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 
@@ -23,9 +23,9 @@ BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 gsutil rm -r gs://$BUCKET_NAME
 
 # ELIMINAR ROLES ASOCIADOS A LA CUENTA DE SERVICIO
-# gcloud projects remove-iam-policy-binding $PROJECT_ID \
-#     --member=serviceAccount:$BUCKET_SA_EMAIL \
-#     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID --quiet
+gcloud projects remove-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID --quiet
 # Eliminar ROLES ASOCIADOS A LA CUENTA DE SERVICIO
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
@@ -33,19 +33,19 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID \
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=roles/storage.objectViewer --quiet
-gcloud projects remove-iam-policy-binding $PROJECT_ID \
-    --member=serviceAccount:$BUCKET_SA_EMAIL \
-    --role=roles/storage.admin --quiet
+# gcloud projects remove-iam-policy-binding $PROJECT_ID \
+#     --member=serviceAccount:$BUCKET_SA_EMAIL \
+#     --role=roles/storage.admin --quiet
 
 
 # REMOVER PERMISOS DEL ROL
-# gcloud iam roles update $BUCKET_ROLE_ID \
-#         --project $PROJECT_ID \
-#         --remove-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
+gcloud iam roles update $BUCKET_ROLE_ID \
+        --project $PROJECT_ID \
+        --remove-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
 # ELIMINAR ROL PERSONALIZADO
-# gcloud iam roles delete $BUCKET_ROLE_ID \
-#     --project $PROJECT_ID --quiet
+gcloud iam roles delete $BUCKET_ROLE_ID \
+    --project $PROJECT_ID --quiet
 
 
 # ELIMINAR CUENTA DE SERVICIO PARA EL BUCKET

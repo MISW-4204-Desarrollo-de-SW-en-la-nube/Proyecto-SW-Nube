@@ -30,8 +30,8 @@ DATABASE_STORAGE_SIZE="10GB"
 DB_NAME="db-test"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
-# BUCKET_ROLE_ID="custom.storage.admin"
-# BUCKET_ROLE_TITLE="Custom Storage Admin"
+BUCKET_ROLE_ID="custom.storage.admin"
+BUCKET_ROLE_TITLE="Custom Storage Admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 
@@ -51,29 +51,29 @@ echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
 gsutil mb -l $REGION gs://$BUCKET_NAME
 
 # # AGREGAR PERMISOS DE LECTURA A TODOS LOS USUARIOS
-# gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
+gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
 
 # EXISTING_ROLE=$(gcloud iam roles describe custom.storage.admin --project misw-4204-cloud 2>&1)
 # echo $EXISTING_ROLE
 
-# if [[ $EXISTING_ROLE == *"NOT_FOUND"* ]]; then
-#     # CREAR EL ROL PERSONALIZADO
-#     gcloud iam roles create $BUCKET_ROLE_ID \
-#     --project $PROJECT_ID \
-#     --title "$BUCKET_ROLE_TITLE" \
-#     --description "Custom role for storage administration"
-# else
-#     # El rol existe, verificamos si está en estado eliminado
-#     DELETED=$(echo "$EXISTING_ROLE" | grep -c "deleted: true")
-#     if [ $DELETED -eq 1 ]; then
-#         gcloud iam roles undelete $BUCKET_ROLE_ID \
-#             --project $PROJECT_ID
-#     fi
-# fi
+if [[ $EXISTING_ROLE == *"NOT_FOUND"* ]]; then
+    # CREAR EL ROL PERSONALIZADO
+    gcloud iam roles create $BUCKET_ROLE_ID \
+    --project $PROJECT_ID \
+    --title "$BUCKET_ROLE_TITLE" \
+    --description "Custom role for storage administration"
+else
+    # El rol existe, verificamos si está en estado eliminado
+    DELETED=$(echo "$EXISTING_ROLE" | grep -c "deleted: true")
+    if [ $DELETED -eq 1 ]; then
+        gcloud iam roles undelete $BUCKET_ROLE_ID \
+            --project $PROJECT_ID
+    fi
+fi
 
-# gcloud iam roles update $BUCKET_ROLE_ID \
-#     --project $PROJECT_ID \
-#     --add-permissions storage.buckets.create,storage.buckets.update,storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
+gcloud iam roles update $BUCKET_ROLE_ID \
+    --project $PROJECT_ID \
+    --add-permissions storage.buckets.create,storage.buckets.update,storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
 # CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE Y SQL
 gcloud iam service-accounts create $BUCKET_SA_NAME \
@@ -81,12 +81,12 @@ gcloud iam service-accounts create $BUCKET_SA_NAME \
     --display-name="Storage DB VM Admin Service Account"
 
 # ASIGNAR ROL A CUENTA DE SERVICIO
-# gcloud projects add-iam-policy-binding $PROJECT_ID \
-#     --member=serviceAccount:$BUCKET_SA_EMAIL \
-#     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.client
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.objectViewer
-gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.admin
+# gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.admin
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
@@ -142,6 +142,8 @@ gcloud compute instances create $INSTANCE_NAME \
     --zone $ZONE \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
+    --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/trace.append \
+    --create-disk=auto-delete=yes,boot=yes,device-name=instance-20240430-160232,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240415,mode=rw,size=10,type=projects/misw-4204-cloud/zones/us-central1-a/diskTypes/pd-balanced \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
