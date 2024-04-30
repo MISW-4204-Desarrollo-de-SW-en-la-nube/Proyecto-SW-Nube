@@ -20,61 +20,68 @@ export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # TAGS DEL SERVIDOR NFS
 export NFS_INSTANCE_NAME="file-server"
 export MACHINE_TAG_NFS="nfs-server"
-
-# Eliminar instancia de NFS SERVER
-gcloud compute instances delete $NFS_INSTANCE_NAME \
-    --project $PROJECT_ID \
-    --zone $ZONE \
-    --quiet
-
-# Eliminar instancia de VM - BACKEND
-gcloud compute instances delete $INSTANCE_NAME \
-    --project $PROJECT_ID \
-    --zone $ZONE \
-    --quiet
-
-# Eliminar instancia de VM - BATCH
-gcloud compute instances delete $INSTANCE_NAME_BATCH \
-    --project $PROJECT_ID \
-    --zone $ZONE \
-    --quiet
-
-# Eliminar regla de firewall
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_1 \
-    --project $PROJECT_ID \
-    --quiet
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
-    --project $PROJECT_ID \
-    --quiet
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
-    --project $PROJECT_ID \
-    --quiet
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_4 \
-    --project $PROJECT_ID \
-    --quiet
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_5 \
-    --project $PROJECT_ID \
-    --quiet
-
-# Eliminar base de datos
-gcloud sql databases delete $DB_NAME \
-    --project $PROJECT_ID \
-    --instance=$DB_INSTANCE_NAME \
-    --quiet
-
-# Eliminar instancia de base de datos
-gcloud sql instances delete $DB_INSTANCE_NAME \
-    --project $PROJECT_ID \
-    --quiet
-
-# Eliminar ROLES ASOCIADOS A LA CUENTA DE SERVICIO
-gcloud projects remove-iam-policy-binding $PROJECT_ID \
-    --member=serviceAccount:$DB_VM_EMAIL \
-    --role=roles/cloudsql.client --quiet
-gcloud projects remove-iam-policy-binding $PROJECT_ID \
-    --member=serviceAccount:$DB_VM_EMAIL \
-    --role=roles/storage.objectViewer --quiet
+# CLOUD STORAGE
+BUCKET_NAME="misw-4204-storage-fpv-bucket"
 
 
-# Eliminar CUENTA DE SERVICIO QUE PERMITE CONECTAR A LA BASE DE DATOS
-gcloud iam service-accounts delete $DB_VM_EMAIL --quiet
+# # Eliminar BUCKET
+
+gsutil rm -r gs://$BUCKET_NAME
+
+# # Eliminar instancia de NFS SERVER
+# gcloud compute instances delete $NFS_INSTANCE_NAME \
+#     --project $PROJECT_ID \
+#     --zone $ZONE \
+#     --quiet
+
+# # Eliminar instancia de VM - BACKEND
+# gcloud compute instances delete $INSTANCE_NAME \
+#     --project $PROJECT_ID \
+#     --zone $ZONE \
+#     --quiet
+
+# # Eliminar instancia de VM - BATCH
+# gcloud compute instances delete $INSTANCE_NAME_BATCH \
+#     --project $PROJECT_ID \
+#     --zone $ZONE \
+#     --quiet
+
+# # Eliminar regla de firewall
+# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_1 \
+#     --project $PROJECT_ID \
+#     --quiet
+# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
+#     --project $PROJECT_ID \
+#     --quiet
+# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
+#     --project $PROJECT_ID \
+#     --quiet
+# gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_4 \
+#     --project $PROJECT_ID \
+#     --quiet
+# gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_5 \
+#     --project $PROJECT_ID \
+#     --quiet
+
+# # Eliminar base de datos
+# gcloud sql databases delete $DB_NAME \
+#     --project $PROJECT_ID \
+#     --instance=$DB_INSTANCE_NAME \
+#     --quiet
+
+# # Eliminar instancia de base de datos
+# gcloud sql instances delete $DB_INSTANCE_NAME \
+#     --project $PROJECT_ID \
+#     --quiet
+
+# # Eliminar ROLES ASOCIADOS A LA CUENTA DE SERVICIO
+# gcloud projects remove-iam-policy-binding $PROJECT_ID \
+#     --member=serviceAccount:$DB_VM_EMAIL \
+#     --role=roles/cloudsql.client --quiet
+# gcloud projects remove-iam-policy-binding $PROJECT_ID \
+#     --member=serviceAccount:$DB_VM_EMAIL \
+#     --role=roles/storage.objectViewer --quiet
+
+
+# # Eliminar CUENTA DE SERVICIO QUE PERMITE CONECTAR A LA BASE DE DATOS
+# gcloud iam service-accounts delete $DB_VM_EMAIL --quiet

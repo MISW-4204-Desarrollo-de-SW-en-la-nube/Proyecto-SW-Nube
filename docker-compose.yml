@@ -5,9 +5,11 @@ services:
     build: .
     container_name: fpv-fastapi
     restart: always
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8080
+    # DESCOMENTAR PARA PRUEBAS LOCALES
+    # command: uvicorn app.main:app --host 0.0.0.0 --port 8080
     environment:
       - DB_URL=postgresql://postgres:password@postgres:5432/db-test
+      # - DB_URL=postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev
       - SECRET_KEY="supreSecretKey123."
       # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA
       - BASE_URL=http://localhost:8080
@@ -16,26 +18,31 @@ services:
       # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA REDIS
       - REDIS_URL=redis://redis:6379
     ports:
+      - "8080:80"
       - "3500:8080"
       - "5432:5432"
-      - "6379:6379"
+    depends_on:
+      - postgres
     volumes:
       - ./public:/app/public
     networks:
       - fpv-network
 
-  nginx:
-    image: nginx:latest
-    container_name: fpv-nginx
-    restart: always
-    ports:
-      - "8080:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - fastapiback
-    networks:
-      - fpv-network
+  # SOLO PRUEBAS
+  # postgres:
+  #   image: postgres:13.2
+  #   restart: always
+  #   environment:
+  #     - POSTGRES_HOST=localhost
+  #     - POSTGRES_DB=fpv_db_dev
+  #     - POSTGRES_USER=fpv_user_dev
+  #     - POSTGRES_PASSWORD=pfv_user_pwd
+  #   ports:
+  #     - '5080:5432'
+  #   networks:
+  #     - fpv-network
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
