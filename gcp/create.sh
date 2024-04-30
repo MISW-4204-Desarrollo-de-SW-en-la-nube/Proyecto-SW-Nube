@@ -28,10 +28,7 @@ DB_PWD=$1
 DB_EDITION="enterprise"
 DATABASE_STORAGE_SIZE="10GB"
 DB_NAME="db-test"
-# TAGS DE CUENTAS DE SERVICIO
-DB_VM_SA_NAME="db-vm-sa"
-DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
-# CLOUD STORAGE
+# CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_ROLE_TITLE="Custom Storage Admin"
@@ -77,15 +74,21 @@ gcloud iam roles update $BUCKET_ROLE_ID \
         --project $PROJECT_ID \
         --add-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
-# CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE
+# CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE Y SQL
 gcloud iam service-accounts create $BUCKET_SA_NAME \
-    --description="Service account to access the storage bucket" \
-    --display-name="Storage Admin Service Account"
+    --description="Service account to access the storage bucket and database from the vm" \
+    --display-name="Storage DB VM Admin Service Account"
 
 # ASIGNAR ROL A CUENTA DE SERVICIO
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \ 
+    --role=roles/cloudsql.client
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \ 
+    --role=roles/storage.objectViewer
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
@@ -139,7 +142,7 @@ gcloud compute instances create $INSTANCE_NAME \
     --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
-    --service-account $DB_VM_EMAIL,$BUCKET_SA_EMAIL \
+    --service-account=$BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
@@ -152,11 +155,11 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     "
-    # TODO:  INICIALIZAR EL AGENTE DE PERFOMANCE
-    # sudo /server-agent/startAgent.sh
-    # TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
-    # sudo docker run -d -p 3500:3500 --name fastapi
-    # TODO: ANIADIR MONITOR DE GCP
+# TODO:  INICIALIZAR EL AGENTE DE PERFOMANCE
+# sudo /server-agent/startAgent.sh
+# TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
+# sudo docker run -d -p 3500:3500 --name fastapi
+# TODO: ANIADIR MONITOR DE GCP
 
 # AÑADIR TAGS A LA INSTANCIA
 gcloud compute instances add-tags $INSTANCE_NAME \

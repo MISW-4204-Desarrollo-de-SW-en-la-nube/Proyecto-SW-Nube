@@ -12,11 +12,7 @@ export FIREWALL_RULE_VM1_2="allow-perf-port"
 export FIREWALL_RULE_VM1_3="allow-nginx-port"
 export FIREWALL_RULE_VM2_4="allow-redis-port"
 export FIREWALL_RULE_VM2_5="allow-celery-port"
-# TAGS DE CUENTAS DE SERVICIO
-export DB_VM_SA_NAME="db-vm-sa"
-export DB_VM_DISPLAY_NAME="DB VM Service Account"
-export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
-# CLOUD STORAGE
+# CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_ROLE_TITLE="Custom Storage Admin"
@@ -31,6 +27,14 @@ gsutil rm -r gs://$BUCKET_NAME
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID --quiet
+# Eliminar ROLES ASOCIADOS A LA CUENTA DE SERVICIO
+gcloud projects remove-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=roles/cloudsql.client --quiet
+gcloud projects remove-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=roles/storage.objectViewer --quiet
+
 
 # REMOVER PERMISOS DEL ROL
 gcloud iam roles update $BUCKET_ROLE_ID \
@@ -40,6 +44,7 @@ gcloud iam roles update $BUCKET_ROLE_ID \
 # ELIMINAR ROL PERSONALIZADO
 gcloud iam roles delete $BUCKET_ROLE_ID \
     --project $PROJECT_ID --quiet
+
 
 # ELIMINAR CUENTA DE SERVICIO PARA EL BUCKET
 gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
@@ -80,15 +85,6 @@ gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
 # gcloud sql instances delete $DB_INSTANCE_NAME \
 #     --project $PROJECT_ID \
 #     --quiet
-
-# # Eliminar ROLES ASOCIADOS A LA CUENTA DE SERVICIO
-# gcloud projects remove-iam-policy-binding $PROJECT_ID \
-#     --member=serviceAccount:$DB_VM_EMAIL \
-#     --role=roles/cloudsql.client --quiet
-# gcloud projects remove-iam-policy-binding $PROJECT_ID \
-#     --member=serviceAccount:$DB_VM_EMAIL \
-#     --role=roles/storage.objectViewer --quiet
-
 
 # # Eliminar CUENTA DE SERVICIO QUE PERMITE CONECTAR A LA BASE DE DATOS
 # gcloud iam service-accounts delete $DB_VM_EMAIL --quiet
