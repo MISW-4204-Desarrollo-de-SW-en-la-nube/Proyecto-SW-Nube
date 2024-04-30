@@ -36,7 +36,7 @@ export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 export NFS_INSTANCE_NAME="file-server"
 export MACHINE_TAG_NFS="nfs-server"
 # CLOUD STORAGE
-export BUCKET_NAME="misw-4204-storage-fpv-bucket"
+BUCKET_NAME="misw-4204-storage-fpv-bucket"
 
 # CONFIGURAR PROYECTO Y ZONA
 gcloud auth list
@@ -51,7 +51,7 @@ echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
 ## ==================== CLOUD STORAGE ====================
 
 # CREAR BUCKET
-gsutil mb -l $REGION gs://$PROJECT_ID
+gsutil mb -l $REGION gs://$BUCKET_NAME
 
 
 # TODO: REMOVER SERVIDOR NFS
