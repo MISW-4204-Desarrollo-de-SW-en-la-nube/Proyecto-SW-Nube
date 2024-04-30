@@ -138,7 +138,7 @@ gcloud compute instances create $INSTANCE_NAME \
     --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
-    --service-account=$BUCKET_SA_EMAIL \
+    --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
