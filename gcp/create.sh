@@ -64,11 +64,11 @@ gsutil mb -l $REGION gs://$BUCKET_NAME
 gcloud iam roles create $BUCKET_ROLE_ID \
     --project $PROJECT_ID \
     --title "$BUCKET_ROLE_TITLE" \
-    --description "Custom role for storage administration"
+    --description "Custom role for storage administration" \
 
-gcloud iam roles add-permissions $BUCKET_ROLE_ID \
+gcloud iam roles update $BUCKET_ROLE_ID \
         --project $PROJECT_ID \
-        --permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
+        --add-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
 # CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE
 gcloud iam service-accounts create $BUCKET_SA_NAME \
