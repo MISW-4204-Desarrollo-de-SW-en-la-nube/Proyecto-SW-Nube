@@ -17,7 +17,6 @@ export ZONE="us-west1-b"
 export MACHINE_TAG="http-server,https-server"
 export MACHINE_TAG_BATCH="bath-server"
 export INSTANCE_TYPE="SPOT"
-export FIREWALL_RULE_VM1_1="allow-http-port"
 export FIREWALL_RULE_VM1_2="allow-perf-port"
 export FIREWALL_RULE_VM1_3="allow-nginx-port"
 export FIREWALL_RULE_VM2_4="allow-redis-port"
@@ -32,9 +31,6 @@ export DB_NAME="db-test"
 # TAGS DE CUENTAS DE SERVICIO
 export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
-# TAGS DEL SERVIDOR NFS
-export NFS_INSTANCE_NAME="file-server"
-export MACHINE_TAG_NFS="nfs-server"
 # CLOUD STORAGE
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
@@ -91,40 +87,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
 
-# TODO: REMOVER SERVIDOR NFS
-## ==================== SERVIDOR NFS ====================
-
-# echo '#! /bin/bash
-# sudo apt update && sudo apt install -y nfs-kernel-server
-# sudo mkdir -p /nube/public
-# sudo chown nobody:nogroup /nube/public
-# sudo chmod +R 777 /nube/public
-# echo "/nube/public *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
-# sudo exportfs -a
-# sudo systemctl restart nfs-kernel-server' > nfs_config.sh
-
-# # # CREAR INSTANCIA NFS SERVER
-# gcloud compute instances create $NFS_INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --machine-type $MACHINE_TYPE \
-#     --boot-disk-size $DISK_SIZE_MACHINE \
-#     --image $IMAGE \
-#     --zone $ZONE \
-#     --provisioning-model $INSTANCE_TYPE \
-#     --metadata-from-file=startup-script=nfs_config.sh
-# #VERICAR STADO DEL SERVICIO NFS
-# #sudo systemctl status nfs-kernel-server
-
-# ## OBTENER LA IP INTERNA DE LA INSTANCIA NFS
-# export NFS_INSTANCE_INT_IP=$(gcloud compute instances list --filter=name:$NFS_INSTANCE_NAME --format='value(INTERNAL_IP)')
-# echo "NFS INSTANCE INTERNAL IP: $NFS_INSTANCE_INT_IP"
-
-# # AÑADIR TAGS A LA INSTANCIA NFS
-# gcloud compute instances add-tags $NFS_INSTANCE_NAME \
-#     --tags $MACHINE_TAG_NFS
-
-# ## ==================== BASE DE DATOS ====================
-
+# ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
 # ## CREAR INSTANCIA DE BASE DE DATOS
 # gcloud sql instances create $DB_INSTANCE_NAME \
@@ -139,6 +102,8 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 #     --assign-ip \
 #     --zone $ZONE
 
+# ## ==================== BASE DE DATOS ====================
+
 # # CREAR BASE DE DATOS
 # gcloud sql databases create $DB_NAME \
 #     --instance $DB_INSTANCE_NAME
@@ -148,12 +113,14 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 #     --instance $DB_INSTANCE_NAME \
 #     --password $DB_PWD
 
+# ## ==================== CUENTA DE SERVICIO ====================
+
 # # CREAR CUENTA DE SERVICIO PARA CONSUMIR EL SERVICIO DE LA BASE DE DATOS DESDE LA VM
 # gcloud iam service-accounts create $DB_VM_SA_NAME \
 #     --description="Service account to access the database from the VM" \
 #     --display-name="DB VM Service Account"
 
-# # AGREGAR LOSD ROLES
+# # AGREGAR LOS ROLES
 # # gcloud projects add-iam-policy-binding  --member=serviceAccount:SERVICE_ACCOUNT_EMAIL --role=ROLE
 # gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$DB_VM_EMAIL --role=roles/cloudsql.client
 # gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$DB_VM_EMAIL --role=roles/storage.objectViewer
@@ -163,62 +130,60 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # #     --service-account=$DB_VM_EMAIL \
 # #     --zone=$ZONE
 
-# # CREAR INSTANCIA DE VM - BACK PRINCIPAL
-# gcloud compute instances create $INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --machine-type $MACHINE_TYPE \
-#     --boot-disk-size $DISK_SIZE_MACHINE \
-#     --image $IMAGE \
-#     --zone $ZONE \
-#     --service-account $DB_VM_EMAIL \
-#     --provisioning-model $INSTANCE_TYPE \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip nfs-common
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-#     cd nube
-#     sudo chmod -R 777 /nube
-#     sudo docker-compose build fastapiback nginx
-#     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
-#     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
-#     sudo mount -t nfs $NFS_INSTANCE_INT_IP:/nube/public /nube/public
-#     "
+## ==================== INSTANCIA WEB (BACK) ====================
 
-# # AÑADIR TAGS A LA INSTANCIA
-# gcloud compute instances add-tags $INSTANCE_NAME \
-#  --tags $MACHINE_TAG
+# CREAR INSTANCIA DE VM - BACK PRINCIPAL
+gcloud compute instances create $INSTANCE_NAME \
+    --project $PROJECT_ID \
+    --machine-type $MACHINE_TYPE \
+    --boot-disk-size $DISK_SIZE_MACHINE \
+    --image $IMAGE \
+    --zone $ZONE \
+    --service-account $DB_VM_EMAIL \
+    --provisioning-model $INSTANCE_TYPE \
+    --metadata=startup-script="#! /bin/bash
+    sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
+    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
+    cd nube
+    sudo chmod -R 777 /nube
+    sudo docker-compose build fastapiback nginx
+    sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
+    sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
+    "
+    # TODO:  INICIALIZAR EL AGENTE DE PERFOMANCE
+    # sudo /server-agent/startAgent.sh
+    # TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
+    # sudo docker run -d -p 3500:3500 --name fastapi
+    # TODO: ANIADIR MONITOR DE GCP
+
+# AÑADIR TAGS A LA INSTANCIA
+gcloud compute instances add-tags $INSTANCE_NAME \
+ --tags $MACHINE_TAG
 
 
-# # CREAR REGLA DE FIREWALL - FFASTAPI
-# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
-#     --direction=INGRESS \
-#     --priority=1000 \
-#     --network=default \
-#     --action=ALLOW \
-#     --rules=tcp:3500  \
-#     --source-ranges=0.0.0.0/0 \
-#     --target-tags=http-server
+# CREAR REGLA DE FIREWALL - PERFORMANCE
+gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --action=ALLOW \
+    --rules=tcp:4444  \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=http-server
 
-# # Autorizar la vm para lectura de performance
-# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
-#     --direction=INGRESS \
-#     --priority=1000 \
-#     --network=default \
-#     --action=ALLOW \
-#     --rules=tcp:4444  \
-#     --source-ranges=0.0.0.0/0 \
-#     --target-tags=http-server
+# CREAR REGLA DE FIREWALL- NGINX
+gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --action=ALLOW \
+    --rules=tcp:8080  \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=http-server
 
-# # CREAR REGLA DE FIREWALL- NGINX
-# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
-#     --direction=INGRESS \
-#     --priority=1000 \
-#     --network=default \
-#     --action=ALLOW \
-#     --rules=tcp:8080  \
-#     --source-ranges=0.0.0.0/0 \
-#     --target-tags=http-server
+## ==================== INSTANCIA BATCH ====================
 
 # # CREAR INSTANCIA DE VM - PROCESOS DE BATCH
 # gcloud compute instances create $INSTANCE_NAME_BATCH \
@@ -237,7 +202,6 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 #     cd nube
 #     sudo chmod -R 777 /nube
 #     sudo docker-compose build redis workertres
-#     sudo mount -t nfs $NFS_INSTANCE_INT_IP:/nube/public /nube/public
 #     "
 
 # # AÑADIR TAGS A LA INSTANCIA

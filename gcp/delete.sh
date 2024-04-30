@@ -8,7 +8,6 @@ export ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
 export DB_INSTANCE_NAME="mv2-db"
 export DB_NAME="db-test"
-export FIREWALL_RULE_VM1_1="allow-http-port"
 export FIREWALL_RULE_VM1_2="allow-perf-port"
 export FIREWALL_RULE_VM1_3="allow-nginx-port"
 export FIREWALL_RULE_VM2_4="allow-redis-port"
@@ -17,9 +16,6 @@ export FIREWALL_RULE_VM2_5="allow-celery-port"
 export DB_VM_SA_NAME="db-vm-sa"
 export DB_VM_DISPLAY_NAME="DB VM Service Account"
 export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
-# TAGS DEL SERVIDOR NFS
-export NFS_INSTANCE_NAME="file-server"
-export MACHINE_TAG_NFS="nfs-server"
 # CLOUD STORAGE
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
@@ -48,21 +44,11 @@ gcloud iam roles delete $BUCKET_ROLE_ID \
 # ELIMINAR CUENTA DE SERVICIO PARA EL BUCKET
 gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
 
-
-
-# # Eliminar cuenta de servicio
-
-# # Eliminar instancia de NFS SERVER
-# gcloud compute instances delete $NFS_INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --zone $ZONE \
-#     --quiet
-
-# # Eliminar instancia de VM - BACKEND
-# gcloud compute instances delete $INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --zone $ZONE \
-#     --quiet
+# Eliminar instancia de VM - BACKEND
+gcloud compute instances delete $INSTANCE_NAME \
+    --project $PROJECT_ID \
+    --zone $ZONE \
+    --quiet
 
 # # Eliminar instancia de VM - BATCH
 # gcloud compute instances delete $INSTANCE_NAME_BATCH \
@@ -70,16 +56,13 @@ gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
 #     --zone $ZONE \
 #     --quiet
 
-# # Eliminar regla de firewall
-# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_1 \
-#     --project $PROJECT_ID \
-#     --quiet
-# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
-#     --project $PROJECT_ID \
-#     --quiet
-# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
-#     --project $PROJECT_ID \
-#     --quiet
+# Eliminar regla de firewall
+gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
+    --project $PROJECT_ID \
+    --quiet
+gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
+    --project $PROJECT_ID \
+    --quiet
 # gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_4 \
 #     --project $PROJECT_ID \
 #     --quiet
