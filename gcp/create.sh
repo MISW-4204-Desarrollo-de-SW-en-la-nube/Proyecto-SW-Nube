@@ -137,7 +137,7 @@ gcloud compute instances create $INSTANCE_NAME \
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     sudo chmod -R 777 /nube
     sudo docker build -t fastapi-app /nube/.
-    sudo docker run -d -e DB_URL=postgresql://postgres:password@$(DB_IP):5432/db-test -e SECRET_KEY=supreSecretKey123 -e BASE_URL=http://localhost:8080 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -p 3500:8080 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
+    sudo docker run -d -e DB_URL=postgresql://postgres:$(DB_PWD)@$(DB_IP):5432/db-test -e SECRET_KEY=supreSecretKey123 -e BASE_URL=http://localhost:8080 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -p 3500:8080 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
@@ -181,7 +181,7 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
-    --service-account $DB_VM_EMAIL \
+    --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 nfs-common
