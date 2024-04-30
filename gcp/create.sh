@@ -163,7 +163,7 @@ gcloud compute instances create $INSTANCE_NAME \
 
 # AÑADIR TAGS A LA INSTANCIA
 gcloud compute instances add-tags $INSTANCE_NAME \
- --tags $MACHINE_TAG
+    --tags $MACHINE_TAG
 
 
 # CREAR REGLA DE FIREWALL - PERFORMANCE
