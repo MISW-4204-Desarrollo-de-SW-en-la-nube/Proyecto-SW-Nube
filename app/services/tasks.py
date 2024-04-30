@@ -137,13 +137,15 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
 
         upload_file_to_bucket(file.file, settings.BUCKET_NAME, new_file_name)
 
+        
+
         # with open(file_path, 'wb') as f:
         #     f.write(file.file.read())
         #video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
         #video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
 
         # Subir los datos al bucket de Cloud Storage
-        if upload_file_to_bucket(file_bytes_io, settings.DB_URL, new_file_name):
+        if upload_file_to_bucket(file, settings.DB_URL, new_file_name):
 
             # TODO: OBTENER LA URL DEL VIDEO SUBIDO
             video_url = get_video_url(settings.DB_URL, new_file_name)
@@ -176,11 +178,14 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
 def validate_content_type(content_type: str) -> bool:
     return True if content_type == 'video/mp4' else False
 
-def upload_file_to_bucket(file_path: str, bucket_name: str, destination_path: str) -> bool:
+def upload_file_to_bucket(file_path: UploadFile, bucket_name: str, destination_path: str) -> bool:
     try:
+        file_bytes = file.file.read()
         logger.error(f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}")
-        command = f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}"
-        subprocess.run(command, shell=True, check=True)
+        # command = f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}"
+        cmd = f"gsutil cp - {BUCKET_NAME}/{new_file_name}"
+        process = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
+        process.communicate(input=file_bytes)
         # Permitir el acceso público al archivo subido
         command = f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{destination_path}"
         subprocess.run(command, shell=True, check=True)

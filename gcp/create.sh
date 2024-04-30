@@ -116,7 +116,7 @@ gcloud sql users set-password postgres \
     --password $DB_PWD
 
 # OBTENER IP DE LA BASE DE DATOS
-DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)')
+DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | awk 'NR==1')
 
 ## ==================== INSTANCIA WEB (BACK) ====================
 
