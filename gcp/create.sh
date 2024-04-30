@@ -11,7 +11,7 @@ export INSTANCE_NAME="web-server"
 export INSTANCE_NAME_BATCH="worker"
 export MACHINE_TYPE="e2-small"
 export DISK_SIZE_MACHINE="10GB"
-export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240312" 
+export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415" 
 export REGION="us-west1"
 export ZONE="us-west1-b"
 export MACHINE_TAG="http-server,https-server"
@@ -80,8 +80,8 @@ gcloud iam service-accounts create $BUCKET_SA_NAME \
     --display-name="Storage DB VM Admin Service Account"
 
 # ASIGNAR ROL A CUENTA DE SERVICIO
-gcloud projects add-iam-policy-binding $PROJECT_ID \ 
-    --member=serviceAccount:$BUCKET_SA_EMAIL \ 
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.client
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.objectViewer
