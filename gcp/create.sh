@@ -221,6 +221,7 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM2_5 \
 gcloud sql instances patch $DB_INSTANCE_NAME \
     --authorized-networks=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)'),$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)') \
     --quiet
+
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
 # # sudo apt-get install postgresql-client -y
 # # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
