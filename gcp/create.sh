@@ -153,9 +153,9 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo docker-compose build fastapiback nginx
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
+    sudo sh ./server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
     "
-# TODO:  INICIALIZAR EL AGENTE DE PERFOMANCE
-# sudo /server-agent/startAgent.sh
+# *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
 # TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
 # sudo docker run -d -p 3500:3500 --name fastapi
 # TODO: ANIADIR MONITOR DE GCP
