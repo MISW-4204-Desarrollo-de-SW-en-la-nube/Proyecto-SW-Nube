@@ -22,15 +22,15 @@ export FIREWALL_RULE_VM1_3="allow-nginx-port"
 export FIREWALL_RULE_VM2_4="allow-redis-port"
 export FIREWALL_RULE_VM2_5="allow-celery-port"
 # TAGS DE BASE DE DATOS
-export DB_INSTANCE_NAME="mv2-db"
-export POSTGRES_VERSION="POSTGRES_15"
-export DB_PWD=$1
-export DB_EDITION="enterprise"
-export DATABASE_STORAGE_SIZE="10GB"
-export DB_NAME="db-test"
+DB_INSTANCE_NAME="mv2-db"
+POSTGRES_VERSION="POSTGRES_15"
+DB_PWD=$1
+DB_EDITION="enterprise"
+DATABASE_STORAGE_SIZE="10GB"
+DB_NAME="db-test"
 # TAGS DE CUENTAS DE SERVICIO
-export DB_VM_SA_NAME="db-vm-sa"
-export DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
+DB_VM_SA_NAME="db-vm-sa"
+DB_VM_EMAIL="$DB_VM_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # CLOUD STORAGE
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
@@ -139,7 +139,7 @@ gcloud compute instances create $INSTANCE_NAME \
     --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
-    --service-account $DB_VM_EMAIL \
+    --service-account $DB_VM_EMAIL,$BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
