@@ -37,6 +37,10 @@ export NFS_INSTANCE_NAME="file-server"
 export MACHINE_TAG_NFS="nfs-server"
 # CLOUD STORAGE
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
+BUCKET_ROLE_ID="custom.storage.admin"
+BUCKET_ROLE_TITLE="Custom Storage Admin"
+BUCKET_SA_NAME="storage-admin-sa"
+BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 
 # CONFIGURAR PROYECTO Y ZONA
 gcloud auth list
@@ -53,6 +57,28 @@ echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
 # CREAR BUCKET
 gsutil mb -l $REGION gs://$BUCKET_NAME
 
+# # AGREGAR PERMISOS DE LECTURA A TODOS LOS USUARIOS
+# gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
+
+# CREAR EL ROL PERSONALIZADO
+gcloud iam roles create $BUCKET_ROLE_ID \
+    --project $PROJECT_ID \
+    --title "$BUCKET_ROLE_TITLE" \
+    --description "Custom role for storage administration"
+
+gcloud iam roles add-permissions $BUCKET_ROLE_ID \
+        --project $PROJECT_ID \
+        --permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
+
+# CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE
+gcloud iam service-accounts create $BUCKET_SA_NAME \
+    --description="Service account to access the storage bucket" \
+    --display-name="Storage Admin Service Account"
+
+# ASIGNAR ROL A CUENTA DE SERVICIO
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
 
 # TODO: REMOVER SERVIDOR NFS
 ## ==================== SERVIDOR NFS ====================

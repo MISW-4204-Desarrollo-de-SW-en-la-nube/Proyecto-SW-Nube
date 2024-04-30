@@ -22,11 +22,31 @@ export NFS_INSTANCE_NAME="file-server"
 export MACHINE_TAG_NFS="nfs-server"
 # CLOUD STORAGE
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
+BUCKET_ROLE_ID="custom.storage.admin"
+BUCKET_ROLE_TITLE="Custom Storage Admin"
+BUCKET_SA_NAME="storage-admin-sa"
+BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 
 
-# # Eliminar BUCKET
+# ELIMINAR BUCKET
+gsutil rm -r gs://$BUCKET_NAME --quiet
 
-gsutil rm -r gs://$BUCKET_NAME
+# ELIMINAR ROLES ASOCIADOS A LA CUENTA DE SERVICIO
+gcloud projects remove-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID --quiet
+
+
+# ELIMINAR ROL PERSONALIZADO
+gcloud iam roles delete $BUCKET_ROLE_ID \
+    --project $PROJECT_ID --quiet
+
+# ELIMINAR CUENTA DE SERVICIO PARA EL BUCKET
+gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
+
+
+
+# # Eliminar cuenta de servicio
 
 # # Eliminar instancia de NFS SERVER
 # gcloud compute instances delete $NFS_INSTANCE_NAME \
