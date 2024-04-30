@@ -126,42 +126,56 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
 def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
     try:
         #VALIDAR QUE SEA UN VIDEO
-        if file.content_type != 'video/mp4':
+        if not validate_content_type(file.content_type):
             return False
 
-        # CREAR DIRECTORIO SI NO EXISTE
-        if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
-            os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
-        # CREAR DIRECTORIO SI NO EXISTE
-        if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
-            os.makedirs(settings.PUBLIC_DIR_PROCESSED)
+        # # CREAR DIRECTORIO SI NO EXISTE
+        # if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
+        #     os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
+        # # CREAR DIRECTORIO SI NO EXISTE
+        # if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
+        #     os.makedirs(settings.PUBLIC_DIR_PROCESSED)
 
-        unique_id = uuid.uuid4()
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
+        unique_id = uuid.uuid4()
         new_file_name = str(unique_id) + '_' + file.filename.replace(" ", "_")
        
 
-        file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
-        proccessed_file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, new_file_name)
-        with open(file_path, 'wb') as f:
-            f.write(file.file.read())
-        video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
-        video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
+        #file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        #proccessed_file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, new_file_name)
+        # TODO: GUARDARLO EN GOOGLE STORAGE
+        # TODO: IMPLEMENTAR SUBPROCESS PARA LLAMAR A LA HERRAMIENTA GSUTIL
+        # with open(file_path, 'wb') as f:
+        #     f.write(file.file.read())
+        #video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
+        #video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
         #print(video_url)
+        
+        
         new_task = Task(
             originalFileName=file.filename,
             fileName=new_file_name,
-            video_url=video_url,
-            video_processed_url=video_processed_url,
+            # video_url=video_url,
+            video_url="",
+            # video_processed_url=video_processed_url,
+            video_processed_url="",
             owner_id=user
         )
         db.add(new_task)
         db.commit()
         logger.info('Tarea creada con id -> ' + str(new_task.id))
-        process_video.delay(new_task.id)
+
+
+        # TODO: DESCOMENTAR HASTA IMPLEMENTAR TODA LA SOLUCION
+        # TODO: MEJORA - IMPLEMENTAR REDIS DE OTRA NUBE
+        #process_video.delay(new_task.id)
         return True
     except Exception as e:
         logger.error('Error al crear tarea')
         logger.error(e)
         db.rollback()
         return False
+
+
+def validate_content_type(content_type: str) -> bool:
+    return True if content_type == 'video/mp4' else False

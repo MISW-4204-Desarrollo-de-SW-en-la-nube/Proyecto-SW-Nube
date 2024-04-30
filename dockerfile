@@ -15,6 +15,18 @@ RUN apk add --no-cache postgresql-libs openjdk11 curl unzip nginx supervisor && 
     pip install psycopg2-binary && \    
     apk --purge del .build-deps
 
+# INSTALAR GOOGLE CLOUD SDK
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-471.0.0-linux-x86_64.tar.gz && \
+    tar zxvf google-cloud-cli-471.0.0-linux-x86_64.tar.gz && \
+    ./google-cloud-sdk/install.sh --quiet && \
+    rm google-cloud-cli-471.0.0-linux-x86_64.tar.gz
+
+# CONFIGURAR EL PATH DE GOOGLE CLOUD SDK
+ENV PATH $PATH:/app/google-cloud-sdk/bin
+
+# INSTALAR gsutil 
+RUN gcloud components install gsutil --quiet
+
 # Copia todo el contenido del directorio actual al contenedor en /app
 COPY ./app /app/app
 COPY ./job /app/job
