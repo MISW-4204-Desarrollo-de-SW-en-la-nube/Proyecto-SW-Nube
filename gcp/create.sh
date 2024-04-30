@@ -70,13 +70,13 @@ else
     fi
 fi
 
-gcloud iam roles update $BUCKET_ROLE_ID \ 
-    --project $PROJECT_ID \ 
+gcloud iam roles update $BUCKET_ROLE_ID \
+    --project $PROJECT_ID \
     --add-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
 # CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE Y SQL
-gcloud iam service-accounts create $BUCKET_SA_NAME \ 
-    --description="Service account to access the storage bucket and database from the vm" \ 
+gcloud iam service-accounts create $BUCKET_SA_NAME \
+    --description="Service account to access the storage bucket and database from the vm" \
     --display-name="Storage DB VM Admin Service Account"
 
 # ASIGNAR ROL A CUENTA DE SERVICIO
