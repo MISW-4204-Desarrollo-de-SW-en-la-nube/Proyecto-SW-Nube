@@ -143,7 +143,6 @@ gcloud compute instances create $INSTANCE_NAME \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/trace.append \
-    --create-disk=auto-delete=yes,boot=yes,device-name=instance-20240430-160232,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240415,mode=rw,size=10,type=projects/misw-4204-cloud/zones/us-central1-a/diskTypes/pd-balanced \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
