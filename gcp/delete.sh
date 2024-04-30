@@ -36,6 +36,10 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID --quiet
 
+# REMOVER PERMISOS DEL ROL
+gcloud iam roles update $BUCKET_ROLE_ID \
+        --project $PROJECT_ID \
+        --remove-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
 # ELIMINAR ROL PERSONALIZADO
 gcloud iam roles delete $BUCKET_ROLE_ID \
