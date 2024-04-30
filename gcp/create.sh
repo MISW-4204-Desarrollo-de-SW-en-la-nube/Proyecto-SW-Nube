@@ -10,8 +10,8 @@ export PROJECT_ID="misw-4204-cloud"
 export INSTANCE_NAME="web-server"
 export INSTANCE_NAME_BATCH="worker"
 export MACHINE_TYPE="e2-small"
-export DISK_SIZE_MACHINE="20GB"
-export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240213" 
+export DISK_SIZE_MACHINE="10GB"
+export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240312" 
 export REGION="us-west1"
 export ZONE="us-west1-b"
 export MACHINE_TAG="http-server,https-server"
@@ -70,23 +70,23 @@ else
     fi
 fi
 
-gcloud iam roles update $BUCKET_ROLE_ID \
-        --project $PROJECT_ID \
-        --add-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
+gcloud iam roles update $BUCKET_ROLE_ID \ 
+    --project $PROJECT_ID \ 
+    --add-permissions storage.buckets.delete,storage.buckets.get,storage.buckets.list,storage.objects.get,storage.objects.list,storage.objects.create,storage.objects.delete,storage.objects.update
 
 # CREAR CUENTA DE SERVICIO PARA PERMISOS DE STORAGE Y SQL
-gcloud iam service-accounts create $BUCKET_SA_NAME \
-    --description="Service account to access the storage bucket and database from the vm" \
+gcloud iam service-accounts create $BUCKET_SA_NAME \ 
+    --description="Service account to access the storage bucket and database from the vm" \ 
     --display-name="Storage DB VM Admin Service Account"
 
 # ASIGNAR ROL A CUENTA DE SERVICIO
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+gcloud projects add-iam-policy-binding $PROJECT_ID \ 
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+gcloud projects add-iam-policy-binding $PROJECT_ID \ 
     --member=serviceAccount:$BUCKET_SA_EMAIL \ 
     --role=roles/cloudsql.client
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+gcloud projects add-iam-policy-binding $PROJECT_ID \ 
     --member=serviceAccount:$BUCKET_SA_EMAIL \ 
     --role=roles/storage.objectViewer
 
