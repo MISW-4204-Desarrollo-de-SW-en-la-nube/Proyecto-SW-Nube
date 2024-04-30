@@ -53,8 +53,8 @@ gsutil mb -l $REGION gs://$BUCKET_NAME
 # # AGREGAR PERMISOS DE LECTURA A TODOS LOS USUARIOS
 gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
 
-# EXISTING_ROLE=$(gcloud iam roles describe custom.storage.admin --project misw-4204-cloud 2>&1)
-# echo $EXISTING_ROLE
+EXISTING_ROLE=$(gcloud iam roles describe custom.storage.admin --project misw-4204-cloud 2>&1)
+echo $EXISTING_ROLE
 
 if [[ $EXISTING_ROLE == *"NOT_FOUND"* ]]; then
     # CREAR EL ROL PERSONALIZADO
