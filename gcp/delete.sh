@@ -29,7 +29,7 @@ BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 
 
 # ELIMINAR BUCKET
-gsutil rm -r gs://$BUCKET_NAME --quiet
+gsutil rm -r gs://$BUCKET_NAME
 
 # ELIMINAR ROLES ASOCIADOS A LA CUENTA DE SERVICIO
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
