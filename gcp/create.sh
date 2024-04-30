@@ -156,6 +156,7 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo sh ./server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
     "
 # *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
+# Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
 # TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
 # sudo docker run -d -p 3500:3500 --name fastapi
 # TODO: ANIADIR MONITOR DE GCP
