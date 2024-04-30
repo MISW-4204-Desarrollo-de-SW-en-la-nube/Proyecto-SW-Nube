@@ -60,11 +60,22 @@ gsutil mb -l $REGION gs://$BUCKET_NAME
 # # AGREGAR PERMISOS DE LECTURA A TODOS LOS USUARIOS
 # gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
 
-# CREAR EL ROL PERSONALIZADO
-gcloud iam roles create $BUCKET_ROLE_ID \
+EXISTING_ROLE=$(gcloud iam roles describe custom.storage.admin --project misw-4204-cloud 2>&1)
+
+if [[ $EXISTING_ROLE == *"NOT_FOUND"* ]]; then
+    # CREAR EL ROL PERSONALIZADO
+    gcloud iam roles create $BUCKET_ROLE_ID \
     --project $PROJECT_ID \
     --title "$BUCKET_ROLE_TITLE" \
-    --description "Custom role for storage administration" \
+    --description "Custom role for storage administration"
+else
+    # El rol existe, verificamos si está en estado eliminado
+    DELETED=$(echo "$EXISTING_ROLE" | grep -c "deleted: true")
+    if [ $DELETED -eq 1 ]; then
+        gcloud iam roles undelete $BUCKET_ROLE_ID \
+            --project $PROJECT_ID
+    fi
+fi
 
 gcloud iam roles update $BUCKET_ROLE_ID \
         --project $PROJECT_ID \
