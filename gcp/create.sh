@@ -81,14 +81,10 @@ gcloud iam service-accounts create $BUCKET_SA_NAME \
 
 # ASIGNAR ROL A CUENTA DE SERVICIO
 gcloud projects add-iam-policy-binding $PROJECT_ID \ 
-    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \ 
     --role=projects/$PROJECT_ID/roles/$BUCKET_ROLE_ID
-gcloud projects add-iam-policy-binding $PROJECT_ID \ 
-    --member=serviceAccount:$BUCKET_SA_EMAIL \ 
-    --role=roles/cloudsql.client
-gcloud projects add-iam-policy-binding $PROJECT_ID \ 
-    --member=serviceAccount:$BUCKET_SA_EMAIL \ 
-    --role=roles/storage.objectViewer
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.client
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.objectViewer
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
