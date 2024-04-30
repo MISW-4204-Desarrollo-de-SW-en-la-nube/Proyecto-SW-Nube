@@ -37,7 +37,7 @@ app.mount('/' + settings.PUBLIC_DIR, StaticFiles(directory=settings.PUBLIC_DIR),
 @app.on_event("startup")
 async def startup():
     # Ejemplo de uso del logger
-    logger.info('Levantando la aplicación en el puerto 8000')
+    logger.info('Levantando la aplicación en el puerto 8080')
     logger.info('Estado debug: ' + str(settings.DEBUG))
     inspector = inspect(engine)
     existing_tables = inspector.get_table_names()

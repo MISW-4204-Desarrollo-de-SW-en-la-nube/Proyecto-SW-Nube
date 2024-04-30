@@ -22,7 +22,10 @@ RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cl
     rm google-cloud-cli-471.0.0-linux-x86_64.tar.gz
 
 # CONFIGURAR EL PATH DE GOOGLE CLOUD SDK
-ENV PATH $PATH:/app/google-cloud-sdk/bin
+ENV PATH="/app/google-cloud-sdk/bin:$PATH"
+
+# IAGEN DE EJEMPLO
+RUN curl https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Ada_Lovelace_portrait.jpg/800px-Ada_Lovelace_portrait.jpg --output ada.jpg
 
 # INSTALAR gsutil 
 RUN gcloud components install gsutil --quiet
@@ -35,7 +38,6 @@ COPY ./public /app/public
 COPY ./nginx.conf /etc/nginx/nginx.conf
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-
 # Dar permisos de ejecución a todos los archivos .py
 RUN find /app -type f -name "*.py" -exec chmod +x {} +
 
@@ -43,6 +45,4 @@ RUN find /app -type f -name "*.py" -exec chmod +x {} +
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación FastAPI
-# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
-# CMD ["uvicorn", "app.main:app", "--reload", "--workers", "1", "--host", "0.0.0.0", "--port", "8080"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -2,8 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
-# print(settings.DB_URL)
-
+print(settings.DB_URL)
 # motor de base de datos
 engine = create_engine(settings.DB_URL)
 
