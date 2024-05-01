@@ -172,7 +172,7 @@ def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: 
     try:
         file_bytes = file.file.read()
         logger.info("Subiendo archivo a Cloud Storage")
-        logger.info(f"gsutil cp - {file_path} gs://{bucket_name}/{destination_path}")
+        logger.info(f"gsutil cp - gs://{bucket_name}/{folder_path}/{destination_path}")
 
         process = subprocess.Popen(['gsutil', 'cp', '-', f'gs://{bucket_name}/{folder_path}/{destination_path}'],
                                    stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -180,9 +180,8 @@ def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: 
         
         # Permisos de lectura para todos los usuarios
         logger.info('Asignando permisos de lectura para todos los usuarios')
-        logger.info(f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{destination_path}")
-
-        command = f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{destination_path}"
+        logger.info(f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{folder_path}/{destination_path}")
+        command = f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{folder_path}/{destination_path}"
         subprocess.run(command, shell=True, check=True)
         return True
     except subprocess.CalledProcessError as e:
