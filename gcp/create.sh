@@ -141,7 +141,7 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     sudo chmod -R 777 /nube
-    cd nube
+    cd /nube
     sudo git checkout sem5
     sudo docker build -t fastapi-app /nube/.
     sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e BASE_URL=http://localhost:8080 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -p 8080:80 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
