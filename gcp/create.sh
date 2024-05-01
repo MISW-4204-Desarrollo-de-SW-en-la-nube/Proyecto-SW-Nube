@@ -123,6 +123,14 @@ DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddres
 
 ## ==================== INSTANCIA BATCH ====================
 
+DOCKER_COMMAND_BATCH="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
+echo "========================================================"
+echo "========================================================"
+echo "$DOCKER_COMMAND_BATCH"
+echo "========================================================"
+echo "========================================================"
+
+
 # CREAR INSTANCIA DE VM - PROCESOS DE BATCH
 gcloud compute instances create $INSTANCE_NAME_BATCH \
     --project $PROJECT_ID \
@@ -143,7 +151,7 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     sudo docker network create fpv-network
     sudo docker run -d --name redis -p 6379:6379  --network fpv-network redis:latest
     sudo docker build -t workertres -f /nube/dockerfile-worker /nube/.
-    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres 
+    $DOCKER_COMMAND_BATCH
     "
 
 # # ANIADIR TAGS A LA INSTANCIA
@@ -170,7 +178,7 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM2_5 \
     --source-ranges=0.0.0.0/0 \
     --target-tags=bath-server
 
-BATCH_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)')
+BATCH_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)')
 echo "BATCH IP: $BATCH_IP"
 
 
@@ -178,6 +186,12 @@ echo "BATCH IP: $BATCH_IP"
 
 DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
 echo "DB CONNECTION URL: $DB_CONNECTION_URL"
+
+echo "========================================================"
+echo "========================================================"
+DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app"
+echo "========================================================"
+echo "========================================================"
 
 # CREAR INSTANCIA DE VM - BACK PRINCIPAL
 gcloud compute instances create $INSTANCE_NAME \
@@ -196,7 +210,7 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     sudo chmod -R 777 /nube
     sudo docker build -t fastapi-app /nube/.
-    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
+    $DOCKER_COMMAND_WEB
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
@@ -241,7 +255,7 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
     --source-ranges=0.0.0.0/0 \
     --target-tags=http-server
 
-WEB_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)')
+WEB_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)')
 echo "WEB IP: $WEB_IP"
 
 ## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
