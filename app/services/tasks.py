@@ -135,23 +135,17 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         unique_id = uuid.uuid4()
         new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
 
-        # with open(file_path, 'wb') as f:
-        #     f.write(file.file.read())
-        #video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
-        #video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
-
         # Subir los datos al bucket de Cloud Storage
-        if upload_file_to_bucket(file, settings.DB_URL, new_file_name):
+        if upload_file_to_bucket(file, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):
 
             # TODO: OBTENER LA URL DEL VIDEO SUBIDO
-            video_url = get_video_url(settings.DB_URL, new_file_name)
-
+            video_url = get_video_url(settings.DB_URL, settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+            video_processed_url = get_video_url(settings.DB_URL, settings.PUBLIC_DIR_PROCESSED, new_file_name)
             new_task = Task(
                 originalFileName=file.filename,
                 fileName=new_file_name,
                 video_url=video_url,
-                # video_processed_url=video_processed_url,
-                video_processed_url="",
+                video_processed_url=video_processed_url,
                 owner_id=user
             )
             db.add(new_task)
@@ -174,16 +168,20 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
 def validate_content_type(content_type: str) -> bool:
     return True if content_type == 'video/mp4' else False
 
-def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: str) -> bool:
+def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: str, folder_path: str) -> bool:
     try:
         file_bytes = file.file.read()
         logger.info("Subiendo archivo a Cloud Storage")
-        print(file_bytes)
         logger.info(f"gsutil cp - {file_path} gs://{bucket_name}/{destination_path}")
-        cmd = f"gsutil cp - gs://{bucket_name}/{destination_path}"
-        process = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
-        process.communicate(input=file_bytes)
-        # Permitir el acceso público al archivo subido
+
+        process = subprocess.Popen(['gsutil', 'cp', '-', f'gs://{bucket_name}/{folder_path}/{destination_path}'],
+                                   stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate(input=file_bytes)
+        
+        # Permisos de lectura para todos los usuarios
+        logger.info('Asignando permisos de lectura para todos los usuarios')
+        logger.info(f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{destination_path}")
+
         command = f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{destination_path}"
         subprocess.run(command, shell=True, check=True)
         return True
@@ -192,5 +190,5 @@ def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: 
         logger.error(e)
         return False
 
-def get_video_url(bucket_name: str, file_name: str) -> str:
-    return f"https://storage.googleapis.com/{bucket_name}/{file_name}"
+def get_video_url(bucket_name: str, folder_path: str, file_name: str) -> str:
+    return f"https://storage.googleapis.com/{bucket_name}/{folder_path}/{file_name}"
