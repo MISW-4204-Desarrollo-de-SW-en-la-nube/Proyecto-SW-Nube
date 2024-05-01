@@ -137,21 +137,19 @@ gcloud compute instances create $INSTANCE_NAME \
     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/trace.append \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
+    sudo chmod +x /usr/local/bin/docker-compose
+    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     sudo chmod -R 777 /nube
     cd nube
     sudo git checkout sem5
     sudo docker build -t fastapi-app /nube/.
-    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e BASE_URL=http://localhost:8080 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -p 3500:8080 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
+    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e BASE_URL=http://localhost:8080 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -p 8080:80 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
     "
 
-# NO SE USA DOCKER COMPOSE EN ESTA INSTANCIA
-# sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-# sudo chmod +x /usr/local/bin/docker-compose
-# se saca el agente
 # *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
 # Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
 # TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
