@@ -144,8 +144,7 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
             db.commit()
             logger.info('Tarea creada con id -> ' + str(new_task.id))
 
-            # TODO: DESCOMENTAR HASTA IMPLEMENTAR TODA LA SOLUCION
-            #process_video.delay(new_task.id)
+            process_video.delay(new_task.id)
             return True
         else:
             return False

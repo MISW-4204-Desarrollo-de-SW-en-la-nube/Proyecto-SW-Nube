@@ -121,73 +121,6 @@ gcloud sql users set-password postgres \
 # OBTENER IP DE LA BASE DE DATOS
 DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | cut -d';' -f1)
 
-## ==================== INSTANCIA WEB (BACK) ====================
-
-DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
-echo "DB CONNECTION URL: $DB_CONNECTION_URL"
-
-# CREAR INSTANCIA DE VM - BACK PRINCIPAL
-gcloud compute instances create $INSTANCE_NAME \
-    --project $PROJECT_ID \
-    --machine-type $MACHINE_TYPE \
-    --boot-disk-size $DISK_SIZE_MACHINE \
-    --image $IMAGE \
-    --zone $ZONE \
-    --service-account $BUCKET_SA_EMAIL \
-    --provisioning-model $INSTANCE_TYPE \
-    --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-    --metadata=startup-script="#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
-    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-    sudo chmod -R 777 /nube
-    sudo docker build -t fastapi-app /nube/.
-    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
-    sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
-    sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
-    sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
-    "
-
-# CORRER DOCKER - COMANDO EJEMPLO
-# docker run  -e DB_URL=postgresql://postgres:password@34.127.86.181:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
-# *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
-# Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
-# TODO: CAMBIAR LA IP DEL CONTENDEOR POR EL DEL BALANCEADOR
-
-# AÑADIR TAGS A LA INSTANCIA
-gcloud compute instances add-tags $INSTANCE_NAME --tags $MACHINE_TAG
-
-# CREAR REGLA DE FIREWALL - PERFORMANCE
-gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:3500  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=http-server
-
-# CREAR REGLA DE FIREWALL - PERFORMANCE
-gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:4444  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=http-server
-
-# CREAR REGLA DE FIREWALL- NGINX
-gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:8080  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=http-server
-
 ## ==================== INSTANCIA BATCH ====================
 
 # CREAR INSTANCIA DE VM - PROCESOS DE BATCH
@@ -236,9 +169,85 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM2_5 \
     --source-ranges=0.0.0.0/0 \
     --target-tags=bath-server
 
+BATCH_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)')
+echo "BATCH IP: $BATCH_IP"
+
+
+## ==================== INSTANCIA WEB (BACK) ====================
+
+DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
+echo "DB CONNECTION URL: $DB_CONNECTION_URL"
+
+# CREAR INSTANCIA DE VM - BACK PRINCIPAL
+gcloud compute instances create $INSTANCE_NAME \
+    --project $PROJECT_ID \
+    --machine-type $MACHINE_TYPE \
+    --boot-disk-size $DISK_SIZE_MACHINE \
+    --image $IMAGE \
+    --zone $ZONE \
+    --service-account $BUCKET_SA_EMAIL \
+    --provisioning-model $INSTANCE_TYPE \
+    --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
+    --metadata=startup-script="#! /bin/bash
+    sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
+    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
+    sudo chmod -R 777 /nube
+    sudo docker build -t fastapi-app /nube/.
+    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
+    sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
+    sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
+    sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
+    "
+
+# CORRER DOCKER - COMANDO EJEMPLO
+# docker run  -e DB_URL=postgresql://postgres:password@34.127.86.181:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
+# *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
+# Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
+# TODO: CAMBIAR LA IP DEL CONTENDEOR POR EL DEL BALANCEADOR
+
+# AÑADIR TAGS A LA INSTANCIA
+gcloud compute instances add-tags $INSTANCE_NAME --tags $MACHINE_TAG
+
+# CREAR REGLA DE FIREWALL - PERFORMANCE
+gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --action=ALLOW \
+    --rules=tcp:3500  \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=http-server
+
+# CREAR REGLA DE FIREWALL - PERFORMANCE
+gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --action=ALLOW \
+    --rules=tcp:4444  \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=http-server
+
+# CREAR REGLA DE FIREWALL- NGINX
+gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --action=ALLOW \
+    --rules=tcp:8080  \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=http-server
+
+WEB_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)')
+echo "WEB IP: $WEB_IP"
+
+## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
+
 # # Autorizar la vm en las redes de la base de datos
 gcloud sql instances patch $DB_INSTANCE_NAME \
-    --authorized-networks=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)'),$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)') \
+    --authorized-networks=$WEB_IP,$BATCH_IP \
     --quiet
 
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
