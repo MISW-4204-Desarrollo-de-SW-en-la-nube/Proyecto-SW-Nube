@@ -121,15 +121,17 @@ gcloud sql users set-password postgres \
 # OBTENER IP DE LA BASE DE DATOS
 DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | cut -d';' -f1)
 
+DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
+echo "DB CONNECTION URL: $DB_CONNECTION_URL"
+
 ## ==================== INSTANCIA BATCH ====================
 
+echo "========================================================"
+echo "========================================================"
 DOCKER_COMMAND_BATCH="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
-echo "========================================================"
-echo "========================================================"
 echo "$DOCKER_COMMAND_BATCH"
 echo "========================================================"
 echo "========================================================"
-
 
 # CREAR INSTANCIA DE VM - PROCESOS DE BATCH
 gcloud compute instances create $INSTANCE_NAME_BATCH \
@@ -155,8 +157,7 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     "
 
 # # ANIADIR TAGS A LA INSTANCIA
-gcloud compute instances add-tags $INSTANCE_NAME_BATCH \
- --tags $MACHINE_TAG_BATCH
+gcloud compute instances add-tags $INSTANCE_NAME_BATCH --tags $MACHINE_TAG_BATCH
 
 # # CREAR REGLA DE FIREWALL- REDIS
 gcloud compute firewall-rules create $FIREWALL_RULE_VM2_4 \
@@ -183,9 +184,6 @@ echo "BATCH IP: $BATCH_IP"
 
 
 ## ==================== INSTANCIA WEB (BACK) ====================
-
-DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
-echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 
 echo "========================================================"
 echo "========================================================"
