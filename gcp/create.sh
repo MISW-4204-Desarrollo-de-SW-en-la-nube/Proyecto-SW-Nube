@@ -190,6 +190,7 @@ echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 echo "========================================================"
 echo "========================================================"
 DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app"
+echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
 
