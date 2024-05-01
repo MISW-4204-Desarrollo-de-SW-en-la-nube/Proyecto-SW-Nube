@@ -15,7 +15,6 @@ def add():
 @celery.task(max_retries=3)
 def process_video(taks_id):
     logger.info('Processing video with id: ' + str(taks_id))
-    time.sleep(0.5)
     ejecutar_script_sh(taks_id)
     
 

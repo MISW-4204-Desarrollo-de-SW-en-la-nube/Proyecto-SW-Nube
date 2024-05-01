@@ -7,12 +7,8 @@ load_dotenv()
 
 
 def conectar_bd():
-    # motor = os.getenv("DB_URL", "postgresql://fpv_user_dev:pfv_user_pwd@localhost:5080/fpv_db_dev")
-    # motor = "postgresql://fpv_user_dev:pfv_user_pwd@localhost:5432/fpv_db_dev"
     motor = os.getenv("DB_URL", "postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev")
     print("motor: ", motor)
-    # motor = os.getenv("MOTOR_CONEXION", "postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev")
-    # motor = "postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev"
     try:
         engine = create_engine(motor)
         print("Conexión exitosa a la base de datos PostgreSQL.")
@@ -41,22 +37,36 @@ def ejecutar_script_sh(id):
             print("processed_url: " + processed_url)
 
             # Ejemplo de uso
-            public_folder = os.getenv("PUBLIC_DIR", "http://localhost:8080")
-            # video_url = "../public/uploaded/5a0f3089-bcc0-4d13-a922-3142feddf13d_editar-tag-sin-titulo.mp4"
-            video_url_relative  = video_url.replace(public_folder, "").replace("\\", "/")
-            processed_url_relative  = processed_url.replace(public_folder, "").replace("\\", "/")
+            public_folder = "https://storage.googleapis.com/"
+            bucket_name = os.getenv("BUCKET_NAME")
+            print("bucket_name: ", bucket_name)
+            #OBTENER RUTA PARA DESCARGAR EL VIDEO
+            file_video_path = video_url.replace(public_folder, 'gs://')
+            file_video_processed_path = processed_url.replace(public_folder, 'gs://')
+            public_bucket = f"https://storage.googleapis.com/{bucket_name}/"
+            print("file_video_path: ", file_video_path)
 
+            video_url_relative  = video_url.replace(public_bucket, "").replace("\\", "/")
+            processed_url_relative  = processed_url.replace(public_bucket, "").replace("\\", "/")
+            print("video_url_relative: ", video_url_relative)
+            print("processed_url_relative: ", processed_url_relative)
             # Construir la ruta local de los archivos
             video_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), video_url_relative)
             processed_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), processed_url_relative)
+            print("video_url_local: ", video_url_local)
+            print("processed_url_local: ", processed_url_local)
 
-            print("video_url local: " + video_url_local)
-            print("processed_url local: " + processed_url_local)
+            # DESCARGAR VIDEO DEL BUCKET
+            # gsutil cp -r gs://YOUR-BUCKET-NAME/ada.jpg .
+            subprocess.run(['gsutil', 'cp', '-r', file_video_path, video_url_local], check=True)
 
             ruta_script_sh = os.path.join(os.path.dirname(os.path.realpath(__file__)), "process.sh")
             video_logo = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagen_video.mp4")
             comando = ["sh", ruta_script_sh, video_url_local, processed_url_local, video_logo]
             subprocess.run(comando, check=True)
+            # SUBIR VIDEO PROCESADO
+            command = ["gsutil", "cp", processed_url_local, file_video_processed_path]
+            subprocess.run(command, check=True)
 
             update_stmt = text("UPDATE tasks SET status='processed' WHERE id = :id").bindparams(id=id)
             connection.execute(update_stmt)
@@ -67,6 +77,3 @@ def ejecutar_script_sh(id):
         engine.dispose()
     
 
-
-# ejecutar_script_sh(video_entrada, video_salida)
-# ejecutar_script_sh(2)

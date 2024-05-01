@@ -98,28 +98,17 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
     if task:
         # ELIMINAR ARCHIVO DE VIDEO SI ESTA DISPONIBLE
         if task.status == 'processed':
-            public_folder = os.getenv("BASE_URL", "http://localhost:8080")
-            # video_url = "../public/uploaded/5a0f3089-bcc0-4d13-a922-3142feddf13d_editar-tag-sin-titulo.mp4"
             if task.video_url:
-                video_url_relative  = task.video_url.replace(public_folder, "").replace("\\", "/")
-                video_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), video_url_relative)
-                #valida si el archivo existe
-                print("Ruta del archivo a eliminar 1")
-                # print(video_url_local)
-                if os.path.exists(video_url_local):
-                    os.remove(video_url_local)
-
+                logger.info('Eliminando archivo de video sin procesar')
+                file_video_path = task.video_url.replace('https://storage.googleapis.com/', 'gs://')
+                process = subprocess.Popen(['gsutil', 'rm', file_video_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+               
             if task.video_processed_url:
-                processed_url_relative  = task.video_processed_url.replace(public_folder, "").replace("\\", "/")
-                processed_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), processed_url_relative)
-                print("Ruta del archivo a eliminar 2")
-                # print(processed_url_local)
                 #valida si el archivo existe
-                if os.path.exists(processed_url_local):
-                    os.remove(processed_url_local)
+                file_processed_video_path = task.video_processed_url.replace('https://storage.googleapis.com/', 'gs://')
+                process = subprocess.Popen(['gsutil', 'rm', file_processed_video_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                logger.info('Eliminando archivo de video procesado')
 
-       
-            
             db.delete(task)
             db.commit()
             return True
@@ -138,7 +127,6 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         # Subir los datos al bucket de Cloud Storage
         if upload_file_to_bucket(file, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):
 
-            # TODO: OBTENER LA URL DEL VIDEO SUBIDO
             video_url = get_video_url(settings.DB_URL, settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
             video_processed_url = get_video_url(settings.DB_URL, settings.PUBLIC_DIR_PROCESSED, new_file_name)
             new_task = Task(

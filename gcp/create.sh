@@ -143,17 +143,16 @@ gcloud compute instances create $INSTANCE_NAME \
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     sudo chmod -R 777 /nube
     sudo docker build -t fastapi-app /nube/.
-    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
+    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
     "
 
+# CORRER DOCKER - COMANDO EJEMPLO
+# docker run  -e DB_URL=postgresql://postgres:password@34.127.86.181:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app 
 # *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
 # Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
-# TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
-# sudo docker run -d -p 3500:3500 --name fastapi
-# TODO: ANIADIR MONITOR DE GCP.
 # TODO: CAMBIAR LA IP DEL CONTENDEOR POR EL DEL BALANCEADOR
 
 # AÑADIR TAGS A LA INSTANCIA
@@ -201,13 +200,16 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --metadata=startup-script="#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io git python3 nfs-common
+    sudo apt update && sudo apt install -y docker.io git python3
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git  nube
-    cd nube
     sudo chmod -R 777 /nube
-    sudo docker-compose build redis workertres
+    cd nube
+    sudo docker network create fpv-network
+    sudo docker run -d --name redis -p 6379:6379  --network fpv-network redis:latest
+    sudo docker build -t workertres -f /nube/dockerfile-worker /nube/.
+    sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres 
     "
 
 # # ANIADIR TAGS A LA INSTANCIA
