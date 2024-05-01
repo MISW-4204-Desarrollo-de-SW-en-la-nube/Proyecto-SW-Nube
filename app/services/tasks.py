@@ -101,13 +101,17 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
             if task.video_url:
                 logger.info('Eliminando archivo de video sin procesar')
                 file_video_path = task.video_url.replace('https://storage.googleapis.com/', 'gs://')
-                process = subprocess.Popen(['gsutil', 'rm', file_video_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                logger.info('Eliminando archivo de video sin procesar -> ' + file_video_path)
+                command = ['gsutil', 'rm', file_video_path]
+                subprocess.run(command, check=True)
                
             if task.video_processed_url:
                 #valida si el archivo existe
-                file_processed_video_path = task.video_processed_url.replace('https://storage.googleapis.com/', 'gs://')
-                process = subprocess.Popen(['gsutil', 'rm', file_processed_video_path], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
                 logger.info('Eliminando archivo de video procesado')
+                file_processed_video_path = task.video_processed_url.replace('https://storage.googleapis.com/', 'gs://')
+                logger.info('Eliminando archivo de video procesado -> ' + file_processed_video_path)
+                command = ['gsutil', 'rm', file_processed_video_path]
+                subprocess.run(command, check=True)
 
             db.delete(task)
             db.commit()
@@ -127,8 +131,8 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         # Subir los datos al bucket de Cloud Storage
         if upload_file_to_bucket(file, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):
 
-            video_url = get_video_url(settings.DB_URL, settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
-            video_processed_url = get_video_url(settings.DB_URL, settings.PUBLIC_DIR_PROCESSED, new_file_name)
+            video_url = get_video_url(settings.BUCKET_NAME, settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+            video_processed_url = get_video_url(settings.BUCKET_NAME, settings.PUBLIC_DIR_PROCESSED, new_file_name)
             new_task = Task(
                 originalFileName=file.filename,
                 fileName=new_file_name,
@@ -167,9 +171,9 @@ def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: 
         stdout, stderr = process.communicate(input=file_bytes)
         
         # Permisos de lectura para todos los usuarios
-        logger.info('Asignando permisos de lectura para todos los usuarios')
-        logger.info(f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{folder_path}/{destination_path}")
-        command = f"gsutil acl ch -u AllUsers:R gs://{bucket_name}/{folder_path}/{destination_path}"
+        logger.info('Quitar el acceo publico al archivo subido')
+        logger.info(f"gsutil acl ch -d AllUsers gs://{bucket_name}/{folder_path}/{destination_path}")
+        command = f"gsutil acl ch -d AllUsers gs://{bucket_name}/{folder_path}/{destination_path}"
         subprocess.run(command, shell=True, check=True)
         return True
     except subprocess.CalledProcessError as e:

@@ -10,7 +10,7 @@ COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # Instalar psycopg2 para interactuar con PostgreSQL
-RUN apk add --no-cache postgresql-libs openjdk11 curl unzip nginx supervisor && \
+RUN apk add --no-cache postgresql-libs openjdk11 curl unzip nano nginx supervisor && \
     apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
     pip install psycopg2-binary && \    
     apk --purge del .build-deps
