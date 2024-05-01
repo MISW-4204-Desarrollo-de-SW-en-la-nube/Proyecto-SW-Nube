@@ -7,20 +7,22 @@ if [ -z "$1" ]; then
 fi
 
 export PROJECT_ID="misw-4204-cloud"
-export INSTANCE_NAME="web-server"
-export INSTANCE_NAME_BATCH="worker"
-export MACHINE_TYPE="e2-small"
-export DISK_SIZE_MACHINE="10GB"
-export IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415" 
-export REGION="us-west1"
-export ZONE="us-west1-b"
-export MACHINE_TAG="http-server,https-server"
-export MACHINE_TAG_BATCH="bath-server"
-export INSTANCE_TYPE="SPOT"
-export FIREWALL_RULE_VM1_2="allow-perf-port"
-export FIREWALL_RULE_VM1_3="allow-nginx-port"
-export FIREWALL_RULE_VM2_4="allow-redis-port"
-export FIREWALL_RULE_VM2_5="allow-celery-port"
+INSTANCE_NAME="web-server"
+INSTANCE_NAME_BATCH="worker"
+MACHINE_TYPE="e2-small"
+DISK_SIZE_MACHINE="10GB"
+IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415" 
+REGION="us-west1"
+ZONE="us-west1-b"
+MACHINE_TAG="http-server,https-server"
+MACHINE_TAG_BATCH="bath-server"
+INSTANCE_TYPE="SPOT"
+# REGLAS DE FIREWALL
+FIREWALL_RULE_VM1_1="allow-fastapi-port"
+FIREWALL_RULE_VM1_2="allow-perf-port"
+FIREWALL_RULE_VM1_3="allow-nginx-port"
+FIREWALL_RULE_VM2_4="allow-redis-port"
+FIREWALL_RULE_VM2_5="allow-celery-port"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 POSTGRES_VERSION="POSTGRES_15"
@@ -135,16 +137,21 @@ gcloud compute instances create $INSTANCE_NAME \
     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.read_write,https://www.googleapis.com/auth/trace.append \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
-    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
+    sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
     sudo chmod -R 777 /nube
+    cd nube
+    sudo git checkout sem5
     sudo docker build -t fastapi-app /nube/.
     sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e BASE_URL=http://localhost:8080 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -p 3500:8080 -p 6379:6379 -v ~/.config:/root/.config fastapi-app 
     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
     "
+
+# NO SE USA DOCKER COMPOSE EN ESTA INSTANCIA
+# sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+# sudo chmod +x /usr/local/bin/docker-compose
+# se saca el agente
 # *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
 # Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
 # TODO: INICIAR DOCKER SIN DOCKER-COMPOSE (YA NO NECESITA VOLUMENES) (SE DEBEN PASAR LAS VARIABLES DE CONFIGURACION DE ENV)
@@ -154,6 +161,16 @@ gcloud compute instances create $INSTANCE_NAME \
 
 # AÑADIR TAGS A LA INSTANCIA
 gcloud compute instances add-tags $INSTANCE_NAME --tags $MACHINE_TAG
+
+# CREAR REGLA DE FIREWALL - PERFORMANCE
+gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
+    --direction=INGRESS \
+    --priority=1000 \
+    --network=default \
+    --action=ALLOW \
+    --rules=tcp:3500  \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=http-server
 
 # CREAR REGLA DE FIREWALL - PERFORMANCE
 gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \

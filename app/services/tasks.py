@@ -178,9 +178,11 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
 def validate_content_type(content_type: str) -> bool:
     return True if content_type == 'video/mp4' else False
 
-def upload_file_to_bucket(file_path: UploadFile, bucket_name: str, destination_path: str) -> bool:
+def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: str) -> bool:
     try:
         file_bytes = file.file.read()
+        print("Subiendo archivo a Cloud Storage")
+        print(file_bytes)
         logger.error(f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}")
         # command = f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}"
         cmd = f"gsutil cp - {BUCKET_NAME}/{new_file_name}"
