@@ -6,12 +6,13 @@ export INSTANCE_NAME_BATCH="worker"
 export REGION="us-west1"
 export ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
-export DB_INSTANCE_NAME="mv2-db"
-export DB_NAME="db-test"
-export FIREWALL_RULE_VM1_2="allow-perf-port"
-export FIREWALL_RULE_VM1_3="allow-nginx-port"
-export FIREWALL_RULE_VM2_4="allow-redis-port"
-export FIREWALL_RULE_VM2_5="allow-celery-port"
+DB_INSTANCE_NAME="mv2-db"
+DB_NAME="db-test"
+FIREWALL_RULE_VM1_1="allow-fastapi-port"
+FIREWALL_RULE_VM1_2="allow-perf-port"
+FIREWALL_RULE_VM1_3="allow-nginx-port"
+FIREWALL_RULE_VM2_4="allow-redis-port"
+FIREWALL_RULE_VM2_5="allow-celery-port"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
@@ -64,6 +65,9 @@ gcloud compute instances delete $INSTANCE_NAME_BATCH \
     --quiet
 
 # Eliminar regla de firewall
+gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_1 \
+    --project $PROJECT_ID \
+    --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
     --project $PROJECT_ID \
     --quiet
