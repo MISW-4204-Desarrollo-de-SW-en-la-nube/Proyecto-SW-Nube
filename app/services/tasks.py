@@ -135,10 +135,6 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         unique_id = uuid.uuid4()
         new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
 
-        upload_file_to_bucket(file.file, settings.BUCKET_NAME, new_file_name)
-
-        
-
         # with open(file_path, 'wb') as f:
         #     f.write(file.file.read())
         #video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
@@ -181,11 +177,10 @@ def validate_content_type(content_type: str) -> bool:
 def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: str) -> bool:
     try:
         file_bytes = file.file.read()
-        print("Subiendo archivo a Cloud Storage")
+        logger.info("Subiendo archivo a Cloud Storage")
         print(file_bytes)
-        logger.error(f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}")
-        # command = f"gsutil cp {file_path} gs://{bucket_name}/{destination_path}"
-        cmd = f"gsutil cp - {BUCKET_NAME}/{new_file_name}"
+        logger.info(f"gsutil cp - {file_path} gs://{bucket_name}/{destination_path}")
+        cmd = f"gsutil cp - gs://{bucket_name}/{destination_path}"
         process = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE)
         process.communicate(input=file_bytes)
         # Permitir el acceso público al archivo subido
