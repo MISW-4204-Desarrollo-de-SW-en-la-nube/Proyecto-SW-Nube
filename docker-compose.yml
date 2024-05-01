@@ -11,8 +11,6 @@ services:
       - DB_URL=postgresql://postgres:password@postgres:5432/db-test
       # - DB_URL=postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev
       - SECRET_KEY="supreSecretKey123."
-      # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA
-      - BASE_URL=http://localhost:8080
       # DEJAR EN FALSE PARA PRODUCCION
       - DEBUG=False
       # CAMBIAR POR LA IP DE LA MAQUINA DONDE SE EJECUTA REDIS

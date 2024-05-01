@@ -40,7 +40,6 @@ class Settings(BaseSettings):
     PUBLIC_DIR_NOT_PROCESSED: str = "public/uploaded"
     PUBLIC_DIR_PROCESSED: str = "public/processed"
     PUBLIC_DIR: str = "public"
-    BASE_URL: str = None
     BUCKET_NAME: str = None
 
     class Config:
