@@ -45,43 +45,40 @@ def ejecutar_script_sh(id):
             bucket_name = os.getenv("BUCKET_NAME")
             print("bucket_name: ", bucket_name)
 
-
-            file_video_path = video_url.replace(public_folder, 'gs://')
-            file_video_processed_path = f"gs://{bucket_name}/public/processed"
-            public_bucket = f"https://storage.googleapis.com/{bucket_name}/"
-            print("file_video_path: " + file_video_path)
-
-            video_url_relative  = video_url.replace(public_bucket, "").replace("\\", "/")
-            processed_url_relative  = processed_url.replace(public_bucket, "").replace("\\", "/")
-            print("video_url_relative: " + video_url_relative)
-
-
-            print("processed_url_relative: " + processed_url_relative)
-            # Construir la ruta local de los archivos
-            video_url_local = os.path.join("../", video_url_relative)
-            processed_url_local = os.path.join("../", processed_url_relative)
+            # DESCARGAR VIDEO DEL BUCKET
+            video_url = video_url.replace(public_folder, 'gs://')
+            download_video_path = "/app/public/uploaded/"
+            video_url_local = os.path.join(download_video_path, original_file_name)
+            processed_video_path = "/app/public/processed/"
+            processed_url_local = os.path.join(processed_video_path, original_file_name)
+            print("video_url: " + video_url)
             print("video_url_local: " + video_url_local)
             print("processed_url_local: " + processed_url_local)
-
-            # DESCARGAR VIDEO DEL BUCKET
-            # gsutil cp -r gs://YOUR-BUCKET-NAME/ada.jpg .
-            subprocess.run(['gsutil', 'cp', '-r', file_video_path, video_url_local], check=True)
-
+            subprocess.run(['gsutil', 'cp', '-r', video_url, download_video_path], check=True)
+            
+            #CONVERTIR VIDEO
             ruta_script_sh = os.path.join(os.path.dirname(os.path.realpath(__file__)), "process.sh")
             video_logo = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagen_video.mp4")
             comando = ["sh", ruta_script_sh, video_url_local, processed_url_local, video_logo]
             subprocess.run(comando, check=True)
+
             # SUBIR VIDEO PROCESADO
-            command = ["gsutil", "cp", processed_url_local, file_video_processed_path]
+            processed_url = processed_url.replace(public_folder, 'gs://')
+            command = ["gsutil", "cp", processed_url_local, processed_url]
             subprocess.run(command, check=True)
-            # BORRAR VIDEO DESCARGADO
-            os.remove(video_url_local)
-            # BORRAR VIDEO PROCESADO
+
+
+            # ELIMINAR ARCHIVO DE VIDEO SIN PROCESAR
+            print("Eliminando archivo de video sin procesar")
+            os.remove(download_video_path + original_file_name)
+
+            # ELIMINAR ARCHIVO DE VIDEO PROCESADO
+            print("Eliminando archivo de video procesado")
             os.remove(processed_url_local)
 
-            #update_stmt = text("UPDATE tasks SET status='processed' WHERE id = :id").bindparams(id=id)
-            #connection.execute(update_stmt)
-            #connection.commit()
+            update_stmt = text("UPDATE tasks SET status='processed' WHERE id = :id").bindparams(id=id)
+            connection.execute(update_stmt)
+            connection.commit()
 
 
         connection.close()
