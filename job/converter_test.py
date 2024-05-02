@@ -43,7 +43,7 @@ def ejecutar_script_sh(id):
             # Ejemplo de uso
             public_folder = "https://storage.googleapis.com/"
             bucket_name = os.getenv("BUCKET_NAME")
-            print("bucket_name: ", bucket_name)
+            print("bucket_name: "+ bucket_name)
 
             # DESCARGAR VIDEO DEL BUCKET
             video_url = video_url.replace(public_folder, 'gs://')
