@@ -117,6 +117,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.objectViewer
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.admin
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/logging.admin
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
@@ -266,7 +267,7 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-    CURRENT_IP = $(curl -s ifconfig.me.)
+    sudo gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me)  --quiet
     sudo chmod -R 777 /nube
     sudo docker build -t fastapi-app /nube/.
     $DOCKER_COMMAND_WEB
@@ -568,6 +569,7 @@ gcloud compute forwarding-rules create $FORWARDING_RULE_NAME \
 gcloud sql instances patch $DB_INSTANCE_NAME \
     --authorized-networks=$BATCH_IP \
     --quiet
+# gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me.)  --quiet
 
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
 # # sudo apt-get install postgresql-client -y
