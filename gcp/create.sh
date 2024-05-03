@@ -376,7 +376,7 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
 
 gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER_GROUP \
     --project $PROJECT_ID \
-    --zone $ZONE \
+    --zone $ZONE_INSTANCE_GROUP \
     --mode on \
     --min-num-replicas 1 \
     --max-num-replicas 3 \
