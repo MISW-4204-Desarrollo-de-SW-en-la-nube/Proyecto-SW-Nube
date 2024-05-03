@@ -378,7 +378,7 @@ gcloud compute forwarding-rules create $FORWARDING_RULE_NAME \
 
 # # Autorizar la vm en las redes de la base de datos
 gcloud sql instances patch $DB_INSTANCE_NAME \
-    --authorized-networks=$BATCH_IP \
+    --authorized-networks=$BATCH_IP,"0.0.0.0/0" \
     --quiet
 # gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me.)  --quiet
 
