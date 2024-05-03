@@ -207,7 +207,6 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM2_5 \
 BATCH_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)')
 echo "BATCH IP: $BATCH_IP"
 
-
 ## ==================== INSTANCIA WEB (BACK) ====================
 
 echo "========================================================"
@@ -217,35 +216,11 @@ echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
 
-# CREAR INSTANCIA DE VM - BACK PRINCIPAL
-# gcloud compute instances create $INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --machine-type $MACHINE_TYPE \
-#     --boot-disk-size $DISK_SIZE_MACHINE \
-#     --image $IMAGE \
-#     --zone $ZONE \
-#     --service-account $BUCKET_SA_EMAIL \
-#     --provisioning-model $INSTANCE_TYPE \
-#     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-#     sudo chmod -R 777 /nube
-#     sudo docker build -t fastapi-app /nube/.
-#     $DOCKER_COMMAND_WEB
-#     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
-#     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
-#     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
-#     "
 
 # CORRER DOCKER - COMANDO EJEMPLO
 # docker run  -e DB_URL=postgresql://postgres:password@34.127.86.181:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app
 # *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
 # Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
-# TODO: CAMBIAR LA IP DEL CONTENDEOR POR EL DEL BALANCEADOR
-
 
 ## ==================== TEMPLATE - INSTANCIA WEB (BACK) ====================
 
@@ -276,29 +251,6 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
 # sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
 # sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
 
-# gcloud compute instance-templates create web-server-template \
-#     --region us-west1 \
-#     --project misw-4204-cloud \
-#     --network default \
-#     --subnet default \
-#     --instance-template-region us-west1 \
-#     --machine-type e2-small \
-#     --boot-disk-type pd-balanced \
-#     --image projects/debian-cloud/global/images/debian-11-bullseye-v20240415 \
-#     --service-account storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com \
-#     --provisioning-model SPOT \
-#     --tags allow-health-check,http-server \
-#     --scopes https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io git
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-#     sudo chmod -R 777 /nube
-#     sudo docker build -t fastapi-app /nube/.
-#     sudo docker run -d -e DB_URL=postgresql://postgres:pasqqwrsgb3@34.83.16.118:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://34.82.33.129:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app
-#     "
-
 ## ======================= FIREWALL =================================
 
 
@@ -310,13 +262,6 @@ gcloud compute firewall-rules create $FIREWALL_RULE_TEMPLATE \
   --target-tags $TARGET_FIREWALL_RULE_TEMPLATE \
   --rules tcp:$PORT_WEB
 
-# gcloud compute firewall-rules create fw-allow-health-check \
-#   --network default \
-#   --action allow \
-#   --direction ingress \
-#   --source-ranges 0.0.0.0/0 \
-#   --target-tags allow-health-check \
-#   --rules tcp:8080
 
 ## ==================== HEALTH CHECK ==============================
 
@@ -330,17 +275,6 @@ gcloud compute health-checks create http $HEALTH_CHECK_VM \
     --request-path "/" \
     --timeout 10s \
     --port $PORT_WEB
-
-# gcloud compute health-checks create http http-check \
-#     --region us-west1 \
-#     --description "Checks HTTP service on port 8080" \
-#     --enable-logging \
-#     --check-interval 30s \
-#     --healthy-threshold 2 \
-#     --unhealthy-threshold 3 \
-#     --request-path "/" \
-#     --timeout 10s \
-#     --port 8080
 
 
 # ## ==================== INSTANCES GROUP ====================
@@ -359,20 +293,6 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --standby-policy-mode manual \
     --list-managed-instances-results PAGELESS
 
-# gcloud beta compute instance-groups managed create instance-group-1 \
-#     --project misw-4204-cloud \
-#     --base-instance-name instance-group-1 \
-#     --description "This instance group is for web server" \
-#     --template projects/misw-4204-cloud/regions/us-west1/instanceTemplates/web-server-template \
-#     --size 1 \
-#     --zone us-west1-c \
-#     --default-action-on-vm-failure repair \
-#     --health-check projects/misw-4204-cloud/regions/us-west1/healthChecks/http-check \
-#     --initial-delay 400 \
-#     --no-force-update-on-repair \
-#     --standby-policy-mode manual \
-#     --list-managed-instances-results PAGELESS
-
 ## POLITICA DE ESCALADO AUTOMATICO
 
 gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER_GROUP \
@@ -384,26 +304,11 @@ gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER
     --target-cpu-utilization 0.75 \
     --cool-down-period 300
 
-
-# gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
-#     --project misw-4204-cloud \
-#     --zone us-west1-c \
-#     --mode on \
-#     --min-num-replicas 1 \
-#     --max-num-replicas 3 \
-#     --target-cpu-utilization 0.75 \
-#     --cool-down-period 300
-
 # ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
 
 gcloud compute addresses create $LB_IP_NAME \
   --ip-version IPV4 \
   --global
-
-# gcloud compute addresses create lb-ipv4-1 \
-#   --ip-version IPV4 \
-#   --global
-
 
 # ==================== HEALTH CHECK ====================
 
@@ -416,16 +321,6 @@ gcloud compute health-checks create http $HEALTH_CHECK_LB \
     --timeout 20s \
     --port 8080
 
-# gcloud compute health-checks create http http-basic-check \
-#     --description "Checks LB health on port 80" \
-#     --enable-logging \
-#     --check-interval 30s \
-#     --healthy-threshold 2 \
-#     --unhealthy-threshold 3 \
-#     --timeout 20s \
-#     --port 8080
-
-
 # ## ==================== BACKEND SERVICE - AUTOSCALING POLICY ====================
 
 gcloud compute backend-services create $BACKEND_SERVICE_NAME \
@@ -437,22 +332,10 @@ gcloud compute backend-services create $BACKEND_SERVICE_NAME \
     --timeout 40s \
     --global
 
-# gcloud compute backend-services create web-backend-service \
-#     --description "Backend service for web server" \
-#     --protocol HTTP \
-#     --port-name http \
-#     --enable-logging \
-#     --health-checks http-basic-check \
-#     --timeout 40s \
-#     --global
 
 gcloud compute instance-groups managed set-named-ports $INSTANCE_WEB_SERVER_GROUP \
     --named-ports "$BACKEND_NAME_PORT:$PORT_WEB" \
     --zone $ZONE_INSTANCE_GROUP
-
-# gcloud compute instance-groups managed set-named-ports instance-group-1 \
-#     --named-ports "http:8080" \
-#     --zone us-west1-c
 
 # =================== ADD INSTANCES TO BACKEND SERVICE ====================
 
@@ -463,14 +346,6 @@ gcloud compute backend-services add-backend $BACKEND_SERVICE_NAME \
     --balancing-mode UTILIZATION \
     --max-utilization 0.8 \
     --global
-
-# gcloud compute backend-services add-backend web-backend-service \
-#     --description "Backend service for web server" \
-#     --instance-group instance-group-1 \
-#     --instance-group-zone us-west1-c \
-#     --balancing-mode UTILIZATION \
-#     --max-utilization 0.8 \
-#     --global
 
 # SE ESPERA 30 SEGUNDOS PARA QUE SE APROVISIONE LA INSTANCIA
 sleep 30
@@ -498,70 +373,6 @@ gcloud compute forwarding-rules create $FORWARDING_RULE_NAME \
    --global \
    --target-http-proxy $TARGET_PROXY_NAME \
    --ports $PORT_WEB
-
-# gcloud compute forwarding-rules create http-content-rule \
-#    --address lb-ipv4-1 \
-#    --global \
-#    --target-http-proxy http-lb-proxy \
-#    --ports 8080
-
-## BORAR RECURSOS
-# gcloud compute forwarding-rules delete http-content-rule --project misw-4204-cloud --global --quiet
-# gcloud compute target-http-proxies delete http-lb-proxy --project misw-4204-cloud --quiet
-# gcloud compute url-maps delete web-map-http --project misw-4204-cloud --quiet
-# gcloud compute backend-services remove-backend web-backend-service \
-#     --instance-group=instance-group-1 \
-#     --instance-group-zone=us-west1-c \
-#     --global
-# gcloud compute backend-services delete web-backend-service --project misw-4204-cloud --global --quiet
-# gcloud compute health-checks delete http-basic-check --project misw-4204-cloud --quiet
-# gcloud compute addresses delete lb-ipv4-1 --global --quiet
-# gcloud compute instance-groups managed delete instance-group-1 --project misw-4204-cloud --zone us-west1-c --quiet
-# gcloud compute firewall-rules delete fw-allow-health-check --project misw-4204-cloud --quiet
-# gcloud compute health-checks delete http-check --project misw-4204-cloud --region us-west1 --quiet
-# gcloud compute instance-templates delete web-server-template --project misw-4204-cloud --region us-west1 --quiet
-
-
-## ========================================================================
-## ========================================================================
-## ========================================================================
-## ========================================================================
-
-# # AÑADIR TAGS A LA INSTANCIA
-# gcloud compute instances add-tags $INSTANCE_NAME --tags $MACHINE_TAG
-
-# # CREAR REGLA DE FIREWALL - PERFORMANCE
-# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
-#     --direction=INGRESS \
-#     --priority=1000 \
-#     --network=default \
-#     --action=ALLOW \
-#     --rules=tcp:3500  \
-#     --source-ranges=0.0.0.0/0 \
-#     --target-tags=http-server
-
-# # CREAR REGLA DE FIREWALL - PERFORMANCE
-# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
-#     --direction=INGRESS \
-#     --priority=1000 \
-#     --network=default \
-#     --action=ALLOW \
-#     --rules=tcp:4444  \
-#     --source-ranges=0.0.0.0/0 \
-#     --target-tags=http-server
-
-# # CREAR REGLA DE FIREWALL- NGINX
-# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
-#     --direction=INGRESS \
-#     --priority=1000 \
-#     --network=default \
-#     --action=ALLOW \
-#     --rules=tcp:8080  \
-#     --source-ranges=0.0.0.0/0 \
-#     --target-tags=http-server
-
-# WEB_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)')
-# echo "WEB IP: $WEB_IP"
 
 ## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
 
