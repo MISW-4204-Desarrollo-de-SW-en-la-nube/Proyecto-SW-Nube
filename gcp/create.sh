@@ -344,19 +344,19 @@ gcloud compute health-checks create http $HEALTH_CHECK_VM \
 
 # ## ==================== INSTANCES GROUP ====================
 
-gcloud compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
+gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --project $PROJECT_ID \
     --base-instance-name $INSTANCE_WEB_SERVER_GROUP \
     --description "Instance group for web server" \
     --template projects/$PROJECT_ID/regions/$REGION/instanceTemplates/$INSTANCE_NAME_TEMPLATE \
-    --size 1  \
+    --size 1 \
     --zone $ZONE_INSTANCE_GROUP \
     --default-action-on-vm-failure repair \
     --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --initial-delay=300 \
+    --initial-delay 300 \
     --no-force-update-on-repair \
-    --standby-policy-mode=manual \
-    --list-managed-instances-results=PAGELESS
+    --standby-policy-mode manual \
+    --list-managed-instances-results PAGELESS
 
 # gcloud beta compute instance-groups managed create instance-group-1 \
 #     --project misw-4204-cloud \
