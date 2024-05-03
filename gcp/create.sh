@@ -242,7 +242,7 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-    sudo gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me)  --quiet
+    sudo gcloud sql instances patch $DB_INSTANCE_NAME --authorized-networks=$(curl ifconfig.me) --quiet
     sudo chmod -R 777 /nube
     sudo docker build -t fastapi-app /nube/.
     $DOCKER_COMMAND_WEB
