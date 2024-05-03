@@ -10,7 +10,6 @@ export PROJECT_ID="misw-4204-cloud"
 # INSTANCE_NAME="web-server"
 INSTANCE_NAME_BATCH="worker"
 MACHINE_TYPE="e2-small"
-DISK_SIZE_MACHINE="20GB"
 IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415"
 REGION="us-west1"
 ZONE="us-west1-b"
@@ -163,7 +162,6 @@ echo "========================================================"
 gcloud compute instances create $INSTANCE_NAME_BATCH \
     --project $PROJECT_ID \
     --machine-type $MACHINE_TYPE \
-    --boot-disk-size $DISK_SIZE_MACHINE \
     --image $IMAGE \
     --zone $ZONE \
     --service-account $BUCKET_SA_EMAIL \
@@ -353,12 +351,12 @@ gcloud compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --template projects/$PROJECT_ID/regions/$REGION/instanceTemplates/$INSTANCE_NAME_TEMPLATE \
     --size 1  \
     --zone $ZONE_INSTANCE_GROUP \
-    --default-action-on-vm-failure=repair \
+    --default-action-on-vm-failure repair \
     --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --initial-delay 300 \
+    --initial-delay=300 \
     --no-force-update-on-repair \
-    --standby-policy-mode manual \
-    --list-managed-instances-results PAGELESS
+    --standby-policy-mode=manual \
+    --list-managed-instances-results=PAGELESS
 
 # gcloud beta compute instance-groups managed create instance-group-1 \
 #     --project misw-4204-cloud \
