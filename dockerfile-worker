@@ -5,7 +5,6 @@ FROM google/cloud-sdk:474.0.0-alpine
 # set work directory
 WORKDIR /app
 
-RUN apk add --no-cache python3
 RUN apk add --update py-pip
 RUN pip --version
 

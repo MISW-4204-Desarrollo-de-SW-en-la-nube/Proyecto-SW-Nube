@@ -18,7 +18,18 @@ BUCKET_NAME="misw-4204-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
-
+# TEMPLATE - INSTANCIA WEB (BACK)
+INSTANCE_NAME_TEMPLATE="web-server-template"
+FIREWALL_RULE_TEMPLATE="fw-allow-health-check"
+HEALTH_CHECK_VM="http-check-vm"
+INSTANCE_WEB_SERVER_GROUP="web-server-instance-group"
+ZONE_INSTANCE_GROUP="us-west1-c"
+LB_IP_NAME="lb-ipv4-1"
+HEALTH_CHECK_LB="http-lb-check"
+BACKEND_SERVICE_NAME="web-backend-service"
+URL_MAP_NAME="web-server-map-http"
+TARGET_PROXY_NAME="http-server-lb-proxy"
+FORWARDING_RULE_NAME="http-server-forward-rule"
 
 # ELIMINAR BUCKET
 gsutil rm -r gs://$BUCKET_NAME
@@ -59,6 +70,72 @@ gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
 gcloud compute instances delete $INSTANCE_NAME \
     --project $PROJECT_ID \
     --zone $ZONE \
+    --quiet
+
+
+# EKIMINAR REGLAS DEL FIREWALL
+gcloud compute forwarding-rules delete $FORWARDING_RULE_NAME \
+    --project $PROJECT_ID \
+    --global \
+    --quiet
+
+# ELIMINAR TARGET PROXY
+gcloud compute target-http-proxies delete $TARGET_PROXY_NAME \
+    --project $PROJECT_ID \
+    --quiet
+
+# ELIMINAR URL MAP
+gcloud compute url-maps delete $URL_MAP_NAME \
+    --project $PROJECT_ID \
+    --quiet
+
+# REMOVER SERVICIO BACKEND
+gcloud compute backend-services remove-backend $BACKEND_SERVICE_NAME \
+    --project $PROJECT_ID \
+    --instance-group $INSTANCE_WEB_SERVER_GROUP \
+    --instance-group-zone $ZONE_INSTANCE_GROUP \
+    --global \
+    --quiet
+
+
+# ELIMINAR SERVICIO BACK
+gcloud compute backend-services delete $BACKEND_SERVICE_NAME \
+    --project $PROJECT_ID \
+    --global \
+    --quiet
+
+# ELIMINAR HEALTH CHECK
+gcloud compute health-checks delete $HEALTH_CHECK_LB \
+    --project $PROJECT_ID \
+    --quiet
+
+# ELIMINAR IP DEL LB
+gcloud compute addresses delete $LB_IP_NAME \
+    --project $PROJECT_ID \
+    --global \
+    --quiet
+
+# ELIMINAR INSTANCIA DE GRUPO
+gcloud compute instance-groups managed delete $INSTANCE_WEB_SERVER_GROUP \
+    --project $PROJECT_ID \
+    --zone $ZONE_INSTANCE_GROUP \
+    --quiet
+
+# ELIMINAR HEALTH CHECK DE VM
+gcloud compute health-checks delete $HEALTH_CHECK_VM \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
+
+# ELIMINAR REGLA DE FIREWALL
+gcloud compute firewall-rules delete $FIREWALL_RULE_TEMPLATE \
+    --project $PROJECT_ID \
+    --quiet
+
+# ELIMINAR INSTANCIA DE GRUPO
+gcloud compute instance-templates delete $INSTANCE_NAME_TEMPLATE \
+    --project $PROJECT_ID \
+    --region $REGION \
     --quiet
 
 # # Eliminar instancia de VM - BATCH
