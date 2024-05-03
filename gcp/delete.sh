@@ -1,16 +1,12 @@
 #!/bin/bash
 
-export PROJECT_ID="misw-4204-cloud"
-# export INSTANCE_NAME="web-server"
+PROJECT_ID="misw-4204-cloud"
 INSTANCE_NAME_BATCH="worker"
 REGION="us-west1"
 ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 DB_NAME="db-test"
-# FIREWALL_RULE_VM1_1="allow-fastapi-port"
-# FIREWALL_RULE_VM1_2="allow-perf-port"
-# FIREWALL_RULE_VM1_3="allow-nginx-port"
 FIREWALL_RULE_VM2_4="allow-redis-port"
 FIREWALL_RULE_VM2_5="allow-celery-port"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
@@ -65,12 +61,6 @@ gcloud iam roles delete $BUCKET_ROLE_ID \
 
 # ELIMINAR CUENTA DE SERVICIO PARA EL BUCKET
 gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
-
-# Eliminar instancia de VM - BACKEND
-# gcloud compute instances delete $INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --zone $ZONE \
-#     --quiet
 
 # EKIMINAR REGLAS DEL FIREWALL
 gcloud compute forwarding-rules delete $FORWARDING_RULE_NAME \
@@ -143,16 +133,6 @@ gcloud compute instances delete $INSTANCE_NAME_BATCH \
     --zone $ZONE \
     --quiet
 
-# Eliminar regla de firewall
-# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_1 \
-#     --project $PROJECT_ID \
-#     --quiet
-# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_2 \
-#     --project $PROJECT_ID \
-#     --quiet
-# gcloud compute firewall-rules delete $FIREWALL_RULE_VM1_3 \
-#     --project $PROJECT_ID \
-#     --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_4 \
     --project $PROJECT_ID \
     --quiet
