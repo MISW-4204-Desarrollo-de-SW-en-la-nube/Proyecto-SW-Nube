@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
 fi
 
 export PROJECT_ID="misw-4204-cloud"
-INSTANCE_NAME="web-server"
+# INSTANCE_NAME="web-server"
 INSTANCE_NAME_BATCH="worker"
 MACHINE_TYPE="e2-small"
 DISK_SIZE_MACHINE="20GB"
@@ -44,11 +44,10 @@ FORWARDING_RULE_NAME="http-server-forward-rule"
 ## ==================== INSTANCIA WEB (BACK) ====================
 # TAGS DE INSTANCIA WEB (BACK)
 MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check"
-BACKEND_SERVICE_SERVER="backend-web-server"
 # REGLAS DE FIREWALL
-FIREWALL_RULE_VM1_1="allow-fastapi-port"
-FIREWALL_RULE_VM1_2="allow-perf-port"
-FIREWALL_RULE_VM1_3="allow-nginx-port"
+# FIREWALL_RULE_VM1_1="allow-fastapi-port"
+# FIREWALL_RULE_VM1_2="allow-perf-port"
+# FIREWALL_RULE_VM1_3="allow-nginx-port"
 FIREWALL_RULE_VM2_4="allow-redis-port"
 FIREWALL_RULE_VM2_5="allow-celery-port"
 # TAGS DE BASE DE DATOS
@@ -132,8 +131,7 @@ gcloud sql instances create $DB_INSTANCE_NAME \
     --no-storage-auto-increase \
     --memory 3.75GB \
     --cpu 1 \
-    --assign-ip \
-    --zone $ZONE
+    --assign-ip
 
 # ## ==================== BASE DE DATOS ====================
 
@@ -215,33 +213,33 @@ echo "BATCH IP: $BATCH_IP"
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app"
+DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app"
 echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
 
 # CREAR INSTANCIA DE VM - BACK PRINCIPAL
-gcloud compute instances create $INSTANCE_NAME \
-    --project $PROJECT_ID \
-    --machine-type $MACHINE_TYPE \
-    --boot-disk-size $DISK_SIZE_MACHINE \
-    --image $IMAGE \
-    --zone $ZONE \
-    --service-account $BUCKET_SA_EMAIL \
-    --provisioning-model $INSTANCE_TYPE \
-    --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-    --metadata=startup-script="#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
-    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-    sudo chmod -R 777 /nube
-    sudo docker build -t fastapi-app /nube/.
-    $DOCKER_COMMAND_WEB
-    sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
-    sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
-    sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
-    "
+# gcloud compute instances create $INSTANCE_NAME \
+#     --project $PROJECT_ID \
+#     --machine-type $MACHINE_TYPE \
+#     --boot-disk-size $DISK_SIZE_MACHINE \
+#     --image $IMAGE \
+#     --zone $ZONE \
+#     --service-account $BUCKET_SA_EMAIL \
+#     --provisioning-model $INSTANCE_TYPE \
+#     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
+#     --metadata=startup-script="#! /bin/bash
+#     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip
+#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+#     sudo chmod +x /usr/local/bin/docker-compose
+#     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
+#     sudo chmod -R 777 /nube
+#     sudo docker build -t fastapi-app /nube/.
+#     $DOCKER_COMMAND_WEB
+#     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
+#     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
+#     sudo sh /server-agent/ServerAgent-2.2.3/startAgent.sh --udp-port 0 --tcp-port 4444 &
+#     "
 
 # CORRER DOCKER - COMANDO EJEMPLO
 # docker run  -e DB_URL=postgresql://postgres:password@34.127.86.181:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app
@@ -264,12 +262,13 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --tags $MACHINE_TAG_TEMPLATE \
-    --scopes https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
+    --scopes https://www.googleapis.com/auth/sqlservice.admin,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
+    BATCH_IP = $(curl -s ifconfig.me.)
     sudo chmod -R 777 /nube
     sudo docker build -t fastapi-app /nube/.
     $DOCKER_COMMAND_WEB
@@ -406,10 +405,6 @@ gcloud compute addresses create $LB_IP_NAME \
 #   --ip-version IPV4 \
 #   --global
 
-# LB_IP=$(gcloud compute addresses describe lb-ipv4-1 \
-#   --format "get(address)" \
-#   --global)
-# echo "LB IP: $LB_IP"
 
 # ==================== HEALTH CHECK ====================
 
@@ -478,7 +473,7 @@ gcloud compute backend-services add-backend $BACKEND_SERVICE_NAME \
 #     --max-utilization 0.8 \
 #     --global
 
-# SE ESPERA 60 SEGUNDOS PARA QUE SE CREE EL BACKEND SERVICE
+# SE ESPERA 30 SEGUNDOS PARA QUE SE APROVISIONE LA INSTANCIA
 sleep 30
 
 # ## ==================== URL MAP - PROXY ====================
@@ -512,33 +507,20 @@ gcloud compute forwarding-rules create $FORWARDING_RULE_NAME \
 #    --ports 8080
 
 ## BORAR RECURSOS
-# TODO: PASARLO AL SCRIPT DE DELETE
-
-gcloud compute forwarding-rules delete http-content-rule --project misw-4204-cloud --global --quiet
-
-
-gcloud compute target-http-proxies delete http-lb-proxy --project misw-4204-cloud --quiet
-
-gcloud compute url-maps delete web-map-http --project misw-4204-cloud --quiet
-
-gcloud compute backend-services remove-backend web-backend-service \
-    --instance-group=instance-group-1 \
-    --instance-group-zone=us-west1-c \
-    --global
-
-gcloud compute backend-services delete web-backend-service --project misw-4204-cloud --global --quiet
-
-gcloud compute health-checks delete http-basic-check --project misw-4204-cloud --quiet
-
-gcloud compute addresses delete lb-ipv4-1 --global --quiet
-
-gcloud compute instance-groups managed delete instance-group-1 --project misw-4204-cloud --zone us-west1-c --quiet
-
-gcloud compute firewall-rules delete fw-allow-health-check --project misw-4204-cloud --quiet
-
-gcloud compute health-checks delete http-check --project misw-4204-cloud --region us-west1 --quiet
-
-gcloud compute instance-templates delete web-server-template --project misw-4204-cloud --region us-west1 --quiet
+# gcloud compute forwarding-rules delete http-content-rule --project misw-4204-cloud --global --quiet
+# gcloud compute target-http-proxies delete http-lb-proxy --project misw-4204-cloud --quiet
+# gcloud compute url-maps delete web-map-http --project misw-4204-cloud --quiet
+# gcloud compute backend-services remove-backend web-backend-service \
+#     --instance-group=instance-group-1 \
+#     --instance-group-zone=us-west1-c \
+#     --global
+# gcloud compute backend-services delete web-backend-service --project misw-4204-cloud --global --quiet
+# gcloud compute health-checks delete http-basic-check --project misw-4204-cloud --quiet
+# gcloud compute addresses delete lb-ipv4-1 --global --quiet
+# gcloud compute instance-groups managed delete instance-group-1 --project misw-4204-cloud --zone us-west1-c --quiet
+# gcloud compute firewall-rules delete fw-allow-health-check --project misw-4204-cloud --quiet
+# gcloud compute health-checks delete http-check --project misw-4204-cloud --region us-west1 --quiet
+# gcloud compute instance-templates delete web-server-template --project misw-4204-cloud --region us-west1 --quiet
 
 
 ## ========================================================================
@@ -546,49 +528,56 @@ gcloud compute instance-templates delete web-server-template --project misw-4204
 ## ========================================================================
 ## ========================================================================
 
-# AÑADIR TAGS A LA INSTANCIA
-gcloud compute instances add-tags $INSTANCE_NAME --tags $MACHINE_TAG
+# # AÑADIR TAGS A LA INSTANCIA
+# gcloud compute instances add-tags $INSTANCE_NAME --tags $MACHINE_TAG
 
-# CREAR REGLA DE FIREWALL - PERFORMANCE
-gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:3500  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=http-server
+# # CREAR REGLA DE FIREWALL - PERFORMANCE
+# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_1 \
+#     --direction=INGRESS \
+#     --priority=1000 \
+#     --network=default \
+#     --action=ALLOW \
+#     --rules=tcp:3500  \
+#     --source-ranges=0.0.0.0/0 \
+#     --target-tags=http-server
 
-# CREAR REGLA DE FIREWALL - PERFORMANCE
-gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:4444  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=http-server
+# # CREAR REGLA DE FIREWALL - PERFORMANCE
+# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_2 \
+#     --direction=INGRESS \
+#     --priority=1000 \
+#     --network=default \
+#     --action=ALLOW \
+#     --rules=tcp:4444  \
+#     --source-ranges=0.0.0.0/0 \
+#     --target-tags=http-server
 
-# CREAR REGLA DE FIREWALL- NGINX
-gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:8080  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=http-server
+# # CREAR REGLA DE FIREWALL- NGINX
+# gcloud compute firewall-rules create $FIREWALL_RULE_VM1_3 \
+#     --direction=INGRESS \
+#     --priority=1000 \
+#     --network=default \
+#     --action=ALLOW \
+#     --rules=tcp:8080  \
+#     --source-ranges=0.0.0.0/0 \
+#     --target-tags=http-server
 
-WEB_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)')
-echo "WEB IP: $WEB_IP"
+# WEB_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME --format='value(EXTERNAL_IP)')
+# echo "WEB IP: $WEB_IP"
 
 ## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
 
 # # Autorizar la vm en las redes de la base de datos
 gcloud sql instances patch $DB_INSTANCE_NAME \
-    --authorized-networks=$WEB_IP,$BATCH_IP \
+    --authorized-networks=$BATCH_IP \
     --quiet
 
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
 # # sudo apt-get install postgresql-client -y
 # # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
+
+# ================ MENSAJE DE CONEXION AL BALANCEADOR DE CARGA ================
+
+LB_IP=$(gcloud compute addresses describe lb-ipv4-1 \
+  --format "get(address)" \
+  --global)
+echo "Connect to IP: http://$LB_IP:$PORT_WEB"
