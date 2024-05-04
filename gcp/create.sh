@@ -150,6 +150,18 @@ DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddres
 DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
 echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 
+## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
+
+# SE DEJA ABIERTO PARA PRUEBAS
+gcloud sql instances patch $DB_INSTANCE_NAME \
+    --authorized-networks="0.0.0.0/0" \
+    --quiet
+# gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me.)  --quiet
+
+# # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
+# # sudo apt-get install postgresql-client -y
+# # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
+
 ## ==================== INSTANCIA BATCH ====================
 
 echo "========================================================"
@@ -268,21 +280,21 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
 #     $DOCKER_COMMAND_WEB
 #     "
 
-gcloud compute instances create testborrar \
-    --project misw-4204-cloud \
-    --machine-type e2-small \
-    --image projects/debian-cloud/global/images/debian-11-bullseye-v20240415 \
-    --zone us-west1-c \
-    --service-account "storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com" \
-    --provisioning-model SPOT \
-    --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-    --metadata=startup-script="#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io
-    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo docker pull nipoanz/fastapi-back
-    sudo docker run -d -e DB_URL=postgresql://postgres:password123@35.247.107.15:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://34.83.197.63:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/fastapi-back:latest
-    "
+# gcloud compute instances create testborrar \
+#     --project misw-4204-cloud \
+#     --machine-type e2-small \
+#     --image projects/debian-cloud/global/images/debian-11-bullseye-v20240415 \
+#     --zone us-west1-c \
+#     --service-account "storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com" \
+#     --provisioning-model SPOT \
+#     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
+#     --metadata=startup-script="#! /bin/bash
+#     sudo apt update && sudo apt install -y docker.io
+#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+#     sudo chmod +x /usr/local/bin/docker-compose
+#     sudo docker pull nipoanz/fastapi-back
+#     sudo docker run -d -e DB_URL=postgresql://postgres:password123@35.247.107.15:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://34.83.197.63:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/fastapi-back:latest
+#     "
 
 ## ======================= FIREWALL =================================
 
@@ -409,18 +421,6 @@ gcloud compute forwarding-rules create $FORWARDING_RULE_NAME \
    --global \
    --target-http-proxy $TARGET_PROXY_NAME \
    --ports $PORT_WEB
-
-## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
-
-# # Autorizar la vm en las redes de la base de datos
-gcloud sql instances patch $DB_INSTANCE_NAME \
-    --authorized-networks=$BATCH_IP,"0.0.0.0/0" \
-    --quiet
-# gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me.)  --quiet
-
-# # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
-# # sudo apt-get install postgresql-client -y
-# # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
 
 # ================ MENSAJE DE CONEXION AL BALANCEADOR DE CARGA ================
 
