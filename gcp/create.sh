@@ -365,7 +365,7 @@ gcloud compute backend-services create $BACKEND_SERVICE_NAME \
     --port-name $BACKEND_NAME_PORT \
     --enable-logging \
     --health-checks $HEALTH_CHECK_LB \
-    --timeout 40s \
+    --timeout 30s \
     --global
 
 
