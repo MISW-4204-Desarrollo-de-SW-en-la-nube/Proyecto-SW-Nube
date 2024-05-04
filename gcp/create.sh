@@ -288,7 +288,7 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --zone $ZONE_INSTANCE_GROUP \
     --default-action-on-vm-failure repair \
     --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --initial-delay 300 \
+    --initial-delay 90 \
     --no-force-update-on-repair \
     --standby-policy-mode manual \
     --list-managed-instances-results PAGELESS
@@ -301,8 +301,8 @@ gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER
     --mode on \
     --min-num-replicas 1 \
     --max-num-replicas 3 \
-    --target-cpu-utilization 0.75 \
-    --cool-down-period 300
+    --target-cpu-utilization 0.65 \
+    --cool-down-period 120
 
 # ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
 
