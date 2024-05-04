@@ -29,7 +29,7 @@ JMeterPluginsCMD.sh --generate-png "$folder_name/activeThreadsOverTime.png" --in
 JMeterPluginsCMD.sh --generate-png "$folder_name/latenciesOverTime.png" --input-jtl $result_file --plugin-type LatenciesOverTime --width $width --height $height --loglevel $log_level >/dev/null 2>&1
 JMeterPluginsCMD.sh --generate-png "$folder_name/hitsPerSecond.png" --input-jtl $result_file --plugin-type HitsPerSecond --width $width --height $height --loglevel $log_level >/dev/null 2>&1
 JMeterPluginsCMD.sh --generate-png "$folder_name/bytesThroughputOverTime.png" --input-jtl $result_file --plugin-type BytesThroughputOverTime --width $width --height $height --loglevel $log_level >/dev/null 2>&1
-JMeterPluginsCMD.sh --generate-png "$folder_name/performance.png" --input-jtl $result_performance --plugin-type PerfMon --width $width --height $height --loglevel $log_level >/dev/null 2>&1
+#JMeterPluginsCMD.sh --generate-png "$folder_name/performance.png" --input-jtl $result_performance --plugin-type PerfMon --width $width --height $height --loglevel $log_level >/dev/null 2>&1
 JMeterPluginsCMD.sh --generate-csv "$folder_name/aggregatingReport.csv" --input-jtl $result_file --plugin-type AggregateReport --loglevel $log_level >/dev/null 2>&1
 
 # mensaje de finalizacion

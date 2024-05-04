@@ -18,7 +18,7 @@ INITIAL_RAMP_UP=$RAMP_UP
 ITERATIONS=5
 
 #DECREMENTO DE ACELERACION
-DECREMENT=2
+DECREMENT=5
 
 #REFERENCIA PLAN DE PREUBA ITERATIVA
 PLAN_ITERATION_FILE=""
@@ -69,7 +69,7 @@ for i in `seq 1 $ITERATIONS`; do
     #GENERAR LOS GRAFICOS
     sh generate-results.sh $PLAN_ITERATION_FOLDER"/graphs" $PLAN_ITERATION_FOLDER"/results/results-performance.csv" $PLAN_ITERATION_FOLDER"/results/results.csv"
     # GENERAR REPORTE FINAL
-    jmeter -g $PLAN_ITERATION_FOLDER"/results/results.csv" -o $PLAN_ITERATION_FOLDER"/report"
+    #jmeter -g $PLAN_ITERATION_FOLDER"/results/results.csv" -o $PLAN_ITERATION_FOLDER"/report"
 
     # DELAY DE 10S
     echo "Esperando 5 segundos para la siguiente prueba"
