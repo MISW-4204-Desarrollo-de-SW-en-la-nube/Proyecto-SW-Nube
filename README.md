@@ -5,6 +5,23 @@ Este proyecto utiliza FastAPI como framework para crear una API web. A continuac
 
 Este proyecto esta basado en un sistema de gestión de archivos de video (mp4),  que permite a los usuarios subir archivos de video, convertirlos a otros formatos, y descargar los archivos convertidos. Además, se implementa un sistema de autenticación y autorización de usuarios, y un sistema de tareas asíncronas utilizando Celery y Redis.
 
+## Actualización - Entrega 3
+
+se creo el tag
+docker tag fastapi-app nipoanz/fastapi-back:latest
+
+# se sube la imagen
+docker push nipoanz/fastapi-back:latest
+ 
+# se descarga la imagen
+docker pull nipoanz/fastapi-back:latest
+
+#imagen publica
+https://hub.docker.com/r/nipoanz/fastapi-back
+
+# se ejecuta la imagen
+sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/fastapi-back:latest
+
 ## Actualización - Entrega 2
 
 Para poder desplegar este proyecto es necesario que siga los pasos del readme ubicado en la carpeta [`gcp`](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/gcp), ya que para esta entrega es necesario el uso de la nube de Google para migrar la solución.
@@ -14,6 +31,9 @@ Importante que revise la wiki de este proyecto para poder realizar la correcta c
 
 Solución desplegada y actualizada.
 ![image](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/30fc87a0-4671-4d1d-a090-e8c5555c5ab4)
+
+
+
 
 
 
