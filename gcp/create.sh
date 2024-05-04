@@ -232,7 +232,6 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     --instance-template-region $REGION \
     --machine-type $MACHINE_TYPE \
     --boot-disk-type pd-balanced \
-    --network-interface default \
     --no-restart-on-failure \
     --maintenance-policy TERMINATE \
     --instance-termination-action STOP \
@@ -292,7 +291,7 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --zone $ZONE_INSTANCE_GROUP \
     --default-action-on-vm-failure repair \
     --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --initial-delay 60 \
+    --initial-delay 120 \
     --no-force-update-on-repair \
     --standby-policy-mode scale-out-pool \
     --standby-policy-initial-delay 30 \
@@ -307,9 +306,9 @@ gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER
     --mode on \
     --min-num-replicas 1 \
     --max-num-replicas 3 \
-    --scale-based-on-cpu \
-    --target-cpu-utilization 0.65 \
-    --cool-down-period 120
+    --scale-based-on-load-balancing \
+    --target-load-balancing-utilization 0.8 \
+    --cool-down-period 180
 
 # ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
 
