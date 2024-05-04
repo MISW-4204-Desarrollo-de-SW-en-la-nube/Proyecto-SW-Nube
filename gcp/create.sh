@@ -232,7 +232,7 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     --instance-template-region $REGION \
     --machine-type $MACHINE_TYPE \
     --boot-disk-type pd-balanced \
-    --network-interface=network default \
+    --network-interface default \
     --no-restart-on-failure \
     --maintenance-policy TERMINATE \
     --instance-termination-action STOP \
@@ -303,9 +303,11 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
 gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER_GROUP \
     --project $PROJECT_ID \
     --zone $ZONE_INSTANCE_GROUP \
+    --description "Autoscaling policy for web server" \
     --mode on \
     --min-num-replicas 1 \
     --max-num-replicas 3 \
+    --scale-based-on-cpu \
     --target-cpu-utilization 0.65 \
     --cool-down-period 120
 
