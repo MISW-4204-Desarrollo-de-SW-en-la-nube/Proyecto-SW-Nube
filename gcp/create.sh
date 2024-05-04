@@ -306,8 +306,8 @@ gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER
     --mode on \
     --min-num-replicas 1 \
     --max-num-replicas 3 \
-    --scale-based-on-load-balancing \
-    --target-load-balancing-utilization 0.8 \
+    --scale-based-on-cpu \
+    --target-cpu-utilization 0.75 \
     --cool-down-period 180
 
 # ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
