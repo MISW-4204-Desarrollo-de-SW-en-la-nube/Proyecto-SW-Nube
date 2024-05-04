@@ -233,8 +233,6 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     --machine-type $MACHINE_TYPE \
     --boot-disk-type pd-balanced \
     --no-restart-on-failure \
-    --maintenance-policy TERMINATE \
-    --instance-termination-action STOP \
     --image $IMAGE \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
@@ -353,8 +351,8 @@ gcloud compute backend-services add-backend $BACKEND_SERVICE_NAME \
     --max-utilization 0.8 \
     --global
 
-# SE ESPERA 30 SEGUNDOS PARA QUE SE APROVISIONE LA INSTANCIA
-sleep 30
+# SE ESPERA 1 MIN
+sleep 60
 
 # ## ==================== URL MAP - PROXY ====================
 
