@@ -7,20 +7,32 @@ Este proyecto esta basado en un sistema de gestión de archivos de video (mp4), 
 
 ## Actualización - Entrega 3
 
-se creo el tag
-docker tag fastapi-app nipoanz/fastapi-back:latest
+Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en la entrega 2, como aparece en el archivo [`gcp/README.md`](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/gcp), 
 
-# se sube la imagen
-docker push nipoanz/fastapi-back:latest
+En esta entrega se incluye la configuración de Cloud Storage, para poder almacenar los archivos de video que se suben a la aplicación. Además, se agrega un balanceador de carga y Auto Scaling para manejar la carga de la aplicación de manera eficiente, esto implementando una politica de escalado de acuerdo a la utilizaicón de la CPU, configurado en `75%` para escalar hasta `3` instancias de la aplicación.
+
+
+La siguiente es la solución desplegada y actualizada: 
+
+![image](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/aea5ed03-7fd1-4d7e-b6e8-195ae1757591)
+
+
+Asi mismo se agrega monitoreo de los registros de la aplicación correspondiente en la capa web y batch, esto para facilitar el seguimiento de los logs de la aplicación, y poder identificar errores o distintos estados en la aplicación. También se agrega un sistema de monitoreo de los recursos de la aplicación, para poder identificar la utilización de la CPU, la memoria de cada instancia, y validar el comportamiento de la aplicación de acuerdo a la politica de auto escalado.
+
+
+Además se subió la imagen de la aplicación a Docker Hub, para mejorar los tiempos de despliegue y actualización de la aplicación, sde encuentra ubica en el siguiente link: [fastapi-back](https://hub.docker.com/r/nipoanz/fastapi-back)
+
+ > Se creó el tag con el siguiente comando:
+ > `docker tag fastapi-app <USUARIO_DOCKER_HUB>/fastapi-back:latest`
+ > Se subió la imagen con el siguiente comando:
+ > `docker push <USUARIO_DOCKER_HUB>/fastapi-back:latest`
+ > Para descargar e implementar la imagen corra siguiente comando:
+ > `docker pull <USUARIO_DOCKER_HUB>/fastapi-back:latest`
+ > 
+ > `<USUARIO_DOCKER_HUB>` Es la cuenta del usuario a la que se puede subir la imagen.
+ > Tenga en cuenta que para poder correr la imagen es necesario pasar las variables de entorno de acuerdo a lo mencionado en la sección de [ejecutar docker](#ejecutar-docker)
  
-# se descarga la imagen
-docker pull nipoanz/fastapi-back:latest
-
-#imagen publica
-https://hub.docker.com/r/nipoanz/fastapi-back
-
-# se ejecuta la imagen
-sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/fastapi-back:latest
+---
 
 ## Actualización - Entrega 2
 
@@ -31,10 +43,6 @@ Importante que revise la wiki de este proyecto para poder realizar la correcta c
 
 Solución desplegada y actualizada.
 ![image](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/30fc87a0-4671-4d1d-a090-e8c5555c5ab4)
-
-
-
-
 
 
 ---
@@ -219,7 +227,7 @@ Accede a la API autogenerada de Swagger en http://localhost:8080/docs (o en el p
 Tenga en cuenta que esta es una documentación interactiva de la API, generada automáticamente por FastAPI. Puede probar los endpoints directamente desde la interfaz de usuario de Swagger UI. o se recomientda revisar la generada por el equipo en el siguiente link: [DOCUMENTACIÓN](https://documenter.getpostman.com/view/10832015/2sA3Bj7DMh#b5624372-4c4a-45eb-bcad-9e0948f1efe0)
 
 
-### Ejecutar Docker
+### [Ejecutar Docker](Ejecutar-Docker)
 
 Para ejecutar solo el contenedor del backend de este proyecto en Docker, sigue los siguientes pasos:
 
