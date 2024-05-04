@@ -285,7 +285,7 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --zone $ZONE_INSTANCE_GROUP \
     --default-action-on-vm-failure repair \
     --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --initial-delay 120 \
+    --initial-delay 360 \
     --no-force-update-on-repair \
     --standby-policy-mode scale-out-pool \
     --standby-policy-initial-delay 30 \
@@ -302,7 +302,7 @@ gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER
     --max-num-replicas 3 \
     --scale-based-on-cpu \
     --target-cpu-utilization 0.75 \
-    --cool-down-period 180
+    --cool-down-period 200
 
 # ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
 
@@ -319,7 +319,7 @@ gcloud compute health-checks create http $HEALTH_CHECK_LB \
     --healthy-threshold 2 \
     --unhealthy-threshold 3 \
     --timeout 20s \
-    --port 8080
+    --port $PORT_WEB
 
 # ## ==================== BACKEND SERVICE - AUTOSCALING POLICY ====================
 
@@ -344,7 +344,7 @@ gcloud compute backend-services add-backend $BACKEND_SERVICE_NAME \
     --instance-group $INSTANCE_WEB_SERVER_GROUP \
     --instance-group-zone $ZONE_INSTANCE_GROUP \
     --balancing-mode UTILIZATION \
-    --max-utilization 0.8 \
+    --max-utilization 0.75 \
     --global
 
 # SE ESPERA 1 MIN
