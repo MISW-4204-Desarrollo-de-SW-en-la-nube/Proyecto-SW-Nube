@@ -232,6 +232,10 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     --instance-template-region $REGION \
     --machine-type $MACHINE_TYPE \
     --boot-disk-type pd-balanced \
+    --network-interface=network default \
+    --no-restart-on-failure \
+    --maintenance-policy TERMINATE \
+    --instance-termination-action STOP \
     --image $IMAGE \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
@@ -288,9 +292,10 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --zone $ZONE_INSTANCE_GROUP \
     --default-action-on-vm-failure repair \
     --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --initial-delay 90 \
+    --initial-delay 60 \
     --no-force-update-on-repair \
-    --standby-policy-mode manual \
+    --standby-policy-mode scale-out-pool \
+    --standby-policy-initial-delay 30 \
     --list-managed-instances-results PAGELESS
 
 ## POLITICA DE ESCALADO AUTOMATICO
