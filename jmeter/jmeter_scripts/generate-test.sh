@@ -72,8 +72,8 @@ for i in `seq 1 $ITERATIONS`; do
     #jmeter -g $PLAN_ITERATION_FOLDER"/results/results.csv" -o $PLAN_ITERATION_FOLDER"/report"
 
     # DELAY DE 10S
-    echo "Esperando 5 segundos para la siguiente prueba"
-    sleep 5
+    echo "Esperando 8 segundos para la siguiente prueba"
+    sleep 8
     #Calcular los valores actualizados para esta iteración
     RAMP_UP=$((RAMP_UP - DECREMENT))
 done
