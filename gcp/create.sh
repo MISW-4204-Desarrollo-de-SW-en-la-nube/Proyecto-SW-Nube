@@ -82,7 +82,7 @@ gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
 
 # ## ==================== CUENTA DE SERVICIO ====================
 
-EXISTING_ROLE=$(gcloud iam roles describe custom.storage.admin --project misw-4204-cloud 2>&1)
+EXISTING_ROLE=$(gcloud iam roles describe custom.storage.admin --project $PROJECT_ID 2>&1)
 echo $EXISTING_ROLE
 
 if [[ $EXISTING_ROLE == *"NOT_FOUND"* ]]; then
