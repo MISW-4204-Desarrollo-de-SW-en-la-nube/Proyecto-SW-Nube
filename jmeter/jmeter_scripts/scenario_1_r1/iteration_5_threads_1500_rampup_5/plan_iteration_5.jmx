@@ -23,7 +23,7 @@
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request -Crear Tarea  (Video)">
           <stringProp name="TestPlan.comments">Esta api requiere autenticaci&#243;n</stringProp>
           <stringProp name="HTTPSampler.domain">34.49.147.190</stringProp>
-          <stringProp name="HTTPSampler.port">3500</stringProp>
+          <stringProp name="HTTPSampler.port">8080</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
           <stringProp name="HTTPSampler.path">api/tasks/</stringProp>
