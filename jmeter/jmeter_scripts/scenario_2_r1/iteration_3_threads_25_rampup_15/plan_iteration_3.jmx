@@ -35,9 +35,9 @@
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
           <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
             <collectionProp name="HTTPFileArgs.files">
-              <elementProp name="/home/ec2-user/Proyecto-SW-Nube/jmeter/jmeter_scripts/test.mp4" elementType="HTTPFileArg">
+              <elementProp name="/jmeter/jmeter_scripts/test.mp4" elementType="HTTPFileArg">
                 <stringProp name="File.mimetype">video/mp4</stringProp>
-                <stringProp name="File.path">/home/ec2-user/Proyecto-SW-Nube/jmeter/jmeter_scripts/test.mp4</stringProp>
+                <stringProp name="File.path">/jmeter/jmeter_scripts/test.mp4</stringProp>
                 <stringProp name="File.paramname">file</stringProp>
               </elementProp>
             </collectionProp>
