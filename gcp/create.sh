@@ -42,7 +42,7 @@ TARGET_PROXY_NAME="http-server-lb-proxy"
 FORWARDING_RULE_NAME="http-server-forward-rule"
 ## ==================== INSTANCIA WEB (BACK) ====================
 # TAGS DE INSTANCIA WEB (BACK)
-MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check"
+MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check,allow-health-check"
 # REGLAS DE FIREWALL
 # FIREWALL_RULE_VM1_1="allow-fastapi-port"
 # FIREWALL_RULE_VM1_2="allow-perf-port"
@@ -258,43 +258,7 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     $DOCKER_COMMAND_WEB
     "
 
-# gcloud compute instance-templates create templateexample \
-#     --project misw-4204-cloud \
-#     --region us-west1 \
-#     --network default \
-#     --subnet default \
-#     --instance-template-region us-west1 \
-#     --machine-type e2-small \
-#     --boot-disk-type pd-balanced \
-#     --no-restart-on-failure \
-#     --image projects/debian-cloud/global/images/debian-11-bullseye-v20240415 \
-#     --service-account "storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com" \
-#     --provisioning-model SPOT \
-#     --tags http-server,https-server,lb-health-check \
-#     --scopes https://www.googleapis.com/auth/sqlservice.admin,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     sudo docker pull nipoanz/fastapi-back
-#     $DOCKER_COMMAND_WEB
-#     "
 
-# gcloud compute instances create testborrar \
-#     --project misw-4204-cloud \
-#     --machine-type e2-small \
-#     --image projects/debian-cloud/global/images/debian-11-bullseye-v20240415 \
-#     --zone us-west1-c \
-#     --service-account "storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com" \
-#     --provisioning-model SPOT \
-#     --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     sudo docker pull nipoanz/fastapi-back
-#     sudo docker run -d -e DB_URL=postgresql://postgres:password123@35.247.107.15:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://34.83.197.63:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/fastapi-back:latest
-#     "
 
 ## ======================= FIREWALL =================================
 
