@@ -8,10 +8,10 @@ def update_file(file_path, output_folder, num_threads, ramp_up):
     thread_group = root.find(".//ThreadGroup")
     thread_group.find("intProp[@name='ThreadGroup.num_threads']").text = str(num_threads)
     thread_group.find("intProp[@name='ThreadGroup.ramp_time']").text = str(ramp_up)
-    perfmon_collector = root.find(".//kg.apc.jmeter.perfmon.PerfMonCollector")
-    print(perfmon_collector.find("stringProp[@name='filename']").text)
-    print(os.path.join(output_folder, "results-performance.csv"))
-    perfmon_collector.find("stringProp[@name='filename']").text = os.path.join(output_folder, "results-performance.csv")
+    # perfmon_collector = root.find(".//kg.apc.jmeter.perfmon.PerfMonCollector")
+    # print(perfmon_collector.find("stringProp[@name='filename']").text)
+    # print(os.path.join(output_folder, "results-performance.csv"))
+    # perfmon_collector.find("stringProp[@name='filename']").text = os.path.join(output_folder, "results-performance.csv")
     tree.write(file_path)
 
 #Test
