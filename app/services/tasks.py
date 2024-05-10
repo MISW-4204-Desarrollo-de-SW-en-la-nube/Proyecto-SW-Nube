@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import List, Optional
 import os
 import uuid
-import time
 import asyncio
+import shutil
 
 from app.models import Task
 from app.core.logger_config import logger
@@ -130,37 +130,54 @@ async def create_task_by_user_test():
     print("Proceso asíncrono completado")
 
 
-async def create_task_by_user(db: Session, user: int, file: UploadFile) -> None:
+def save_file(file: UploadFile) -> str:
     try:
-        #VALIDAR QUE SEA UN VIDEO
         if file.content_type != 'video/mp4':
-            return False
+            raise ValueError('El archivo no es un video')
+        logger.info(f'File name: {file.filename}')
+        new_file_name = f"{uuid.uuid4()}_{file.filename.replace(' ', '_')}"
+        file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        logger.info(f'File path: {file_path}')
+        with open(file_path, 'wb') as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return file_path
+    except Exception as e:
+        logger.error('Error al guardar el archivo')
+        logger.error(e)
+        raise e
+    
 
+async def create_task_by_user(db: Session, user: int, filePath: str, fileName: str) -> None:
+    try:
         # CREAR DIRECTORIO SI NO EXISTE
         if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
             os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
         if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
             os.makedirs(settings.PUBLIC_DIR_PROCESSED)
-        print(f'File name: {file.filename}')
+        logger.info(f'File name: {fileName}')
 
         unique_id = uuid.uuid4()
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
-        new_file_name = str(unique_id) + '_' + file.filename.replace(' ', '-').lower().strip()
+        new_file_name = f'{unique_id}_{fileName.replace(" ", "_")}'
 
         file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
         proccessed_file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, new_file_name)
-        with open(file_path, 'wb') as f:
-            f.write(file.file.read())
+        
+        # COPIAR EL ARCHIVO AL DIRECTORIO DE NO PROCESADOS
+        shutil.copyfile(filePath, file_path)
+        #ELIMINAR EL ARCHIVO TEMPORAL
+        os.remove(filePath)
+        
         video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
         video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
-        print(video_url)
-        print(video_processed_url)
+        logger.info(video_url)
+        logger.info(video_processed_url)
         new_task = Task(
-            originalFileName=file.filename,
+            originalFileName=fileName,
             fileName=new_file_name,
             video_url=video_url,
             video_processed_url=video_processed_url,
-            owner_id=user
+            owner_id=user,
         )
         db.add(new_task)
         db.commit()

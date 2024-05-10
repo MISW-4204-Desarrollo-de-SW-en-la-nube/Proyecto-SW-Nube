@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from datetime import datetime, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session
@@ -9,7 +9,7 @@ from app.models import User, Task
 from app.schemas.task import TaskResponse, TaskCreate, TasksResponse, TaskDownloadResponse
 from app.db.session import get_db 
 from app.core.security import verify_token
-from app.services.tasks import get_all_tasks_by_user, get_task_by_id, delete_task_by_id, create_task_by_user, get_all_tasks_users, create_task_by_user_test
+from app.services.tasks import get_all_tasks_by_user, get_task_by_id, delete_task_by_id, create_task_by_user, get_all_tasks_users, create_task_by_user_test, save_file
 
 
 router = APIRouter()
@@ -45,10 +45,16 @@ async def read_root(response_model=dict):
     return {"message": "Petición recibida, proceso en segundo plano"}
 
 @router.post("/", response_model=dict)
-async def create_task(file: UploadFile = File(), db: Session = Depends(get_db), current_user: User = Depends(verify_token)):
+async def create_task(
+    file: UploadFile = File(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    db: Session = Depends(get_db), current_user: User = Depends(verify_token)):
     try:
         logger.info('Creando tarea para usuario -> ' + current_user.username)
-        asyncio.create_task(create_task_by_user(db, current_user.id, file))
+        originalFileName = file.filename
+        filePath = save_file(file)
+        background_tasks.add_task(create_task_by_user, db, current_user.id, filePath, originalFileName)
+        #asyncio.create_task(create_task_by_user(db, current_user.id, filePath, originalFileName))
         return {"message": "Tarea en proceso", "result": True}
     except Exception as e:
         logger.error('Error al crear tarea')
