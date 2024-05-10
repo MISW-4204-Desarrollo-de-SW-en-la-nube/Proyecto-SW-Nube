@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from datetime import datetime, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session
+import shutil
 import asyncio
+import uuid
 
 from app.core.logger_config import logger
 from app.models import User, Task
@@ -62,11 +64,14 @@ async def get_all_our_tasks(max: Optional[int] = None, order: Optional[int] = 0,
 #         logger.error(e)
 #         raise HTTPException(errorExeption["status_code"], detail=errorExeption["detail"])
 
+
+
 @router.post("/", response_model=dict)
 async def create_task(file: UploadFile = File(), db: Session = Depends(get_db), current_user: User = Depends(verify_token)):
     try:
-        logger.info('Creando tarea para usuario -> ' + current_user.username)
-        asyncio.create_task(create_task_by_user(db, current_user.id, file))
+        logger.info(f'Creando tarea para usuario -> {current_user.username}')
+        fileName = save_file(file)
+        asyncio.create_task(create_task_by_user(db, current_user.id, fileName))
         return {"message": "Tarea en proceso", "result": True}
     except Exception as e:
         logger.error('Error al crear tarea')
