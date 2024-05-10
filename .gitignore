@@ -29,8 +29,8 @@ pgadmin_data/
 celery_data/
 
 # Videoq
-public/uploaded/**
-public/processed/**
+public/uploaded/*.mp4
+public/processed/*.mp4
 
 # Celery files
 celerybeat-schedule.**

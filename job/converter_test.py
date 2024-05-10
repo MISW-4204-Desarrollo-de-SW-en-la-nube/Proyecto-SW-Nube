@@ -47,8 +47,10 @@ def ejecutar_script_sh(id):
             processed_url_relative  = processed_url.replace(public_folder, "").replace("\\", "/")
 
             # Construir la ruta local de los archivos
-            video_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), video_url_relative)
-            processed_url_local = "." + os.path.join(os.path.dirname(os.path.realpath(__file__)), processed_url_relative)
+            print("video_url relative: " + video_url_relative)
+            print("processed_url relative: " + processed_url_relative)
+            video_url_local = "/app" + video_url_relative
+            processed_url_local = "/app" + processed_url_relative
 
             print("video_url local: " + video_url_local)
             print("processed_url local: " + processed_url_local)

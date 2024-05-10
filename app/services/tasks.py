@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import List, Optional
 import os
 import uuid
+import time
+import asyncio
 
 from app.models import Task
 from app.core.logger_config import logger
@@ -123,7 +125,12 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
             return True
     return False
 
-def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
+async def create_task_by_user_test():
+    await asyncio.sleep(5)
+    print("Proceso asíncrono completado")
+
+
+async def create_task_by_user(db: Session, user: int, file: UploadFile):
     try:
         #VALIDAR QUE SEA UN VIDEO
         if file.content_type != 'video/mp4':
@@ -132,10 +139,12 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         # CREAR DIRECTORIO SI NO EXISTE
         if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
             os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
+        if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
+            os.makedirs(settings.PUBLIC_DIR_PROCESSED)
 
         unique_id = uuid.uuid4()
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
-        new_file_name = str(unique_id) + '_' + file.filename
+        new_file_name = str(unique_id) + '_' + file.filename.replace(' ', '-').lower().strip()
 
         file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
         proccessed_file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, new_file_name)
@@ -144,6 +153,7 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         video_url = f"{settings.BASE_URL}/{file_path}".replace("\\", "/")
         video_processed_url = f"{settings.BASE_URL}/{proccessed_file_path}".replace("\\", "/")
         print(video_url)
+        print(video_processed_url)
         new_task = Task(
             originalFileName=file.filename,
             fileName=new_file_name,
@@ -155,9 +165,7 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
         db.commit()
         logger.info('Tarea creada con id -> ' + str(new_task.id))
         process_video.delay(new_task.id)
-        return True
     except Exception as e:
         logger.error('Error al crear tarea')
         logger.error(e)
         db.rollback()
-        return False
