@@ -142,7 +142,7 @@ def save_file(file: UploadFile) -> str:
             raise ValueError('El archivo no es un video')
         logger.info(f'File name: {file.filename}')
         new_file_name = f"{uuid.uuid4()}_{file.filename.replace(' ', '_')}"
-        file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        file_path = os.path.join("/app", settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
         logger.info(f'File path: {file_path}')
         with open(file_path, 'wb') as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -158,7 +158,7 @@ async def create_task_by_user(db: Session, user: int, filePath: str, fileName: s
 
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
         new_file_name = f"{uuid.uuid4()}_{fileName.replace(' ', '_')}"
-        logger.log(f'New File Name: {new_file_name}')
+        logger.info(f"New File Name: {new_file_name}")
 
         # Subir los datos al bucket de Cloud Storage
         if upload_file_to_bucket(filePath, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):

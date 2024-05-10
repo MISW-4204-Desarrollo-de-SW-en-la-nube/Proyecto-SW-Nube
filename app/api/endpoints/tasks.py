@@ -82,6 +82,7 @@ async def create_task(
         logger.info(f'Creando tarea para usuario -> {current_user.username}')
         original_fileName = file.filename
         file_path = save_file(file)
+        logger.info(f'Archivo guardado en -> {file_path}')
         background_tasks.add_task(create_task_by_user, db, current_user.id, file_path, original_fileName)
         return {"message": "Tarea en proceso", "result": True}
     except Exception as e:

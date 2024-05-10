@@ -223,7 +223,7 @@ echo "BATCH IP: $BATCH_IP"
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/fastapi-back:latest"
+DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/public nipoanz/fastapi-back:latest"
 echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
@@ -255,6 +255,7 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull nipoanz/fastapi-back
+    mkdir -p /public/uploaded
     $DOCKER_COMMAND_WEB
     "
 
@@ -300,7 +301,7 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --initial-delay 100 \
     --no-force-update-on-repair \
     --standby-policy-mode scale-out-pool \
-    --standby-policy-initial-delay 30 \
+    --standby-policy-initial-delay 50 \
     --list-managed-instances-results PAGELESS
 
 ## POLITICA DE ESCALADO AUTOMATICO

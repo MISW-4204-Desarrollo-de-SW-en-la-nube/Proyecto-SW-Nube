@@ -30,7 +30,7 @@ RUN apk add --no-cache postgresql-libs curl unzip nano nginx supervisor && \
 # ENV PATH="/app/google-cloud-sdk/bin:$PATH"
 
 # IAGEN DE EJEMPLO
-RUN curl https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Ada_Lovelace_portrait.jpg/800px-Ada_Lovelace_portrait.jpg --output ada.jpg
+# RUN curl https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Ada_Lovelace_portrait.jpg/800px-Ada_Lovelace_portrait.jpg --output ada.jpg
 # VARLIDAR USO DE gsutil subiendo la imagen a un bucket
 # RUN gsutil cp ada.jpg gs://bucket-ada-lovelace
 
