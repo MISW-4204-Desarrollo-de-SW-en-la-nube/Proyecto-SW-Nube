@@ -140,9 +140,18 @@ async def save_file(file: UploadFile) -> str:
     try:
         if file.content_type != 'video/mp4':
             raise ValueError('El archivo no es un video')
+        # CREAR DIRECTORIO SI NO EXISTE
+        if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
+            os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
+        # CREAR DIRECTORIO SI NO EXISTE
+        if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
+            os.makedirs(settings.PUBLIC_DIR_PROCESSED)
+
         logger.info(f'File name: {file.filename}')
-        new_file_name = uuid.uuid4() + "_" + file.filename.replace(' ', '_')
+        unique_id = uuid.uuid4()
+        new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
         file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        #SAVE THE FILE
         logger.info(f'File path: {file_path}')
         with open(file_path, 'wb') as f:
             f.write(file.file.read())
