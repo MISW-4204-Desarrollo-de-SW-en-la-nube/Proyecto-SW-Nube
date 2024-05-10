@@ -223,7 +223,7 @@ echo "BATCH IP: $BATCH_IP"
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/public nipoanz/fastapi-back:latest"
+DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
 echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
@@ -255,7 +255,9 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull nipoanz/fastapi-back
-    mkdir -p /public/uploaded
+    sudo mkdir -p /public/uploaded
+    sudo shmod -R 777 /public
+    sudo shmod -R 777 /public/uploaded
     $DOCKER_COMMAND_WEB
     "
 

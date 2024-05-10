@@ -136,16 +136,16 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
 #         logger.error(e)
 #         raise e
     
-def save_file(file: UploadFile) -> str:
+async def save_file(file: UploadFile) -> str:
     try:
         if file.content_type != 'video/mp4':
             raise ValueError('El archivo no es un video')
         logger.info(f'File name: {file.filename}')
-        new_file_name = f"{uuid.uuid4()}_{file.filename.replace(' ', '_')}"
-        file_path = os.path.join("/app", settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        new_file_name = uuid.uuid4() + "_" + file.filename.replace(' ', '_')
+        file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
         logger.info(f'File path: {file_path}')
-        with open(file_path, 'wb') as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        with open(file_path, 'wb') as f:
+            f.write(file.file.read())
         return file_path
     except Exception as e:
         logger.error('Error al guardar el archivo')
