@@ -255,9 +255,8 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull nipoanz/fastapi-back
-    sudo mkdir -p /public/uploaded
+    sudo mkdir /public
     sudo chmod -R 777 /public
-    sudo chmod -R 777 /public/uploaded
     $DOCKER_COMMAND_WEB
     "
 
