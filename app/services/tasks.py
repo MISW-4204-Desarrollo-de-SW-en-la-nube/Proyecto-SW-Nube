@@ -130,7 +130,7 @@ async def create_task_by_user_test():
     print("Proceso asíncrono completado")
 
 
-async def create_task_by_user(db: Session, user: int, file: UploadFile):
+async def create_task_by_user(db: Session, user: int, file: UploadFile) -> None:
     try:
         #VALIDAR QUE SEA UN VIDEO
         if file.content_type != 'video/mp4':
@@ -141,6 +141,7 @@ async def create_task_by_user(db: Session, user: int, file: UploadFile):
             os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
         if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
             os.makedirs(settings.PUBLIC_DIR_PROCESSED)
+        print(f'File name: {file.filename}')
 
         unique_id = uuid.uuid4()
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
