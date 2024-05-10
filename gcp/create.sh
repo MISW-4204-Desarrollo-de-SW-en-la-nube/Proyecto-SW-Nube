@@ -256,8 +256,8 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker pull nipoanz/fastapi-back
     sudo mkdir -p /public/uploaded
-    sudo shmod -R 777 /public
-    sudo shmod -R 777 /public/uploaded
+    sudo chmod -R 777 /public
+    sudo chmod -R 777 /public/uploaded
     $DOCKER_COMMAND_WEB
     "
 
