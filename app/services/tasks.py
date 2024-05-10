@@ -118,19 +118,19 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
             return True
     return False
 
-def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
+async def create_task_by_user(db: Session, user: int, file: UploadFile) -> None:
     try:
         #VALIDAR QUE SEA UN VIDEO
         if not validate_content_type(file.content_type):
             return False
+        logger.info(f'File name: {file.filename}')
 
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
         unique_id = uuid.uuid4()
-        new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
+        new_file_name = f"{unique_id}_{file.filename.replace(' ', '_').lower().strip()}"
 
         # Subir los datos al bucket de Cloud Storage
         if upload_file_to_bucket(file, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):
-
             video_url = get_video_url(settings.BUCKET_NAME, settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
             video_processed_url = get_video_url(settings.BUCKET_NAME, settings.PUBLIC_DIR_PROCESSED, new_file_name)
             new_task = Task(
@@ -143,17 +143,11 @@ def create_task_by_user(db: Session, user: int, file: UploadFile) -> bool:
             db.add(new_task)
             db.commit()
             logger.info('Tarea creada con id -> ' + str(new_task.id))
-
             process_video.delay(new_task.id)
-            return True
-        else:
-            return False
-
     except Exception as e:
         logger.error('Error al crear tarea')
         logger.error(e)
         db.rollback()
-        return False
 
 
 def validate_content_type(content_type: str) -> bool:
