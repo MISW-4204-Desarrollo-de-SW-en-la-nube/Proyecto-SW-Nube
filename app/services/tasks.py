@@ -1,12 +1,14 @@
 
-import subprocess
-import os
-import uuid
-import io
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Optional
+import asyncio
+import shutil
+import subprocess
+import os
+import uuid
+import io
 
 from app.models import Task
 from app.core.logger_config import logger
@@ -118,39 +120,55 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
             return True
     return False
 
+# def save_file(file: UploadFile) -> str:
+#     try:
+#         if file.content_type != 'video/mp4':
+#             raise ValueError('El archivo no es un video')
+#         logger.info(f'File name: {file.filename}')
+#         unique_id = uuid.uuid4()
+#         new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
+#         filePath = f"public/uploaded/{new_file_name}"
+#         with open(filePath, 'wb') as buffer:
+#             shutil.copyfileobj(file.file, buffer)
+#         return filePath
+#     except Exception as e:
+#         logger.error('Error al guardar el archivo')
+#         logger.error(e)
+#         raise e
+    
 def save_file(file: UploadFile) -> str:
     try:
         if file.content_type != 'video/mp4':
             raise ValueError('El archivo no es un video')
         logger.info(f'File name: {file.filename}')
-        unique_id = uuid.uuid4()
-        new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
-        filePath = f"public/uploaded/{new_file_name}"
-        with open(filePath, 'wb') as buffer:
+        new_file_name = f"{uuid.uuid4()}_{file.filename.replace(' ', '_')}"
+        file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        logger.info(f'File path: {file_path}')
+        with open(file_path, 'wb') as buffer:
             shutil.copyfileobj(file.file, buffer)
-        return filePath
+        return file_path
     except Exception as e:
         logger.error('Error al guardar el archivo')
         logger.error(e)
         raise e
 
-async def create_task_by_user(db: Session, user: int, file: UploadFile) -> None:
+async def create_task_by_user(db: Session, user: int, filePath: str, fileName: str) -> None:
     try:
-        #VALIDAR QUE SEA UN VIDEO
-        if not validate_content_type(file.content_type):
-            return False
-        logger.info(f'File name: {file.filename}')
+        logger.info(f'File name: {fileName}')
 
         # GENERAR UN IDENTIFICADOR UNICO DEL ARCHIVO SIN PROCESAR
-        unique_id = uuid.uuid4()
-        new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
+        new_file_name = f"{uuid.uuid4()}_{fileName.replace(' ', '_')}"
+        logger.log(f'New File Name: {new_file_name}')
 
         # Subir los datos al bucket de Cloud Storage
-        if upload_file_to_bucket(file, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):
+        if upload_file_to_bucket(filePath, settings.BUCKET_NAME, new_file_name, settings.PUBLIC_DIR_NOT_PROCESSED):
+            logger.info(f'Archivo subido a Cloud Storage')
             video_url = get_video_url(settings.BUCKET_NAME, settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+            logger.info(f'Video URL: {video_url}')
             video_processed_url = get_video_url(settings.BUCKET_NAME, settings.PUBLIC_DIR_PROCESSED, new_file_name)
+            logger.info(f'Video Processed URL: {video_processed_url}')
             new_task = Task(
-                originalFileName=file.filename,
+                originalFileName=fileName,
                 fileName=new_file_name,
                 video_url=video_url,
                 video_processed_url=video_processed_url,
@@ -158,32 +176,31 @@ async def create_task_by_user(db: Session, user: int, file: UploadFile) -> None:
             )
             db.add(new_task)
             db.commit()
-            logger.info(f'Tarea creada con id -> {new_task.id}')
+            logger.info(f'Task Created: {new_task.id}')
+            # TODO: CAMBIAR POR PUB/SUB
             process_video.delay(new_task.id)
+        
     except Exception as e:
         logger.error(f'Error al crear tarea')
         logger.error(e)
+        os.remove(filePath)
         db.rollback()
 
 
-def validate_content_type(content_type: str) -> bool:
-    return True if content_type == 'video/mp4' else False
-
-def upload_file_to_bucket(file: UploadFile, bucket_name: str, destination_path: str, folder_path: str) -> bool:
+def upload_file_to_bucket(file: str, bucket_name: str, destination_path: str, folder_path: str) -> bool:
     try:
-        file_bytes = file.file.read()
         logger.info("Subiendo archivo a Cloud Storage")
-        logger.info(f"gsutil cp - gs://{bucket_name}/{folder_path}/{destination_path}")
+        uploadCmd = f"gsutil cp {file} gs://{bucket_name}/{folder_path}/{destination_path}"
+        logger.info(uploadCmd)
+        #uploadCmd = ["gsutil", "cp", file, f"gs://{bucket_name}/{folder_path}/{destination_path}"]
+        subprocess.run(uploadCmd, check=True)
 
-        process = subprocess.Popen(['gsutil', 'cp', '-', f'gs://{bucket_name}/{folder_path}/{destination_path}'],
-                                   stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        stdout, stderr = process.communicate(input=file_bytes)
-        
-        # Permisos de lectura para todos los usuarios
-        #logger.info('Quitar el acceo publico al archivo subido')
-        #logger.info(f"gsutil acl ch -d AllUsers gs://{bucket_name}/{folder_path}/{destination_path}")
-        #command = f"gsutil acl ch -d AllUsers gs://{bucket_name}/{folder_path}/{destination_path}"
-        #subprocess.run(command, shell=True, check=True)
+        logger.info('Quitar el acceo publico al archivo subido')
+        uploadCmd = f"gsutil acl ch -d AllUsers gs://{bucket_name}/{folder_path}/{destination_path}"
+        logger.info(uploadCmd)
+        subprocess.run(uploadCmd, check=True)
+        #ELIMINAR EL ARCHIVO TEMPORAL
+        os.remove(file)
         return True
     except subprocess.CalledProcessError as e:
         logger.error('Error al subir archivo a Cloud Storage')

@@ -1,17 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from datetime import datetime, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session
-import shutil
-import asyncio
-import uuid
 
 from app.core.logger_config import logger
 from app.models import User, Task
 from app.schemas.task import TaskResponse, TaskCreate, TasksResponse, TaskDownloadResponse
 from app.db.session import get_db 
 from app.core.security import verify_token
-from app.services.tasks import get_all_tasks_by_user, get_task_by_id, delete_task_by_id, create_task_by_user, get_all_tasks_users
+from app.services.tasks import get_all_tasks_by_user, get_task_by_id, delete_task_by_id, create_task_by_user, get_all_tasks_users, save_file
 
 
 router = APIRouter()
@@ -41,7 +38,6 @@ async def get_all_our_tasks(max: Optional[int] = None, order: Optional[int] = 0,
         raise HTTPException(status_code=500, detail="Error al obtener las tareas")
 
 
-
 # @router.post("/", response_model=dict)
 # async def create_task(file: UploadFile = File(), db: Session = Depends(get_db), current_user: User = Depends(verify_token)):
 #     errorExeption = {
@@ -64,14 +60,29 @@ async def get_all_our_tasks(max: Optional[int] = None, order: Optional[int] = 0,
 #         logger.error(e)
 #         raise HTTPException(errorExeption["status_code"], detail=errorExeption["detail"])
 
-
-
+# @router.post("/", response_model=dict)
+# async def create_task(file: UploadFile = File(), db: Session = Depends(get_db), current_user: User = Depends(verify_token)):
+#     try:
+#         logger.info(f'Creando tarea para usuario -> {current_user.username}')
+#         fileName = save_file(file)
+#         asyncio.create_task(create_task_by_user(db, current_user.id, fileName))
+#         return {"message": "Tarea en proceso", "result": True}
+#     except Exception as e:
+#         logger.error('Error al crear tarea')
+#         logger.error(e)
+#         raise HTTPException(500, detail="Error al crear la tarea")
+   
 @router.post("/", response_model=dict)
-async def create_task(file: UploadFile = File(), db: Session = Depends(get_db), current_user: User = Depends(verify_token)):
+async def create_task(
+    file: UploadFile = File(),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(verify_token)):
     try:
         logger.info(f'Creando tarea para usuario -> {current_user.username}')
-        fileName = save_file(file)
-        asyncio.create_task(create_task_by_user(db, current_user.id, fileName))
+        original_fileName = file.filename
+        file_path = save_file(file)
+        background_tasks.add_task(create_task_by_user, db, current_user.id, file_path, original_fileName)
         return {"message": "Tarea en proceso", "result": True}
     except Exception as e:
         logger.error('Error al crear tarea')
