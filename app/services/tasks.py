@@ -135,24 +135,21 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
 #         logger.error('Error al guardar el archivo')
 #         logger.error(e)
 #         raise e
-    
-async def save_file(file: UploadFile) -> str:
+  
+def save_file(file: UploadFile) -> str:
     try:
         if file.content_type != 'video/mp4':
             raise ValueError('El archivo no es un video')
         # CREAR DIRECTORIO SI NO EXISTE
         if not os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
             os.makedirs(settings.PUBLIC_DIR_NOT_PROCESSED)
-        # CREAR DIRECTORIO SI NO EXISTE
-        if not os.path.exists(settings.PUBLIC_DIR_PROCESSED):
-            os.makedirs(settings.PUBLIC_DIR_PROCESSED)
 
-        logger.info(f'File name: {file.filename}')
+        #logger.info(f'File name: {file.filename}')
         unique_id = uuid.uuid4()
         new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
-        file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
-        #SAVE THE FILE
-        logger.info(f'File path: {file_path}')
+
+        file_path = "./" + os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, new_file_name)
+        logger.info("Save file on: " + file_path)
         with open(file_path, 'wb') as f:
             f.write(file.file.read())
         return file_path
@@ -160,6 +157,7 @@ async def save_file(file: UploadFile) -> str:
         logger.error('Error al guardar el archivo')
         logger.error(e)
         raise e
+
 
 async def create_task_by_user(db: Session, user: int, filePath: str, fileName: str) -> None:
     try:
@@ -199,13 +197,12 @@ async def create_task_by_user(db: Session, user: int, filePath: str, fileName: s
 def upload_file_to_bucket(file: str, bucket_name: str, destination_path: str, folder_path: str) -> bool:
     try:
         logger.info("Subiendo archivo a Cloud Storage")
-        uploadCmd = f"gsutil cp {file} gs://{bucket_name}/{folder_path}/{destination_path}"
+        uploadCmd = ["gsutil", "cp", file, f"gs://{bucket_name}/{folder_path}/{destination_path}"]
         logger.info(uploadCmd)
-        #uploadCmd = ["gsutil", "cp", file, f"gs://{bucket_name}/{folder_path}/{destination_path}"]
         subprocess.run(uploadCmd, check=True)
 
         logger.info('Quitar el acceo publico al archivo subido')
-        uploadCmd = f"gsutil acl ch -d AllUsers gs://{bucket_name}/{folder_path}/{destination_path}"
+        uploadCmd = ["gsutil", "acl", "ch", "-d", "AllUsers", f"gs://{bucket_name}/{folder_path}/{destination_path}"]
         logger.info(uploadCmd)
         subprocess.run(uploadCmd, check=True)
         #ELIMINAR EL ARCHIVO TEMPORAL
