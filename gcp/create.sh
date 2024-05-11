@@ -223,7 +223,7 @@ echo "BATCH IP: $BATCH_IP"
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_WEB="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
+DOCKER_COMMAND_WEB="docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
 echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
@@ -260,6 +260,29 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     $DOCKER_COMMAND_WEB
     "
 
+
+
+# # CREAR INSTANCIA DE VM - BACK PRINCIPAL
+# gcloud compute instances create $INSTANCE_NAME \
+#     --project $PROJECT_ID \
+#     --machine-type $MACHINE_TYPE \
+#     --boot-disk-size $DISK_SIZE_MACHINE \
+#     --image $IMAGE \
+#     --zone $ZONE \
+#     --service-account $DB_VM_EMAIL \
+#     --provisioning-model $INSTANCE_TYPE \
+#     --metadata=startup-script="#! /bin/bash
+#     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip nfs-common
+#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+#     sudo chmod +x /usr/local/bin/docker-compose
+#     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
+#     cd nube
+#     sudo chmod -R 777 /nube
+#     sudo docker-compose build fastapiback nginx
+#     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
+#     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
+#     sudo mount -t nfs $NFS_INSTANCE_INT_IP:/nube/public /nube/public
+#     "
 
 
 ## ======================= FIREWALL =================================
