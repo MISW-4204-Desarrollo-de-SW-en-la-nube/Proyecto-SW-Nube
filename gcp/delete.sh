@@ -56,6 +56,9 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID \
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=roles/cloudsql.editor --quiet
+gcloud projects remove-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=roles/pubsub.admin --quiet
 
 # REMOVER PERMISOS DEL ROL
 gcloud iam roles update $BUCKET_ROLE_ID \

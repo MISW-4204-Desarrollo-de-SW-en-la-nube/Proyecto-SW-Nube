@@ -85,6 +85,8 @@ gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
 
 # ## ==================== PUBSUB ====================
 
+# !IMPORTANTE: HABILIATAR LA API DE PUBSUB EN EL PROYECTO ACTUAL
+
 # # CREAR TOPIC
 gcloud pubsub topics create $TOPIC_NAME
 
@@ -129,6 +131,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/storage.admin
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/logging.admin
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.editor
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/pubsub.admin
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
