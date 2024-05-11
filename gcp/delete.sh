@@ -10,7 +10,7 @@ DB_NAME="db-test"
 FIREWALL_RULE_VM2_4="allow-redis-port"
 FIREWALL_RULE_VM2_5="allow-celery-port"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
-BUCKET_NAME="misw-4204-storage-fpv-bucket"
+BUCKET_NAME="$PROJECT_ID-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
@@ -26,9 +26,15 @@ BACKEND_SERVICE_NAME="web-backend-service"
 URL_MAP_NAME="web-server-map-http"
 TARGET_PROXY_NAME="http-server-lb-proxy"
 FORWARDING_RULE_NAME="http-server-forward-rule"
+# PUBSUB
+TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
 
 # ELIMINAR BUCKET
 gsutil rm -r gs://$BUCKET_NAME
+
+# ELIMINAR PUBSUB
+
+gcloud pubsub topics delete $TOPIC_NAME --project $PROJECT_ID --quiet
 
 # ELIMINAR ROLES ASOCIADOS A LA CUENTA DE SERVICIO
 gcloud projects remove-iam-policy-binding $PROJECT_ID \

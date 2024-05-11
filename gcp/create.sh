@@ -57,11 +57,13 @@ DB_EDITION="enterprise"
 DATABASE_STORAGE_SIZE="10GB"
 DB_NAME="db-test"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
-BUCKET_NAME="misw-4204-storage-fpv-bucket"
+BUCKET_NAME="$PROJECT_ID-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_ROLE_TITLE="Custom Storage Admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
+# PUBSUB
+TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
 
 # CONFIGURAR PROYECTO Y ZONA
 gcloud auth list
@@ -79,6 +81,15 @@ gsutil mb -l $REGION gs://$BUCKET_NAME
 
 # # AGREGAR PERMISOS DE LECTURA A TODOS LOS USUARIOS
 gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
+
+
+# ## ==================== PUBSUB ====================
+
+# # CREAR TOPIC
+gcloud pubsub topics create $TOPIC_NAME
+
+# # LISTAR TOPICS
+gcloud pubsub topics list
 
 # ## ==================== CUENTA DE SERVICIO ====================
 
@@ -166,7 +177,7 @@ gcloud sql instances patch $DB_INSTANCE_NAME \
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_BATCH="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
+DOCKER_COMMAND_BATCH="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -e TOPIC_NAME=$TOPIC_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
 echo "$DOCKER_COMMAND_BATCH"
 echo "========================================================"
 echo "========================================================"
@@ -179,7 +190,7 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     --zone $ZONE \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
-    --scopes=https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
+    --scopes=https://www.googleapis.com/auth/pubsub,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append,https://www.googleapis.com/auth/taskqueue \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io git
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
@@ -223,7 +234,7 @@ echo "BATCH IP: $BATCH_IP"
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_WEB="docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
+DOCKER_COMMAND_WEB="docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://$BATCH_IP:6379 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -e TOPIC_NAME=$TOPIC_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
 echo "$DOCKER_COMMAND_WEB"
 echo "========================================================"
 echo "========================================================"
@@ -249,7 +260,7 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
     --service-account $BUCKET_SA_EMAIL \
     --provisioning-model $INSTANCE_TYPE \
     --tags $MACHINE_TAG_TEMPLATE \
-    --scopes https://www.googleapis.com/auth/sqlservice.admin,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append \
+    --scopes https://www.googleapis.com/auth/pubsub,https://www.googleapis.com/auth/sqlservice.admin,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append,https://www.googleapis.com/auth/taskqueue \
     --metadata=startup-script="#! /bin/bash
     sudo apt update && sudo apt install -y docker.io
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
@@ -338,8 +349,8 @@ gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER
     --min-num-replicas 1 \
     --max-num-replicas 3 \
     --scale-based-on-cpu \
-    --target-cpu-utilization 0.75 \
-    --cool-down-period 45
+    --target-cpu-utilization 0.8 \
+    --cool-down-period 50
 
 # ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
 

@@ -186,6 +186,7 @@ async def create_task_by_user(db: Session, user: int, filePath: str, fileName: s
             logger.info(f'Task Created: {new_task.id}')
             # TODO: CAMBIAR POR PUB/SUB
             process_video.delay(new_task.id)
+            publish_message(new_task.id)
         
     except Exception as e:
         logger.error(f'Error al crear tarea')
@@ -215,3 +216,13 @@ def upload_file_to_bucket(file: str, bucket_name: str, destination_path: str, fo
 
 def get_video_url(bucket_name: str, folder_path: str, file_name: str) -> str:
     return f"https://storage.googleapis.com/{bucket_name}/{folder_path}/{file_name}"
+
+def publish_message(task_id: int) -> None:
+    try:
+        logger.info('Publicando mensaje')
+        command = ['gcloud', 'pubsub', 'topics', 'publish', settings.TOPIC_NAME, '--message', str(task_id)]
+        logger.info(command)
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error('Error al publicar mensaje')
+        logger.error(e)

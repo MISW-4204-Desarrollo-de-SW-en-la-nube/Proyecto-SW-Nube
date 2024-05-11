@@ -41,7 +41,9 @@ class Settings(BaseSettings):
     PUBLIC_DIR_PROCESSED: str = "public/processed"
     PUBLIC_DIR: str = "public"
     BUCKET_NAME: str = None
-
+    TOPIC_NAME: str = None
+    
+    
     class Config:
         env_file = "../.env"
  
