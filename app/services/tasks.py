@@ -14,8 +14,6 @@ from app.models import Task
 from app.core.logger_config import logger
 from app.schemas.task import TaskResponse, TaskCreate, TasksResponse, TaskDownloadResponse
 from app.core.config import settings
-from job.tasks import process_video
-
 
 def get_all_tasks_users(db: Session, max: Optional[int] = None, order: Optional[int] = 0) -> TasksResponse:
     try:
@@ -119,22 +117,6 @@ def delete_task_by_id(db: Session, task_id: int, user_id: int) -> bool:
             db.commit()
             return True
     return False
-
-# def save_file(file: UploadFile) -> str:
-#     try:
-#         if file.content_type != 'video/mp4':
-#             raise ValueError('El archivo no es un video')
-#         logger.info(f'File name: {file.filename}')
-#         unique_id = uuid.uuid4()
-#         new_file_name = f"{unique_id}_{file.filename.replace(' ', '_')}"
-#         filePath = f"public/uploaded/{new_file_name}"
-#         with open(filePath, 'wb') as buffer:
-#             shutil.copyfileobj(file.file, buffer)
-#         return filePath
-#     except Exception as e:
-#         logger.error('Error al guardar el archivo')
-#         logger.error(e)
-#         raise e
   
 def save_file(file: UploadFile) -> str:
     try:
@@ -184,8 +166,6 @@ async def create_task_by_user(db: Session, user: int, filePath: str, fileName: s
             db.add(new_task)
             db.commit()
             logger.info(f'Task Created: {new_task.id}')
-            # TODO: CAMBIAR POR PUB/SUB
-            process_video.delay(new_task.id)
             publish_message(new_task.id)
         
     except Exception as e:
@@ -219,7 +199,7 @@ def get_video_url(bucket_name: str, folder_path: str, file_name: str) -> str:
 
 def publish_message(task_id: int) -> None:
     try:
-        logger.info('Publicando mensaje')
+        logger.info('Publicando mensaje...')
         command = ['gcloud', 'pubsub', 'topics', 'publish', settings.TOPIC_NAME, '--message', str(task_id)]
         logger.info(command)
         subprocess.run(command, check=True)

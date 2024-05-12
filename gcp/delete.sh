@@ -7,8 +7,7 @@ ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 DB_NAME="db-test"
-FIREWALL_RULE_VM2_4="allow-redis-port"
-FIREWALL_RULE_VM2_5="allow-celery-port"
+FIREWALL_RULE_VM2_5="allow-batch-port"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="$PROJECT_ID-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
@@ -28,13 +27,24 @@ TARGET_PROXY_NAME="http-server-lb-proxy"
 FORWARDING_RULE_NAME="http-server-forward-rule"
 # PUBSUB
 TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
+FAIL_TOPIC_NAME="$TOPIC_NAME-dead-letter"
 
 # ELIMINAR BUCKET
 gsutil rm -r gs://$BUCKET_NAME
 
-# ELIMINAR PUBSUB
+# DELETE SUBSCRIPTION
+# gcloud pubsub subscriptions delete misw-4204-cloud-topic-fpv-task-subscription --project  misw-4204-cloud --quiet
+gcloud pubsub subscriptions delete $TOPIC_NAME-subscription \
+    --project $PROJECT_ID \
+    --quiet
 
+# ELIMINAR PUBSUB TOPIC
+# gcloud pubsub topics delete misw-4204-cloud-topic-fpv-task --project misw-4204-cloud --quiet
 gcloud pubsub topics delete $TOPIC_NAME --project $PROJECT_ID --quiet
+
+# ELIMINAR PUBSUB ERROR TOPIC
+# gcloud pubsub topics delete misw-4204-cloud-topic-fpv-task-dead-letter --project misw-4204-cloud --quiet
+gcloud pubsub topics delete $FAIL_TOPIC_NAME --project $PROJECT_ID --quiet
 
 # ELIMINAR ROLES ASOCIADOS A LA CUENTA DE SERVICIO
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
@@ -144,9 +154,6 @@ gcloud compute instances delete $INSTANCE_NAME_BATCH \
     --zone $ZONE \
     --quiet
 
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_4 \
-    --project $PROJECT_ID \
-    --quiet
 gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_5 \
     --project $PROJECT_ID \
     --quiet

@@ -10,7 +10,7 @@ RUN pip --version
 
 #  Install the required dependencies
 RUN pip install --upgrade pip --break-system-packages
-COPY requirements.txt requirements.txt
+COPY ./job/requirements.txt requirements.txt
 RUN pip install --no-cache-dir --upgrade -r requirements.txt --break-system-packages
 
 
@@ -21,31 +21,15 @@ RUN apk add --no-cache postgresql-libs curl unzip nano supervisor && \
     apk --purge del .build-deps 
 RUN apk add --no-cache ffmpeg
 
-# INSTALAR GOOGLE CLOUD SDK
-# RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-471.0.0-linux-x86_64.tar.gz && \
-#     tar zxvf google-cloud-cli-471.0.0-linux-x86_64.tar.gz && \
-#     ./google-cloud-sdk/install.sh --quiet && \
-#     rm google-cloud-cli-471.0.0-linux-x86_64.tar.gz
-
-# CONFIGURAR EL PATH DE GOOGLE CLOUD SDK
-# ENV PATH="/app/google-cloud-sdk/bin:$PATH"
-
-# INSTALAR gsutil 
-# RUN gcloud components install gsutil --quiet
-
 # Copia todo el contenido del directorio actual al contenedor en /app
-COPY ./app /app/app
 COPY ./job /app/job
-COPY ./public /app/public
 
 # CONFIGURACION SUPERVISOR
 COPY ./supervisord-worker.conf /etc/supervisor/conf.d/supervisord.conf
-
 
 # Dar permisos de ejecución al script
 RUN chmod +x /app/job/process.sh
 
 # INCIALIZAR SUPERVISOR
-# CMD ["celery", "-A", "job.celery_app", "worker", "-l", "info", "-P", "gevent"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 

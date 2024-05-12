@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-export PROJECT_ID="misw-4204-cloud"
+PROJECT_ID=$GOOGLE_CLOUD_PROJECT
 # INSTANCE_NAME="web-server"
 INSTANCE_NAME_BATCH="worker"
 MACHINE_TYPE="e2-small"
@@ -15,6 +15,7 @@ REGION="us-west1"
 ZONE="us-west1-b"
 MACHINE_TAG="http-server,https-server"
 MACHINE_TAG_BATCH="bath-server"
+PORT_BATCH="5556"
 INSTANCE_TYPE="SPOT"
 # TEMPLATE - INSTANCIA WEB (BACK)
 INSTANCE_NAME_TEMPLATE="web-server-template"
@@ -47,8 +48,8 @@ MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check,allow-health-chec
 # FIREWALL_RULE_VM1_1="allow-fastapi-port"
 # FIREWALL_RULE_VM1_2="allow-perf-port"
 # FIREWALL_RULE_VM1_3="allow-nginx-port"
-FIREWALL_RULE_VM2_4="allow-redis-port"
-FIREWALL_RULE_VM2_5="allow-celery-port"
+# FIREWALL_RULE_VM2_4="allow-redis-port"
+FIREWALL_RULE_VM2_5="allow-batch-port"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 POSTGRES_VERSION="POSTGRES_15"
@@ -64,6 +65,15 @@ BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # PUBSUB
 TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
+FAIL_TOPIC_NAME="$TOPIC_NAME-dead-letter"
+
+
+## VALIDAR QUE EXISTE UN PROYECTO
+EXISTING_PROJECT=$(gcloud projects describe $PROJECT_ID 2>&1)
+if [[ $EXISTING_PROJECT == *"NOT_FOUND"* ]]; then
+    echo "El proyecto no existe"
+    exit 1
+fi
 
 # CONFIGURAR PROYECTO Y ZONA
 gcloud auth list
@@ -76,22 +86,49 @@ echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
 
 ## ==================== CLOUD STORAGE ====================
 
+# HABILITAR API DE STORAGE
+gcloud services enable storage-component.googleapis.com
+
 # CREAR BUCKET
 gsutil mb -l $REGION gs://$BUCKET_NAME
 
 # # AGREGAR PERMISOS DE LECTURA A TODOS LOS USUARIOS
 gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
 
-
 # ## ==================== PUBSUB ====================
 
-# !IMPORTANTE: HABILIATAR LA API DE PUBSUB EN EL PROYECTO ACTUAL
+# HABILITAR API DE PUBSUB
+gcloud services enable pubsub.googleapis.com
 
 # # CREAR TOPIC
+# gcloud pubsub topics create misw-4204-cloud-topic-fpv-task
 gcloud pubsub topics create $TOPIC_NAME
 
-# # LISTAR TOPICS
+# # CREAR DEAD LETTER TOPIC
+# gcloud pubsub topics create misw-4204-cloud-topic-fpv-task-dead-letter
+gcloud pubsub topics create $FAIL_TOPIC_NAME
+
+# # GET ALL TOPICS LIST
 gcloud pubsub topics list
+
+# # CREATE SUBSCRIPTION
+# gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription --topic misw-4204-cloud-topic-fpv-task  --max-delivery-attempts 5 --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
+gcloud pubsub subscriptions create $TOPIC_NAME-subscription \
+    --topic $TOPIC_NAME \
+    --max-delivery-attempts 5 \
+    --dead-letter-topic $FAIL_TOPIC_NAME
+
+
+# # GET ALL SUBSCRIPTIONS LIST
+gcloud pubsub subscriptions list
+
+# # PUBLISH MESSAGE
+# gcloud pubsub topics publish misw-4204-cloud-topic-fpv-task --message "Hello, World!" 
+gcloud pubsub topics publish $TOPIC_NAME --message "Hello, World!"
+
+# #GET SUBSCRIPTION MESSAGES
+# gcloud pubsub subscriptions pull misw-4204-cloud-topic-fpv-task-subscription --auto-ack
+#gcloud pubsub subscriptions pull $TOPIC_NAME-subscription --auto-ack
 
 # ## ==================== CUENTA DE SERVICIO ====================
 
@@ -134,6 +171,9 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/pubsub.admin
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
+
+# HABILITAR API DE SQL
+gcloud services enable sql-component.googleapis.com
 
 ## CREAR INSTANCIA DE BASE DE DATOS
 gcloud sql instances create $DB_INSTANCE_NAME \
@@ -180,7 +220,7 @@ gcloud sql instances patch $DB_INSTANCE_NAME \
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_BATCH="sudo docker run -d -e DB_URL=$DB_CONNECTION_URL -e REDIS_URL=redis://redis:6379 -e BUCKET_NAME=$BUCKET_NAME -e TOPIC_NAME=$TOPIC_NAME -p 5556:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
+DOCKER_COMMAND_BATCH="sudo docker run -d -e DEBUG=False -e DB_URL=$DB_CONNECTION_URL -e BUCKET_NAME=$BUCKET_NAME -e SUBSCRIPTION_ID=$TOPIC_NAME -e PROJECT_ID=$PROJECT_ID -p $PORT_BATCH:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
 echo "$DOCKER_COMMAND_BATCH"
 echo "========================================================"
 echo "========================================================"
@@ -199,10 +239,6 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git  nube
-    sudo chmod -R 777 /nube
-    cd nube
-    sudo docker network create fpv-network
-    sudo docker run -d --name redis -p 6379:6379  --network fpv-network redis:latest
     sudo docker build -t workertres -f /nube/dockerfile-worker /nube/.
     $DOCKER_COMMAND_BATCH
     "
@@ -210,23 +246,13 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
 # # ANIADIR TAGS A LA INSTANCIA
 gcloud compute instances add-tags $INSTANCE_NAME_BATCH --tags $MACHINE_TAG_BATCH
 
-# # CREAR REGLA DE FIREWALL- REDIS
-gcloud compute firewall-rules create $FIREWALL_RULE_VM2_4 \
-    --direction=INGRESS \
-    --priority=1000 \
-    --network=default \
-    --action=ALLOW \
-    --rules=tcp:6379  \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=bath-server
-
 # # CREAR REGLA DE FIREWALL- CELEERY
 gcloud compute firewall-rules create $FIREWALL_RULE_VM2_5 \
     --direction=INGRESS \
     --priority=1000 \
     --network=default \
     --action=ALLOW \
-    --rules=tcp:5556  \
+    --rules=tcp:$PORT_BATCH  \
     --source-ranges=0.0.0.0/0 \
     --target-tags=bath-server
 
