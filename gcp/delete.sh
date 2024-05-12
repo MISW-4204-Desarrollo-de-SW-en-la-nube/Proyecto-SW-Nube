@@ -164,14 +164,6 @@ gcloud compute instance-groups managed delete $INSTANCE_BATCH_SERVER_GROUP \
     --region $REGION \
     --quiet
 
-# REMOVER SERVICIO BACKEND
-gcloud compute backend-services remove-backend $BACKEND_SERVICE_NAME \
-    --project $PROJECT_ID \
-    --instance-group $INSTANCE_WEB_SERVER_GROUP \
-    --instance-group-region $REGION \
-    --global \
-    --quiet
-
 # ELIMINAR INSTANCIA DE GRUPO
 gcloud compute instance-templates delete $INSTANCE_NAME_BATCH_TEMPLATE \
     --project $PROJECT_ID \
