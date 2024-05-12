@@ -1,24 +1,27 @@
 #!/bin/bash
 
 PROJECT_ID="misw-4204-cloud"
-INSTANCE_NAME_BATCH="worker"
 REGION="us-west1"
 ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 DB_NAME="db-test"
-FIREWALL_RULE_VM2_5="allow-batch-port"
 # CLOUD STORAGE - TAGS DE CUENTAS DE SERVICIO
 BUCKET_NAME="$PROJECT_ID-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
+# TEMPLATE - INSTANCIA BATCH
+INSTANCE_NAME_BATCH_TEMPLATE="batch-server-template"
+FIREWALL_RULE_BATCH_TEMPLATE="fw-allow-health-check-batch"
+HEALTH_CHECK_VM_BATCH="http-check-vm-batch"
+INSTANCE_BATCH_SERVER_GROUP="batch-server-instance-group"
+
 # TEMPLATE - INSTANCIA WEB (BACK)
 INSTANCE_NAME_TEMPLATE="web-server-template"
 FIREWALL_RULE_TEMPLATE="fw-allow-health-check"
-# HEALTH_CHECK_VM="http-check-vm"
+HEALTH_CHECK_VM="http-check-vm"
 INSTANCE_WEB_SERVER_GROUP="web-server-instance-group"
-ZONE_INSTANCE_GROUP="us-west1-c"
 LB_IP_NAME="lb-ipv4-1"
 HEALTH_CHECK_LB="http-lb-check"
 BACKEND_SERVICE_NAME="web-backend-service"
@@ -104,7 +107,7 @@ gcloud compute url-maps delete $URL_MAP_NAME \
 gcloud compute backend-services remove-backend $BACKEND_SERVICE_NAME \
     --project $PROJECT_ID \
     --instance-group $INSTANCE_WEB_SERVER_GROUP \
-    --instance-group-zone $ZONE_INSTANCE_GROUP \
+    --instance-group-region $REGION \
     --global \
     --quiet
 
@@ -129,14 +132,14 @@ gcloud compute addresses delete $LB_IP_NAME \
 # ELIMINAR INSTANCIA DE GRUPO
 gcloud compute instance-groups managed delete $INSTANCE_WEB_SERVER_GROUP \
     --project $PROJECT_ID \
-    --zone $ZONE_INSTANCE_GROUP \
+    --region $REGION \
     --quiet
 
 # ELIMINAR HEALTH CHECK DE VM
-# gcloud compute health-checks delete $HEALTH_CHECK_VM \
-#     --project $PROJECT_ID \
-#     --region $REGION \
-#     --quiet
+gcloud compute health-checks delete $HEALTH_CHECK_VM \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
 
 # ELIMINAR REGLA DE FIREWALL
 gcloud compute firewall-rules delete $FIREWALL_RULE_TEMPLATE \
@@ -149,15 +152,47 @@ gcloud compute instance-templates delete $INSTANCE_NAME_TEMPLATE \
     --region $REGION \
     --quiet
 
-# # Eliminar instancia de VM - BATCH
-gcloud compute instances delete $INSTANCE_NAME_BATCH \
+## =======================================================
+## =======================================================
+## =======================================================
+## =======================================================
+## ==================== INSTANCIA BATCH ====================
+
+# ELIMINAR INSTANCIA DE GRUPO
+gcloud compute instance-groups managed delete $INSTANCE_BATCH_SERVER_GROUP \
     --project $PROJECT_ID \
-    --zone $ZONE \
+    --region $REGION \
     --quiet
 
-gcloud compute firewall-rules delete $FIREWALL_RULE_VM2_5 \
+# REMOVER SERVICIO BACKEND
+gcloud compute backend-services remove-backend $BACKEND_SERVICE_NAME \
+    --project $PROJECT_ID \
+    --instance-group $INSTANCE_WEB_SERVER_GROUP \
+    --instance-group-region $REGION \
+    --global \
+    --quiet
+
+# ELIMINAR INSTANCIA DE GRUPO
+gcloud compute instance-templates delete $INSTANCE_NAME_BATCH_TEMPLATE \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
+
+# ELIMINAR REGLA DE FIREWALL
+gcloud compute firewall-rules delete $FIREWALL_RULE_BATCH_TEMPLATE \
     --project $PROJECT_ID \
     --quiet
+
+# ELIMINAR HEALTH CHECK DE VM
+gcloud compute health-checks delete $HEALTH_CHECK_VM_BATCH \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
+
+## =======================================================
+## =======================================================
+## =======================================================
+## ==================== BASE DE DATOS ====================
 
 # Eliminar base de datos
 gcloud sql databases delete $DB_NAME \
