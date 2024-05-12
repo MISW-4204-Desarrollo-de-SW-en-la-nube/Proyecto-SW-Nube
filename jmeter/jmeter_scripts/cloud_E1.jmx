@@ -23,7 +23,7 @@
       <hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request -Crear Tarea  (Video)">
           <stringProp name="TestPlan.comments">Esta api requiere autenticación</stringProp>
-          <stringProp name="HTTPSampler.domain">34.49.147.190</stringProp>
+          <stringProp name="HTTPSampler.domain">34.111.96.245</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding">utf-8</stringProp>
@@ -301,7 +301,7 @@
           </elementProp>
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">Authorization</stringProp>
-            <stringProp name="Header.value">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjEsInVzZXJuYW1lIjoiSm9zZUx1aXMyIn0sImV4cCI6MTcxNDkwMjA3MX0.E0vLCneTnpm0OwAY8LKmp7yJoUuAPpj5dwJwXks2xMY</stringProp>
+            <stringProp name="Header.value">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjEsInVzZXJuYW1lIjoiSm9zZUx1aXMyIn0sImV4cCI6MTcxNTUzMzIxM30.SAPSaXoMRdlJzMKuCcsLz44gKzvhhS2rTnsfN1J5a58</stringProp>
           </elementProp>
         </collectionProp>
       </HeaderManager>
