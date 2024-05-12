@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt --break-system-pack
 
 
 # Instalar psycopg2 para interactuar con PostgreSQL
-RUN apk add --no-cache postgresql-libs curl unzip nano supervisor && \
+RUN apk add --no-cache postgresql-libs nano supervisor && \
     apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
     pip install psycopg2-binary --break-system-packages && \    
     apk --purge del .build-deps 

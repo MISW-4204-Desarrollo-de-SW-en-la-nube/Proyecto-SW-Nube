@@ -35,9 +35,12 @@ def transform_video(id: str):
                 print("original_file_name: " + original_file_name)
                 print("processed_url: " + processed_url)
 
-                output_dir = "/app/public/processed/"
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
+                processed_video_path = "/app/public/processed/"
+                if not os.path.exists(processed_video_path):
+                    os.makedirs(processed_video_path)
+                download_video_path = "/app/public/uploaded/"
+                if not os.path.exists(download_video_path):
+                    os.makedirs(download_video_path)
 
                 # Ejemplo de uso
                 public_folder = "https://storage.googleapis.com/"
@@ -46,9 +49,8 @@ def transform_video(id: str):
 
                 # DESCARGAR VIDEO DEL BUCKET
                 video_url = video_url.replace(public_folder, 'gs://')
-                download_video_path = "/app/public/uploaded/"
+                
                 video_url_local = os.path.join(download_video_path, original_file_name)
-                processed_video_path = "/app/public/processed/"
                 processed_url_local = os.path.join(processed_video_path, original_file_name)
                 print("video_url: " + video_url)
                 print("video_url_local: " + video_url_local)

@@ -16,7 +16,7 @@ BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # TEMPLATE - INSTANCIA WEB (BACK)
 INSTANCE_NAME_TEMPLATE="web-server-template"
 FIREWALL_RULE_TEMPLATE="fw-allow-health-check"
-HEALTH_CHECK_VM="http-check-vm"
+# HEALTH_CHECK_VM="http-check-vm"
 INSTANCE_WEB_SERVER_GROUP="web-server-instance-group"
 ZONE_INSTANCE_GROUP="us-west1-c"
 LB_IP_NAME="lb-ipv4-1"
@@ -27,6 +27,7 @@ TARGET_PROXY_NAME="http-server-lb-proxy"
 FORWARDING_RULE_NAME="http-server-forward-rule"
 # PUBSUB
 TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
+TOPIC_NAME_SUBSCRIPTION="$TOPIC_NAME-subscription"
 FAIL_TOPIC_NAME="$TOPIC_NAME-dead-letter"
 
 # ELIMINAR BUCKET
@@ -34,7 +35,7 @@ gsutil rm -r gs://$BUCKET_NAME
 
 # DELETE SUBSCRIPTION
 # gcloud pubsub subscriptions delete misw-4204-cloud-topic-fpv-task-subscription --project  misw-4204-cloud --quiet
-gcloud pubsub subscriptions delete $TOPIC_NAME-subscription \
+gcloud pubsub subscriptions delete $TOPIC_NAME_SUBSCRIPTION \
     --project $PROJECT_ID \
     --quiet
 
@@ -132,10 +133,10 @@ gcloud compute instance-groups managed delete $INSTANCE_WEB_SERVER_GROUP \
     --quiet
 
 # ELIMINAR HEALTH CHECK DE VM
-gcloud compute health-checks delete $HEALTH_CHECK_VM \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
+# gcloud compute health-checks delete $HEALTH_CHECK_VM \
+#     --project $PROJECT_ID \
+#     --region $REGION \
+#     --quiet
 
 # ELIMINAR REGLA DE FIREWALL
 gcloud compute firewall-rules delete $FIREWALL_RULE_TEMPLATE \

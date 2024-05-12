@@ -197,6 +197,8 @@ def upload_file_to_bucket(file: str, bucket_name: str, destination_path: str, fo
 def get_video_url(bucket_name: str, folder_path: str, file_name: str) -> str:
     return f"https://storage.googleapis.com/{bucket_name}/{folder_path}/{file_name}"
 
+
+
 def publish_message(task_id: int) -> None:
     try:
         logger.info('Publicando mensaje...')

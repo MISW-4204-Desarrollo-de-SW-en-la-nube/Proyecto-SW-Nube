@@ -5,6 +5,19 @@ Este proyecto utiliza FastAPI como framework para crear una API web. A continuac
 
 Este proyecto esta basado en un sistema de gestión de archivos de video (mp4),  que permite a los usuarios subir archivos de video, convertirlos a otros formatos, y descargar los archivos convertidos. Además, se implementa un sistema de autenticación y autorización de usuarios, y un sistema de tareas asíncronas utilizando Celery y Redis.
 
+## Actualización - Entrega 4
+
+Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en la entrega 2, como aparece en el archivo [`gcp/README.md`](
+
+docker build -t fastapi-app .
+docker tag fastapi-app nipoanz/fastapi-back:latest
+docker push nipoanz/fastapi-back:latest 
+
+
+docker build -t workertres -f dockerfile-worker . 
+docker tag workertres nipoanz/worker-fpv:latest
+docker push nipoanz/worker-fpv:latest
+
 ## Actualización - Entrega 3
 
 Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en la entrega 2, como aparece en el archivo [`gcp/README.md`](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/gcp), 

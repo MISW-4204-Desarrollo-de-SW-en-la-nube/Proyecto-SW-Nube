@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-PROJECT_ID=$GOOGLE_CLOUD_PROJECT
+PROJECT_ID="misw-4204-cloud"
 # INSTANCE_NAME="web-server"
 INSTANCE_NAME_BATCH="worker"
 MACHINE_TYPE="e2-small"
@@ -24,7 +24,7 @@ PORT_WEB="8080"
 TARGET_FIREWALL_RULE_TEMPLATE="allow-health-check"
 FIREWALL_RULE_TEMPLATE="fw-allow-health-check"
 # CHECK-IN - TEMPLATE
-HEALTH_CHECK_VM="http-check-vm"
+# HEALTH_CHECK_VM="http-check-vm"
 # INSTANCES GROUP
 INSTANCE_WEB_SERVER_GROUP="web-server-instance-group"
 ZONE_INSTANCE_GROUP="us-west1-c"
@@ -65,6 +65,7 @@ BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 # PUBSUB
 TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
+TOPIC_NAME_SUBSCRIPTION="$TOPIC_NAME-subscription"
 FAIL_TOPIC_NAME="$TOPIC_NAME-dead-letter"
 
 
@@ -113,7 +114,7 @@ gcloud pubsub topics list
 
 # # CREATE SUBSCRIPTION
 # gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription --topic misw-4204-cloud-topic-fpv-task  --max-delivery-attempts 5 --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
-gcloud pubsub subscriptions create $TOPIC_NAME-subscription \
+gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
     --topic $TOPIC_NAME \
     --max-delivery-attempts 5 \
     --dead-letter-topic $FAIL_TOPIC_NAME
@@ -124,11 +125,11 @@ gcloud pubsub subscriptions list
 
 # # PUBLISH MESSAGE
 # gcloud pubsub topics publish misw-4204-cloud-topic-fpv-task --message "Hello, World!" 
-gcloud pubsub topics publish $TOPIC_NAME --message "Hello, World!"
+# gcloud pubsub topics publish $TOPIC_NAME --message "Hello, World!"
 
 # #GET SUBSCRIPTION MESSAGES
 # gcloud pubsub subscriptions pull misw-4204-cloud-topic-fpv-task-subscription --auto-ack
-#gcloud pubsub subscriptions pull $TOPIC_NAME-subscription --auto-ack
+#gcloud pubsub subscriptions pull $TOPIC_NAME_SUBSCRIPTION --auto-ack
 
 # ## ==================== CUENTA DE SERVICIO ====================
 
@@ -220,7 +221,7 @@ gcloud sql instances patch $DB_INSTANCE_NAME \
 
 echo "========================================================"
 echo "========================================================"
-DOCKER_COMMAND_BATCH="sudo docker run -d -e DEBUG=False -e DB_URL=$DB_CONNECTION_URL -e BUCKET_NAME=$BUCKET_NAME -e SUBSCRIPTION_ID=$TOPIC_NAME -e PROJECT_ID=$PROJECT_ID -p $PORT_BATCH:5555 --network fpv-network --log-driver=gcplogs -v ~/.config:/root/.config workertres"
+DOCKER_COMMAND_BATCH="docker run -d -e DEBUG=False -e DB_URL=$DB_CONNECTION_URL -e BUCKET_NAME=$BUCKET_NAME -e SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION -e PROJECT_ID=$PROJECT_ID -p $PORT_BATCH:5555 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/worker-fpv:latest"
 echo "$DOCKER_COMMAND_BATCH"
 echo "========================================================"
 echo "========================================================"
@@ -238,8 +239,7 @@ gcloud compute instances create $INSTANCE_NAME_BATCH \
     sudo apt update && sudo apt install -y docker.io git
     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
-    git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git  nube
-    sudo docker build -t workertres -f /nube/dockerfile-worker /nube/.
+    sudo docker pull nipoanz/worker-fpv 
     $DOCKER_COMMAND_BATCH
     "
 
@@ -253,7 +253,7 @@ gcloud compute firewall-rules create $FIREWALL_RULE_VM2_5 \
     --network=default \
     --action=ALLOW \
     --rules=tcp:$PORT_BATCH  \
-    --source-ranges=0.0.0.0/0 \
+    --source-ranges=130.211.0.0/22,35.191.0.0/16 \
     --target-tags=bath-server
 
 BATCH_IP=$(gcloud compute instances list --filter=name:$INSTANCE_NAME_BATCH --format='value(EXTERNAL_IP)')
@@ -339,16 +339,16 @@ gcloud compute firewall-rules create $FIREWALL_RULE_TEMPLATE \
 
 ## ==================== HEALTH CHECK ==============================
 
-gcloud compute health-checks create http $HEALTH_CHECK_VM \
-    --region $REGION \
-    --description "Checks HTTP service on port 8080" \
-    --enable-logging \
-    --check-interval 30s \
-    --healthy-threshold 2 \
-    --unhealthy-threshold 3 \
-    --request-path "/" \
-    --timeout 10s \
-    --port $PORT_WEB
+# gcloud compute health-checks create http $HEALTH_CHECK_VM \
+#     --region $REGION \
+#     --description "Checks HTTP service on port 8080" \
+#     --enable-logging \
+#     --check-interval 30s \
+#     --healthy-threshold 2 \
+#     --unhealthy-threshold 3 \
+#     --request-path "/" \
+#     --timeout 10s \
+#     --port $PORT_WEB
 
 
 # ## ==================== INSTANCES GROUP ====================
@@ -361,12 +361,14 @@ gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
     --size 1 \
     --zone $ZONE_INSTANCE_GROUP \
     --default-action-on-vm-failure repair \
-    --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
     --initial-delay 100 \
     --no-force-update-on-repair \
     --standby-policy-mode scale-out-pool \
     --standby-policy-initial-delay 50 \
     --list-managed-instances-results PAGELESS
+
+# SE RETIRA EL HEALTH CHECK DE VM REDUNDANTE
+# --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
 
 ## POLITICA DE ESCALADO AUTOMATICO
 
@@ -392,11 +394,21 @@ gcloud compute addresses create $LB_IP_NAME \
 gcloud compute health-checks create http $HEALTH_CHECK_LB \
     --description "Checks LB health on port 80" \
     --enable-logging \
-    --check-interval 30s \
+    --check-interval 40s \
     --healthy-threshold 2 \
     --unhealthy-threshold 3 \
-    --timeout 20s \
+    --timeout 25s \
     --port $PORT_WEB
+
+#     --region $REGION \
+#     --description "Checks HTTP service on port 8080" \
+#     --enable-logging \
+#     --check-interval 30s \
+#     --healthy-threshold 2 \
+#     --unhealthy-threshold 3 \
+#     --request-path "/" \
+#     --timeout 10s \
+#     --port $PORT_WEB
 
 # ## ==================== BACKEND SERVICE - AUTOSCALING POLICY ====================
 
@@ -406,9 +418,8 @@ gcloud compute backend-services create $BACKEND_SERVICE_NAME \
     --port-name $BACKEND_NAME_PORT \
     --enable-logging \
     --health-checks $HEALTH_CHECK_LB \
-    --timeout 30s \
+    --timeout 45s \
     --global
-
 
 gcloud compute instance-groups managed set-named-ports $INSTANCE_WEB_SERVER_GROUP \
     --named-ports "$BACKEND_NAME_PORT:$PORT_WEB" \
@@ -421,7 +432,7 @@ gcloud compute backend-services add-backend $BACKEND_SERVICE_NAME \
     --instance-group $INSTANCE_WEB_SERVER_GROUP \
     --instance-group-zone $ZONE_INSTANCE_GROUP \
     --balancing-mode UTILIZATION \
-    --max-utilization 0.75 \
+    --max-utilization 0.80 \
     --global
 
 # SE ESPERA 1 MIN
@@ -433,11 +444,6 @@ gcloud compute url-maps create $URL_MAP_NAME \
     --description "URL map for web server" \
     --default-service $BACKEND_SERVICE_NAME \
     --global
-
-# gcloud compute url-maps create web-map-http \
-#     --description "URL map for web server" \
-#     --default-service web-backend-service \
-#     --global
 
 gcloud compute target-http-proxies create $TARGET_PROXY_NAME \
     --url-map $URL_MAP_NAME

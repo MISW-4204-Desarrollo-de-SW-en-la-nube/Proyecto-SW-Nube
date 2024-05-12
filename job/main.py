@@ -41,7 +41,10 @@ def start_subscriber():
             streaming_pull_future.result()
         except TimeoutError:
             streaming_pull_future.cancel()
-            streaming_pull_future.result()
+            streaming_pull_future.cancel()
+        except KeyboardInterrupt:
+            streaming_pull_future.cancel()
+            streaming_pull_future.cancel()
 
 
 # Conexión a la base de datos
