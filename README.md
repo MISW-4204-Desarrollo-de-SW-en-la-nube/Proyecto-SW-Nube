@@ -7,17 +7,35 @@ Este proyecto esta basado en un sistema de gestión de archivos de video (mp4), 
 
 ## Actualización - Entrega 4
 
-Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en la entrega 2, como aparece en el archivo [`gcp/README.md`](
+En esta entrega se incluye la configuración de Pub-Sub, para poder enviar mensajes entre los servicios de la aplicación, en este caso el procesamiento de los videos subidos a la plataforma, por medio de la creación de `Topics` y `Subscriptions`, además se integran reintentos en caso de que un mensaje no sea procesado correctamente. Además se asocia un politica de auto escalado de acuerdo a la utilización de la CPU, configurado en `80%` para escalar hasta `3` instancias de la aplicación de la capa worker. 
 
+Por otro lado, el grupo de instancias de la capa web se configura para ser multi-zona, con el fin de mejorar la disponibilidad de la aplicación, y se configura el balanceador de carga existente para distribuir la carga de la aplicación entre las instancias de la capa web.
+ 
+
+Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en la entrega 2, como aparece en el archivo [`gcp/README.md`](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/gcp), 
+
+La siguiente imagen corresponde a la solución actualizada y desplegada en la nube de Google Cloud Platform:
+
+![Diagramas-s3](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/f00ea00f-3f79-47d9-a162-a7987a29b49a)
+
+
+Los servidores de la capa web y worker se suben a docker-hub para mejorar los tiempos de despliegue y actualización de la aplicación, estos fueron ejecutados con los siguientes comandos:
+
+ - Para la capa web:
+ 
+```bash
 docker build -t fastapi-app .
 docker tag fastapi-app nipoanz/fastapi-back:latest
 docker push nipoanz/fastapi-back:latest 
+```
 
+  - Para la capa worker:
 
+```bash
 docker build -t workertres -f dockerfile-worker . 
 docker tag workertres nipoanz/worker-fpv:latest
 docker push nipoanz/worker-fpv:latest
-
+```
 ## Actualización - Entrega 3
 
 Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en la entrega 2, como aparece en el archivo [`gcp/README.md`](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/tree/main/gcp), 
