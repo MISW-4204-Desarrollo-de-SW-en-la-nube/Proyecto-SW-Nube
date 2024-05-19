@@ -167,14 +167,13 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud compute addresses create $VPC_PEERING_NAME \
     --global \
     --purpose=VPC_PEERING \
-    --prefix-length 16 \
+    --prefix-length 24 \
     --description "peering range for Google" \
     --network default
 
 gcloud services vpc-peerings connect --service=servicenetworking.googleapis.com \
     --ranges $VPC_PEERING_NAME \
-    --network default \
-    --project $PROJECT_ID
+    --network default
 
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
@@ -198,13 +197,19 @@ gcloud sql instances create $DB_INSTANCE_NAME \
 ## SOLO CONEXIONES SEGURAS
 # gcloud sql instances patch $DB_INSTANCE_NAME --require-ssl
 
+# Obtener la IP privada de la instancia de Cloud SQL
+DB_PRIVATE_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format="value(ipAddresses.ipAddress)" --filter="type:PRIVATE")
+echo "Private IP of Cloud SQL instance: $DB_PRIVATE_IP"
+
 ## Crear el conector de VPC
 
 gcloud compute networks vpc-access connectors create $VPC_CONNECTOR_NAME \
     --region $REGION \
-    --range $VPC_PEERING_NAME \
     --network default \
-    --range "10.8.0.0"
+    --range "10.8.0.0/28"
+
+# Verificar la creación del conector VPC
+gcloud compute networks vpc-access connectors describe $VPC_CONNECTOR_NAME --region=$REGION
 
 # ## ==================== BASE DE DATOS ====================
 
@@ -300,7 +305,7 @@ gcloud run deploy $WEB_APP_NAME \
     --port $PORT_WEB \
     --region $REGION \
     --platform managed \
-    --set-env-vars "INSTANCE_HOST=" \
+    --set-env-vars "INSTANCE_HOST=$DB_PRIVATE_IP" \
     --set-env-vars "DB_USER=$DB_USER" \
     --set-env-vars "DB_PASS=$DB_PWD" \
     --set-env-vars "DB_NAME=$DB_NAME" \
