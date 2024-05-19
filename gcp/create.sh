@@ -204,19 +204,6 @@ gcloud sql instances create $DB_INSTANCE_NAME \
     --no-assign-ip \
     --network default
 
-# gcloud sql instances create mv2-db \
-#     --database-version=POSTGRES_15 \
-#     --root-password=12345678 \
-#     --region=us-west1 \
-#     --storage-size=10GB \
-#     --no-storage-auto-increase \
-#     --memory=3.75GB \
-#     --cpu=1 \
-#     --no-assign-ip \
-#     --network=default
-
-# ESPERAR A QUE SE CREE LA INSTANCIA
-sleep 60
 
 # Obtener la IP privada de la instancia de Cloud SQL
 DB_PRIVATE_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format="value(ipAddresses.ipAddress)")
@@ -341,7 +328,8 @@ gcloud run deploy $WEB_APP_NAME \
     --add-cloudsql-instances $CONECTION_NAME \
     --vpc-egress=all-traffic \
     --vpc-connector $VPC_CONNECTOR_NAME \
-    --allow-unauthenticated 
+    --allow-unauthenticated \
+    --use-http2
 
 
 # gcloud run deploy $BATCH_APP_NAME \
