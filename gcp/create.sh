@@ -46,7 +46,7 @@ DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS
 WEB_APP_NAME="web-app"
 BATCH_APP_NAME="batch-app"
-PORT_WEB="8082"
+PORT_WEB="8081"
 PORT_BATCH="5555"
 ## VPC PEERING
 VPC_PEERING_NAME="google-managed-services-default"
@@ -309,10 +309,12 @@ docker push $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 # https://cloud.google.com/sql/docs/postgres/connect-connectors#python
 # https://cloud.google.com/sql/docs/postgres/connect-run#public-ip-default_1
 INSTANCE_UNIX_SOCKET="/cloudsql/$CONECTION_NAME"
-echo "INSTANCE UNIX SOCKET: $INSTANCE_UNIX_SOCKET"
-echo "Instance db user: $DB_USER"
-echo "Instance db password: $DB_PWD"
-echo "Instance db name: $DB_NAME"
+# echo "INSTANCE UNIX SOCKET: $INSTANCE_UNIX_SOCKET"
+# echo "Instance db user: $DB_USER"
+# echo "Instance db password: $DB_PWD"
+# echo "Instance db name: $DB_NAME"
+# Limites de servicio
+# https://cloud.google.com/run/quotas#cloud_run_limits
 
 gcloud run deploy $WEB_APP_NAME \
     --project $PROJECT_ID \
