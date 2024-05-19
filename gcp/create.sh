@@ -249,11 +249,11 @@ gcloud artifacts repositories create $BATCH_REPOSITORY_NAME \
     --location $REGION \
     --description "Repositorio de artefactos para la aplicacion batch"
 
-## ======================  JALAR LA IMAGEN DE DOCKER A USAR ===================
+## ======================  DESCARGAR LAS IMAGENES DE DOCKER ===================
 
 docker pull $DOCKER_WEB_IMAGE
 
-docker push $DOCKER_BATCH_IMAGE
+docker pull $DOCKER_BATCH_IMAGE
 
 ## ======================  ETIQUETAR LA IMAGEN ===================
 
