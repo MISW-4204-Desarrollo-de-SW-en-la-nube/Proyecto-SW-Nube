@@ -344,9 +344,9 @@ gcloud run deploy $BATCH_APP_NAME \
 #     --port 5555 \
 #     --region us-west1 \
 #     --platform managed \
-#     --set-env-vars "INSTANCE_HOST=10.91.0.3" \
+#     --set-env-vars "INSTANCE_HOST=10.97.0.3" \
 #     --set-env-vars "DB_USER=postgres" \
-#     --set-env-vars "DB_PASS=edfvdfgvldfg234" \
+#     --set-env-vars "DB_PASS=sdcsdcsdc2432" \
 #     --set-env-vars "DB_NAME=db-test" \
 #     --set-env-vars "DB_PORT=5432" \
 #     --set-env-vars "INSTANCE_CONNECTION_NAME=misw-4204-cloud:us-west1:mv2-db" \
@@ -387,14 +387,14 @@ echo "BATCH APP URL: $BATCH_APP_URL"
 gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
     --topic $TOPIC_NAME \
     --max-delivery-attempts 5 \
-    --push-endpoint $BATCH_APP_URL \
-    --push-auth-service-accou $BUCKET_SA_EMAIL \
+    --push-endpoint $BATCH_APP_URL/api/task/ \
+    --push-auth-service-account $BUCKET_SA_EMAIL \
     --dead-letter-topic $FAIL_TOPIC_NAME
 
 # gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription \
 #     --topic misw-4204-cloud-topic-fpv-task \
 #     --max-delivery-attempts 5 \
-#     --push-endpoint https://batch-app-n7h4t3ddea-uw.a.run.app \
+#     --push-endpoint https://batch-app-n7h4t3ddea-uw.a.run.app/api/tasks/ \
 #     --push-auth-service-account storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com \
 #     --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
 

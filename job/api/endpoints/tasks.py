@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
+import base64
 
 from job.core.logger_config import logger
 from job.db.session import get_db
-# from job.services.tasks import convert_file_by_id
+from job.services.tasks import convert_file_by_id
 
 
 router = APIRouter()
@@ -16,18 +17,12 @@ async def get_task(request: Request, db: Session = Depends(get_db)) -> None:
     }
     try:
         envelope = await request.json()
-        print("Envelope: " + str(envelope))
+        logger.info(f"Task With data: {envelope}")
         message_data = envelope["message"]["data"]
-        print(f"Message data: {message_data}")
-        # decoded_message = message_data.decode("utf-8")
-        # task_id = int(decoded_message)
-        # logger.info(f"Processing task ID: {task_id}")
-        # task = convert_file_by_id(db, task_id)
-        # if task is None:
-        #     logger.error('Tarea no encontrada')
-        #     errorExeption["status_code"] = 404
-        #     errorExeption["detail"] = "Tarea no encontrada"
-        #     raise ValueError('Tarea no encontrada')
+        decoded_message = base64.b64decode(message_data).decode('utf-8')
+        task_id = int(decoded_message)
+        logger.info(f"Processing task ID: {task_id}")
+        convert_file_by_id(db, task_id)
     except Exception as e:
         logger.error('Error al obtener tarea')
         logger.error(e)

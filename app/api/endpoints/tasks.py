@@ -41,7 +41,6 @@ async def get_all_our_tasks(max: Optional[int] = None, order: Optional[int] = 0,
 @router.post("/", response_model=dict)
 async def create_task(
     file: UploadFile = File(),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
     db: Session = Depends(get_db),
     current_user: User = Depends(verify_token)):
     try:
@@ -49,7 +48,7 @@ async def create_task(
         original_fileName = file.filename
         file_path = save_file(file)
         logger.info(f'Archivo guardado en -> {file_path}')
-        background_tasks.add_task(create_task_by_user, db, current_user.id, file_path, original_fileName)
+        create_task_by_user(db, current_user.id, file_path, original_fileName)
         return {"message": "Tarea en proceso", "result": True}
     except Exception as e:
         logger.error('Error al crear tarea')

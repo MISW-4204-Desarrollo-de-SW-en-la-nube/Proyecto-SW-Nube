@@ -141,7 +141,7 @@ def save_file(file: UploadFile) -> str:
         raise e
 
 
-async def create_task_by_user(db: Session, user: int, filePath: str, fileName: str) -> None:
+def create_task_by_user(db: Session, user: int, filePath: str, fileName: str) -> None:
     try:
         logger.info(f'File name: {fileName}')
 

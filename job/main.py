@@ -1,6 +1,4 @@
 from fastapi import FastAPI
-# from concurrent.futures import TimeoutError
-# from google.cloud import pubsub_v1
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from sqlalchemy import inspect
@@ -12,9 +10,6 @@ from job.db.session import engine
 from job.db.base import Base
 #RUTAS DEL API
 from job.api.routers import tasks
-
-# from job.worker import callbackProcces
-# import threading
 
 # Crea una instancia de FastAPI
 app = FastAPI(
