@@ -204,13 +204,9 @@ gcloud sql instances create $DB_INSTANCE_NAME \
     --no-assign-ip \
     --network default
 
-
 # Obtener la IP privada de la instancia de Cloud SQL
 DB_PRIVATE_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format="value(ipAddresses.ipAddress)")
 echo "Private IP of Cloud SQL instance: $DB_PRIVATE_IP"
-
-# # OBTENER LA IP DE LA BASE DE DATOS
-# DB_IP=$(gcloud sql instances describe mv2-db --format='value(ipAddresses.ipAddress)')
 
 # ## ==================== BASE DE DATOS ====================
 
@@ -223,13 +219,7 @@ gcloud sql users set-password $DB_USER \
     --instance $DB_INSTANCE_NAME \
     --password $DB_PWD
 
-# OBTENER IP DE LA BASE DE DATOS
-# DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | cut -d';' -f1)
-
-# OBTENER EL API PRIVADA DE LA BASE DE DATOS
-# DB_CONNECTION_NAME=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(connectionName)')
-
-DB_CONNECTION_URL="postgresql://$DB_USER:$DB_PWD@127.0.0.1:5432/$DB_NAME"
+DB_CONNECTION_URL="postgresql://$DB_USER:$DB_PWD@$DB_PRIVATE_IP:5432/$DB_NAME"
 echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 
 ## ==================== CONEXIONES DE BASE DE DATOS ====================
@@ -237,19 +227,9 @@ echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 CONECTION_NAME=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(connectionName)')
 echo "CONNECTION NAME: $CONECTION_NAME"
 
-## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
-
-# SE DEJA ABIERTO PARA PRUEBAS
-# gcloud sql instances patch $DB_INSTANCE_NAME \
-#     --authorized-networks="0.0.0.0/0" \
-#     --quiet
-
-# gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me.)  --quiet
-
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
 # # sudo apt-get install postgresql-client -y
 # # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
-
 
 ## ======================  HABILITAR SERVICIO DE ARTIFACT ===================
 
@@ -263,23 +243,23 @@ gcloud artifacts repositories create $WEB_REPOSITORY_NAME \
     --location $REGION \
     --description "Repositorio de artefactos para la aplicacion web"
 
-# gcloud artifacts repositories create $BATCH_REPOSITORY_NAME \
-#     --project $PROJECT_ID \
-#     --repository-format docker \
-#     --location $REGION \
-#     --description "Repositorio de artefactos para la aplicacion batch"
+gcloud artifacts repositories create $BATCH_REPOSITORY_NAME \
+    --project $PROJECT_ID \
+    --repository-format docker \
+    --location $REGION \
+    --description "Repositorio de artefactos para la aplicacion batch"
 
 ## ======================  JALAR LA IMAGEN DE DOCKER A USAR ===================
 
 docker pull $DOCKER_WEB_IMAGE
 
-# docker push $DOCKER_BATCH_IMAGE
+docker push $DOCKER_BATCH_IMAGE
 
 ## ======================  ETIQUETAR LA IMAGEN ===================
 
 docker tag $DOCKER_WEB_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
-# docker tag $DOCKER_BATCH_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+docker tag $DOCKER_BATCH_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
 
 ## ======================  AUTENTICAR CON EL REPOSITORIO ===================
 
@@ -289,7 +269,7 @@ gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
 docker push $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
-# docker push $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+docker push $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
 
 ## ======================  CLOUD RUN ===================
 
@@ -332,22 +312,34 @@ gcloud run deploy $WEB_APP_NAME \
     --use-http2
 
 
-# gcloud run deploy $BATCH_APP_NAME \
-#     --image $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE  \
-#     --ingress all \
-#     --port $PORT_BATCH \
-#     --region us-west1 \
-#     --platform managed \
-#     --set-env-vars "DEBUG=False" \
-#     --set-env-vars "DB_URL=$DB_CONNECTION_URL" \
-#     --set-env-vars "BUCKET_NAME=$BUCKET_NAME" \
-#     --set-env-vars "SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION" \
-#     --set-env-vars "PROJECT_ID=$PROJECT_ID" \
-#     --service-account $BUCKET_SA_EMAIL \
-#     --tag http-batch-server \
-#     --description "Servicio de procesamiento de tareas en segundo plano - capa batch" \
-#     --add-cloudsql-instances $DB_INSTANCE_NAME \
-#     --allow-unauthenticated
+gcloud run deploy $BATCH_APP_NAME \
+    --project $PROJECT_ID \
+    --image $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE  \
+    --ingress all \
+    --port $PORT_BATCH \
+    --region $REGION \
+    --platform managed \
+    --set-env-vars "INSTANCE_HOST=$DB_PRIVATE_IP" \
+    --set-env-vars "DB_USER=$DB_USER" \
+    --set-env-vars "DB_PASS=$DB_PWD" \
+    --set-env-vars "DB_NAME=$DB_NAME" \
+    --set-env-vars "DB_PORT=5432" \
+    --set-env-vars "INSTANCE_CONNECTION_NAME=$CONECTION_NAME" \
+    --set-env-vars "DEBUG=False" \
+    --set-env-vars "BUCKET_NAME=$BUCKET_NAME" \
+    --set-env-vars "TOPIC_NAME=$TOPIC_NAME" \
+    --set-env-vars "SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION" \
+    --set-env-vars "PROJECT_ID=$PROJECT_ID" \
+    --service-account $BUCKET_SA_EMAIL \
+    --tag http-batch-server \
+    --description "Servicio de procesamiento de tareas en segundo plano - capa batch" \
+    --cpu 2 \
+    --memory 4Gi \
+    --add-cloudsql-instances $CONECTION_NAME \
+    --vpc-egress=all-traffic \
+    --vpc-connector $VPC_CONNECTOR_NAME \
+    --allow-unauthenticated \
+    --use-http2
 
 ## ======================  DESCRIBIR EL SERVICIO ===================
 
@@ -357,7 +349,7 @@ gcloud run deploy $WEB_APP_NAME \
 ## ======================  OBTENER LA IP DEL SERVICIO ===================
 
 WEB_APP_URL=$(gcloud run services describe $WEB_APP_NAME --region $REGION --format='value(status.url)')
-# BATCH_APP_URL=$(gcloud run services describe $BATCH_APP_NAME --region $REGION --format='value(status.url)')
+BATCH_APP_URL=$(gcloud run services describe $BATCH_APP_NAME --region $REGION --format='value(status.url)')
 
 echo "WEB APP URL: $WEB_APP_URL"
-# echo "BATCH APP URL: $BATCH_APP_URL"
+echo "BATCH APP URL: $BATCH_APP_URL"

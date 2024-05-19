@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 description = """
-# International FPV Drone Racing League - App. 🚀
+# International FPV Drone Racing League - JOB 🚀
 
 Proyecto de la materia Desarrollo de software en la nube - Equipo #N.
 
@@ -28,15 +28,22 @@ origins = [
 ]
 
 class Settings(BaseSettings):
-    APP_NAME: str = "IDRL-APP"
+    APP_NAME: str = "IDRL-APP-JOB"
     APP_VERSION: str = "1.1.0"
     APP_DESCRIPTION: str = description
     DEBUG: bool = None
-    DB_URL: str = None
+    INSTANCE_HOST: str = None
+    DB_USER: str = None
+    DB_PASS: str = None
+    DB_NAME: str = None
+    DB_PORT: str = None
     ALLOWED_HOSTS: list = origins
+    PUBLIC_DIR_NOT_PROCESSED: str = "public/uploaded"
+    PUBLIC_DIR_PROCESSED: str = "public/processed"
     SUBSCRIPTION_ID: str = None
     PROJECT_ID: str = None
-    
+    BUCKET_NAME: str = None
+    TOPIC_NAME: str = None
     
     class Config:
         env_file = "../.env"

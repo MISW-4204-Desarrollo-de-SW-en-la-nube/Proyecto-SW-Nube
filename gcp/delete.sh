@@ -2,7 +2,6 @@
 
 PROJECT_ID="misw-4204-cloud"
 REGION="us-west1"
-# ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 DB_NAME="db-test"
@@ -31,6 +30,12 @@ VPC_PEERING_NAME="google-managed-services-default"
 VPC_CONNECTOR_NAME="fpv-connector"
 
 
+# CONFIGURAR PROYECTO Y ZONA
+gcloud auth list
+gcloud config list project
+gcloud config set project $PROJECT_ID
+gcloud config set core/project $PROJECT_ID
+
 ## =======================================================
 ## =================== CLOUD RUN =========================
 ## =======================================================
@@ -40,22 +45,20 @@ gcloud run services delete $WEB_APP_NAME \
     --region $REGION \
     --quiet
 
-# gcloud run services delete $BATCH_APP_NAME \
-#     --project $PROJECT_ID \
-#     --region $REGION \
-#     --quiet
+gcloud run services delete $BATCH_APP_NAME \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
 
 #Eliminar imagenes de docker
 
 docker rmi $DOCKER_WEB_IMAGE
-
-# docker rmi $DOCKER_BATCH_IMAGE
+docker rmi $DOCKER_BATCH_IMAGE
 
 #Eliminar imagenes de GCR
 
 docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
-
-# docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
 
 #Eliminar repositorios de artefactos
 gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
@@ -63,10 +66,10 @@ gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
     --location $REGION \
     --quiet
 
-# gcloud artifacts repositories delete $BATCH_REPOSITORY_NAME \
-#     --project $PROJECT_ID \
-#     --location $REGION \
-#     --quiet
+gcloud artifacts repositories delete $BATCH_REPOSITORY_NAME \
+    --project $PROJECT_ID \
+    --location $REGION \
+    --quiet
 
 ## =======================================================
 ## =================== VPC PEERING =======================
@@ -75,10 +78,12 @@ gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
 # ELIMINAR CONECTOR DE VPC
 gcloud compute networks vpc-access connectors delete $VPC_CONNECTOR_NAME \
     --region $REGION \
+    --project $PROJECT_ID \
     --quiet
 
 gcloud compute addresses delete $VPC_PEERING_NAME \
     --global \
+    --project $PROJECT_ID \
     --quiet
 
 

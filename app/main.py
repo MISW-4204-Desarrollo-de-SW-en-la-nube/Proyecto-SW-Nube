@@ -11,7 +11,7 @@ from app.db.base import Base
 from app.core.logger_config import logger
 #RUTAS DEL API
 from app.api.routers import auth, tasks
-from app.models import Country, User, Task
+
 # Crea una instancia de FastAPI
 app = FastAPI(
     title=settings.APP_NAME,
@@ -46,7 +46,7 @@ async def startup():
     else:
         logger.info('Las tablas ya existen en la base de datos.')
 
-# # desconexión de la base de datos  
+# # desconexión de la base de datos
 @app.on_event("shutdown")
 async def shutdown():
     logger.info('Apagando la aplicación')
@@ -54,27 +54,11 @@ async def shutdown():
     if settings.DEBUG:
         Base.metadata.drop_all(bind=engine)
         logger.info('Tablas eliminadas de la base de datos')
+        # Eliminar carpetas
+        if os.path.exists(settings.PUBLIC_DIR):
+            os.rmdir(settings.PUBLIC_DIR)
         if os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
-            for filename in os.listdir(settings.PUBLIC_DIR_NOT_PROCESSED):
-                file_path = os.path.join(settings.PUBLIC_DIR_NOT_PROCESSED, filename)
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)
-                except Exception as e:
-                    print(f"No se pudo eliminar {file_path}. Error: {e}")
-
-        if os.path.exists(settings.PUBLIC_DIR_PROCESSED):
-            for filename in os.listdir(settings.PUBLIC_DIR_PROCESSED):
-                file_path = os.path.join(settings.PUBLIC_DIR_PROCESSED, filename)
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)
-                except Exception as e:
-                    print(f"No se pudo eliminar {file_path}. Error: {e}")
+            os.rmdir(settings.PUBLIC_DIR_NOT_PROCESSED)
 
 
 # Health Check
