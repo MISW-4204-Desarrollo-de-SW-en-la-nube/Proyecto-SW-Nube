@@ -27,8 +27,6 @@ DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 WEB_APP_NAME="web-app"
 BATCH_APP_NAME="batch-app"
 
-
-
 ## =======================================================
 ## =================== CLOUD RUN =========================
 ## =======================================================
@@ -38,22 +36,22 @@ gcloud run services delete $WEB_APP_NAME \
     --region $REGION \
     --quiet
 
-gcloud run services delete $BATCH_APP_NAME \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
+# gcloud run services delete $BATCH_APP_NAME \
+#     --project $PROJECT_ID \
+#     --region $REGION \
+#     --quiet
 
 #Eliminar imagenes de docker
 
 docker rmi $DOCKER_WEB_IMAGE
 
-docker rmi $DOCKER_BATCH_IMAGE
+# docker rmi $DOCKER_BATCH_IMAGE
 
 #Eliminar imagenes de GCR
 
 docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
-docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+# docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
 
 #Eliminar repositorios de artefactos
 gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
@@ -61,10 +59,10 @@ gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
     --location $REGION \
     --quiet
 
-gcloud artifacts repositories delete $BATCH_REPOSITORY_NAME \
-    --project $PROJECT_ID \
-    --location $REGION \
-    --quiet
+# gcloud artifacts repositories delete $BATCH_REPOSITORY_NAME \
+#     --project $PROJECT_ID \
+#     --location $REGION \
+#     --quiet
 
 
 
