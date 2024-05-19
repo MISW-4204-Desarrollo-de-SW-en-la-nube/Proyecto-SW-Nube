@@ -4,7 +4,7 @@ FROM google/cloud-sdk:474.0.0-alpine
 WORKDIR /app
 
 RUN apk add --update py-pip
-RUN pip --version
+# RUN pip --version
 
 #  Install the required dependencies
 RUN pip install --upgrade pip --break-system-packages

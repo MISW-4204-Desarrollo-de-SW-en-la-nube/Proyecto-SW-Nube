@@ -239,27 +239,33 @@ gcloud artifacts repositories create $BATCH_REPOSITORY_NAME \
     --location $REGION \
     --description "Repositorio de artefactos para la aplicacion batch"
 
+# gcloud artifacts repositories create fpv-batch-repository --project misw-4204-cloud --repository-format docker --location us-west1 --description="Repositorio de artefactos para la aplicacion batch"
+
 ## ======================  DESCARGAR LAS IMAGENES DE DOCKER ===================
 
 docker pull $DOCKER_WEB_IMAGE
 
 docker pull $DOCKER_BATCH_IMAGE
+# docker pull nipoanz/worker-fpv:latest
 
 ## ======================  ETIQUETAR LA IMAGEN ===================
 
 docker tag $DOCKER_WEB_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
 docker tag $DOCKER_BATCH_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+# docker tag nipoanz/worker-fpv:latest us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest
 
 ## ======================  AUTENTICAR CON EL REPOSITORIO ===================
 
 gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+# gcloud auth configure-docker us-west1-docker.pkg.dev --quiet
 
 ## ======================  SUBIR LA IMAGEN ===================
 
 docker push $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
 docker push $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+# docker push us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest
 
 ## ======================  CLOUD RUN ===================
 
@@ -331,6 +337,35 @@ gcloud run deploy $BATCH_APP_NAME \
     --allow-unauthenticated \
     --use-http2
 
+# gcloud run deploy batch-app \
+#     --project misw-4204-cloud \
+#     --image us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest \
+#     --ingress all \
+#     --port 5555 \
+#     --region us-west1 \
+#     --platform managed \
+#     --set-env-vars "INSTANCE_HOST=10.91.0.3" \
+#     --set-env-vars "DB_USER=postgres" \
+#     --set-env-vars "DB_PASS=edfvdfgvldfg234" \
+#     --set-env-vars "DB_NAME=db-test" \
+#     --set-env-vars "DB_PORT=5432" \
+#     --set-env-vars "INSTANCE_CONNECTION_NAME=misw-4204-cloud:us-west1:mv2-db" \
+#     --set-env-vars "DEBUG=False" \
+#     --set-env-vars "BUCKET_NAME=misw-4204-cloud-storage-fpv-bucket" \
+#     --set-env-vars "TOPIC_NAME=misw-4204-cloud-topic-fpv-task" \
+#     --set-env-vars "SUBSCRIPTION_ID=misw-4204-cloud-topic-fpv-task-subscription" \
+#     --set-env-vars "PROJECT_ID=misw-4204-cloud" \
+#     --service-account storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com \
+#     --tag http-batch-server \
+#     --description "Servicio de procesamiento de tareas en segundo plano - capa batch" \
+#     --cpu 2 \
+#     --memory 4Gi \
+#     --add-cloudsql-instances misw-4204-cloud:us-west1:mv2-db \
+#     --vpc-egress=all-traffic \
+#     --vpc-connector fpv-connector \
+#     --allow-unauthenticated \
+#     --use-http2
+
 ## ======================  DESCRIBIR EL SERVICIO ===================
 
 # gcloud run services describe $WEB_APP_NAME --region $REGION
@@ -355,6 +390,17 @@ gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
     --push-endpoint $BATCH_APP_URL \
     --push-auth-service-accou $BUCKET_SA_EMAIL \
     --dead-letter-topic $FAIL_TOPIC_NAME
+
+# gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription \
+#     --topic misw-4204-cloud-topic-fpv-task \
+#     --max-delivery-attempts 5 \
+#     --push-endpoint https://batch-app-n7h4t3ddea-uw.a.run.app \
+#     --push-auth-service-account storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com \
+#     --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
+
+# gcloud pubsub topics publish misw-4204-cloud-topic-fpv-task --message="12345"
+# eliminar suscripcion
+# gcloud pubsub subscriptions delete misw-4204-cloud-topic-fpv-task-subscription --quiet
 
 # # GET ALL SUBSCRIPTIONS LIST
 gcloud pubsub subscriptions list

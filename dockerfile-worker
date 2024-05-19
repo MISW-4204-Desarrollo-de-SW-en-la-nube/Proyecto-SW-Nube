@@ -4,11 +4,11 @@ FROM google/cloud-sdk:474.0.0-alpine
 WORKDIR /app
 
 RUN apk add --update py-pip
-RUN pip --version
+# RUN pip --version
 
 #  Install the required dependencies
 RUN pip install --upgrade pip --break-system-packages
-COPY ./job/requirements.txt requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir --upgrade -r requirements.txt --break-system-packages
 RUN pip install "hypercorn[trio]" --break-system-packages
 
@@ -21,6 +21,10 @@ RUN apk add --no-cache ffmpeg
 
 # Copia todo el contenido del directorio actual al contenedor en /app
 COPY ./job /app/job
+COPY ./public /app/public
+
+# Dar permisos de ejecución a todos los archivos .py
+RUN find /app -type f -name "*.py" -exec chmod +x {} +
 
 # Dar permisos de ejecución al script
 RUN chmod +x /app/job/process.sh

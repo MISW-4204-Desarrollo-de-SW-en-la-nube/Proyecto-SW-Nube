@@ -50,15 +50,19 @@ gcloud run services delete $BATCH_APP_NAME \
     --region $REGION \
     --quiet
 
+# gcloud run services delete batch-app --project misw-4204-cloud --region us-west1 --quiet
+
 #Eliminar imagenes de docker
 
 docker rmi $DOCKER_WEB_IMAGE
 docker rmi $DOCKER_BATCH_IMAGE
+# docker rmi nipoanz/worker-fpv:latest
 
 #Eliminar imagenes de GCR
 
 docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+# docker rmi us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest
 
 #Eliminar repositorios de artefactos
 gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
@@ -70,6 +74,8 @@ gcloud artifacts repositories delete $BATCH_REPOSITORY_NAME \
     --project $PROJECT_ID \
     --location $REGION \
     --quiet
+
+# gcloud artifacts repositories delete fpv-batch-repository --project misw-4204-cloud --location us-west1 --quiet
 
 ## =======================================================
 ## =================== VPC PEERING =======================
