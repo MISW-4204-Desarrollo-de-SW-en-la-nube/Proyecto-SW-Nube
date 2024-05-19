@@ -21,6 +21,7 @@ ZONE="us-west1-b"
 DB_INSTANCE_NAME="mv2-db"
 POSTGRES_VERSION="POSTGRES_15"
 DB_PWD=$1
+DB_USER="postgres"
 DB_EDITION="enterprise"
 DATABASE_STORAGE_SIZE="10GB"
 DB_NAME="db-test"
@@ -45,8 +46,11 @@ DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS
 WEB_APP_NAME="web-app"
 BATCH_APP_NAME="batch-app"
-PORT_WEB="8080"
+PORT_WEB="8081"
 PORT_BATCH="5555"
+## VPC PEERING
+VPC_PEERING_NAME="google-managed-services-default"
+VPC_CONNECTOR_NAME="fpv-connector"
 
 
 
@@ -66,6 +70,10 @@ gcloud config set core/project $PROJECT_ID
 gcloud config set compute/region $REGION
 gcloud config set compute/zone $ZONE
 echo -e "PROJECT ID: $PROJECT_ID\nZONE: $ZONE"
+
+## ==================== HABILITAR EL API DE VPC ====================
+
+gcloud services enable servicenetworking.googleapis.com compute.googleapis.com vpcaccess.googleapis.com
 
 ## ==================== CLOUD STORAGE ====================
 
@@ -153,6 +161,21 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.editor
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/pubsub.admin
 
+# ## ==================== CREAR RANDO IP PARA LA INSTANCIA ====================
+
+
+gcloud compute addresses create $VPC_PEERING_NAME \
+    --global \
+    --purpose=VPC_PEERING \
+    --prefix-length 16 \
+    --description "peering range for Google" \
+    --network default
+
+gcloud services vpc-peerings connect --service=servicenetworking.googleapis.com \
+    --ranges $VPC_PEERING_NAME \
+    --network default \
+    --project $PROJECT_ID
+
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
 # HABILITAR API DE SQL
@@ -163,12 +186,25 @@ gcloud sql instances create $DB_INSTANCE_NAME \
     --database-version $POSTGRES_VERSION \
     --root-password $DB_PWD \
     --edition $DB_EDITION \
-    --zone $ZONE \
+    --region $REGION \
     --storage-size $DATABASE_STORAGE_SIZE \
+    --enable-private-service-connec \
     --no-storage-auto-increase \
     --memory 3.75GB \
     --cpu 1 \
-    --assign-ip
+    --no-assign-ip \
+    --network default
+
+## SOLO CONEXIONES SEGURAS
+# gcloud sql instances patch $DB_INSTANCE_NAME --require-ssl
+
+## Crear el conector de VPC
+
+gcloud compute networks vpc-access connectors create $VPC_CONNECTOR_NAME \
+    --region $REGION \
+    --range $VPC_PEERING_NAME \
+    --network default \
+    --range "10.8.0.0"
 
 # ## ==================== BASE DE DATOS ====================
 
@@ -177,15 +213,23 @@ gcloud sql databases create $DB_NAME \
     --instance $DB_INSTANCE_NAME
 
 # ASIGNAR CONTRASENIA A USUARIO POR DEFECTO
-gcloud sql users set-password postgres \
+gcloud sql users set-password $DB_USER \
     --instance $DB_INSTANCE_NAME \
     --password $DB_PWD
 
 # OBTENER IP DE LA BASE DE DATOS
-DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | cut -d';' -f1)
+# DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | cut -d';' -f1)
 
-DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@127.0.0.1:3306/$DB_NAME"
+# OBTENER EL API PRIVADA DE LA BASE DE DATOS
+# DB_CONNECTION_NAME=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(connectionName)')
+
+DB_CONNECTION_URL="postgresql://$DB_USER:$DB_PWD@127.0.0.1:5432/$DB_NAME"
 echo "DB CONNECTION URL: $DB_CONNECTION_URL"
+
+## ==================== CONEXIONES DE BASE DE DATOS ====================
+
+CONECTION_NAME=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(connectionName)')
+echo "CONNECTION NAME: $CONECTION_NAME"
 
 ## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
 
@@ -199,65 +243,6 @@ echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
 # # sudo apt-get install postgresql-client -y
 # # psql --host=35.197.11.11 --port=5432 --username=postgres --password --dbname=db-test
-
-## ==================== INSTANCIA BATCH ====================
-
-# echo "========================================================"
-# DOCKER_COMMAND_BATCH="docker run -d -e DEBUG=False -e DB_URL=$DB_CONNECTION_URL -e BUCKET_NAME=$BUCKET_NAME -e SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION -e PROJECT_ID=$PROJECT_ID -p $PORT_BATCH:5555 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/worker-fpv:latest"
-# echo "$DOCKER_COMMAND_BATCH"
-# echo "========================================================"
-
-# ## ==================== TEMPLATE - INSTANCIA BATCH ====================
-
-# # CREAR INSTANCIA DE VM - PROCESOS DE BATCH
-# gcloud compute instances create $INSTANCE_NAME_BATCH \
-#     --project $PROJECT_ID \
-#     --machine-type $MACHINE_TYPE \
-#     --image $IMAGE \
-#     --zone $ZONE \
-#     --service-account $BUCKET_SA_EMAIL \
-#     --provisioning-model $INSTANCE_TYPE \
-#     --scopes=https://www.googleapis.com/auth/pubsub,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append,https://www.googleapis.com/auth/taskqueue \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io git
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     sudo docker pull nipoanz/worker-fpv 
-#     $DOCKER_COMMAND_BATCH
-#     "
-
-## =============================================================
-## ==================== INSTANCIA WEB (BACK) ====================
-## =============================================================
-
-# echo "========================================================"
-# DOCKER_COMMAND_WEB="docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -e TOPIC_NAME=$TOPIC_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
-# echo "$DOCKER_COMMAND_WEB"
-# echo "========================================================"
-
-## ==================== TEMPLATE - INSTANCIA WEB (BACK) ====================
-
-# # CREAR INSTANCIA DE VM - BACK PRINCIPAL
-# gcloud compute instances create $INSTANCE_NAME \
-#     --project $PROJECT_ID \
-#     --machine-type $MACHINE_TYPE \
-#     --boot-disk-size $DISK_SIZE_MACHINE \
-#     --image $IMAGE \
-#     --zone $ZONE \
-#     --service-account $DB_VM_EMAIL \
-#     --provisioning-model $INSTANCE_TYPE \
-#     --metadata=startup-script="#! /bin/bash
-#     sudo apt update && sudo apt install -y docker.io git python3 default-jre unzip nfs-common
-#     sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-#     sudo chmod +x /usr/local/bin/docker-compose
-#     git clone https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube.git nube
-#     cd nube
-#     sudo chmod -R 777 /nube
-#     sudo docker-compose build fastapiback nginx
-#     sudo curl -L -o /tmp/ServerAgent-2.2.3.zip https://github.com/undera/perfmon-agent/releases/download/2.2.3/ServerAgent-2.2.3.zip
-#     sudo unzip -q /tmp/ServerAgent-2.2.3.zip  -d /server-agent && rm /tmp/ServerAgent-2.2.3.zip
-#     sudo mount -t nfs $NFS_INSTANCE_INT_IP:/nube/public /nube/public
-#     "
 
 
 ## ======================  HABILITAR SERVICIO DE ARTIFACT ===================
@@ -292,7 +277,7 @@ docker tag $DOCKER_WEB_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_
 
 ## ======================  AUTENTICAR CON EL REPOSITORIO ===================
 
-gcloud auth configure-docker us-west1-docker.pkg.dev
+gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
 ## ======================  SUBIR LA IMAGEN ===================
 
@@ -302,13 +287,25 @@ docker push $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
 ## ======================  CLOUD RUN ===================
 
+INSTANCE_UNIX_SOCKET="/cloudsql/$CONECTION_NAME"
+echo "INSTANCE UNIX SOCKET: $INSTANCE_UNIX_SOCKET"
+echo "Instance db user: $DB_USER"
+echo "Instance db password: $DB_PWD"
+echo "Instance db name: $DB_NAME"
+
 gcloud run deploy $WEB_APP_NAME \
+    --project $PROJECT_ID \
     --image $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE  \
     --ingress all \
     --port $PORT_WEB \
-    --region us-west1 \
+    --region $REGION \
     --platform managed \
-    --set-env-vars "DB_URL=$DB_CONNECTION_URL" \
+    --set-env-vars "INSTANCE_HOST=" \
+    --set-env-vars "DB_USER=$DB_USER" \
+    --set-env-vars "DB_PASS=$DB_PWD" \
+    --set-env-vars "DB_NAME=$DB_NAME" \
+    --set-env-vars "DB_PORT=5432" \
+    --set-env-vars "INSTANCE_CONNECTION_NAME=$CONECTION_NAME" \
     --set-env-vars "SECRET_KEY=supreSecretKey123" \
     --set-env-vars "DEBUG=False" \
     --set-env-vars "BUCKET_NAME=$BUCKET_NAME" \
@@ -316,6 +313,11 @@ gcloud run deploy $WEB_APP_NAME \
     --service-account $BUCKET_SA_EMAIL \
     --tag http-web-server \
     --description "Servicios api rest - capa web" \
+    --cpu 2 \
+    --memory 3.75Gi \
+    --add-cloudsql-instances $CONECTION_NAME \
+    --vpc-egress=all-traffic \
+    --vpc-connector $VPC_CONNECTOR_NAME \
     --allow-unauthenticated 
 
 

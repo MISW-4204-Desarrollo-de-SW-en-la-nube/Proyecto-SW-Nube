@@ -23,7 +23,7 @@ Proyecto de la materia Desarrollo de software en la nube - Equipo #N.
 
 origins = [
     "http://localhost",
-    "http://localhost:8080",
+    "http://localhost:5555",
     "*"
 ]
 

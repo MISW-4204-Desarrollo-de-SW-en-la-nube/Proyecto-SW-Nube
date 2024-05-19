@@ -26,6 +26,10 @@ DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS
 WEB_APP_NAME="web-app"
 BATCH_APP_NAME="batch-app"
+## VPC PEERING
+VPC_PEERING_NAME="google-managed-services-default"
+VPC_CONNECTOR_NAME="fpv-connector"
+
 
 ## =======================================================
 ## =================== CLOUD RUN =========================
@@ -64,6 +68,18 @@ gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
 #     --location $REGION \
 #     --quiet
 
+## =======================================================
+## =================== VPC PEERING =======================
+## =======================================================
+
+# ELIMINAR CONECTOR DE VPC
+gcloud compute networks vpc-access connectors delete $VPC_CONNECTOR_NAME \
+    --region $REGION \
+    --quiet
+
+cloud compute addresses delete $VPC_PEERING_NAME \
+    --region $REGION \
+    --quiet
 
 
 ## =======================================================

@@ -23,7 +23,7 @@ Proyecto de la materia Desarrollo de software en la nube - Equipo #N.
 
 origins = [
     "http://localhost",
-    "http://localhost:8080",
+    "http://localhost:8081",
     "*"
 ]
 
@@ -32,7 +32,12 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.1.0"
     APP_DESCRIPTION: str = description
     DEBUG: bool = None
-    DB_URL: str = None
+    INSTANCE_HOST: str = None
+    DB_USER: str = None
+    DB_PASS: str = None
+    DB_NAME: str = None
+    DB_PORT: str = None
+    # INSTANCE_UNIX_SOCKET: str = None
     SECRET_KEY: str = None
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 180

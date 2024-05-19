@@ -100,7 +100,10 @@ cd .\Proyecto-SW-Nube\
 ### 2. **Crea un archivo .env en el directorio raíz del proyecto y define las variables de entorno necesarias:**
 
 ```bash
-DB_URL="postgresql://fpv_user_dev:pfv_user_pwd@localhost:5080/fpv_db_dev"
+DB_USER="fpv_user_dev"
+DB_PASS="pfv_user_pwd"
+DB_NAME="fpv_db_dev"
+INSTANCE_UNIX_SOCKET="/cloudsql/fpv-nube-latam:west-east1:fpv-db"
 SECRET_KEY="supreSecretKey123."
 DEBUG=True
 ```
