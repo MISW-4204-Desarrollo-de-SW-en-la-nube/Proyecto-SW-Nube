@@ -5,6 +5,15 @@ Este proyecto utiliza FastAPI como framework para crear una API web. A continuac
 
 Este proyecto esta basado en un sistema de gestión de archivos de video (mp4),  que permite a los usuarios subir archivos de video, convertirlos a otros formatos, y descargar los archivos convertidos. Además, se implementa un sistema de autenticación y autorización de usuarios, y un sistema de tareas asíncronas utilizando Celery y Redis.
 
+## Actualización - Entrega 5
+
+En esta entrega se hace la migración de Servicios IaaS a PaaS, mediante el uso de CLOUD RUN, en el que las imagenes de la aplicación para las dos capas (WEB - BATCH) FastAPI se despliega en Docker Hub, se crea repositorios en GCP  mediante Artifact Registry y se descargan las imagenes en estos (GCP no deja bajar imagenes publicas), se generan dos servicios en cloud Run. No hay que administrar politicas de autoescalado, ni balanceadores de carga, ya que Cloud Run se encarga de esto.
+
+La siguiente imagen corresponde a la solución actualizada y desplegada en la nube de Google Cloud Platform:
+
+![Diagramas-s3](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/f00ea00f-3f79-47d9-a162-a7987a29b49a)
+
+
 ## Actualización - Entrega 4
 
 En esta entrega se incluye la configuración de Pub-Sub, para poder enviar mensajes entre los servicios de la aplicación, en este caso el procesamiento de los videos subidos a la plataforma, por medio de la creación de `Topics` y `Subscriptions`, además se integran reintentos en caso de que un mensaje no sea procesado correctamente. Además se asocia un politica de auto escalado de acuerdo a la utilización de la CPU, configurado en `80%` para escalar hasta `3` instancias de la aplicación de la capa worker. 
@@ -16,7 +25,7 @@ Para desplegar la infraestrcutura, vuelva a ejecutar los scripts comentados en l
 
 La siguiente imagen corresponde a la solución actualizada y desplegada en la nube de Google Cloud Platform:
 
-![Diagramas-s3](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/f00ea00f-3f79-47d9-a162-a7987a29b49a)
+![Diagramas-s4](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/f00ea00f-3f79-47d9-a162-a7987a29b49a)
 
 
 Los servidores de la capa web y worker se suben a docker-hub para mejorar los tiempos de despliegue y actualización de la aplicación, estos fueron ejecutados con los siguientes comandos:
@@ -45,7 +54,7 @@ En esta entrega se incluye la configuración de Cloud Storage, para poder almace
 
 La siguiente es la solución desplegada y actualizada: 
 
-![image](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/aea5ed03-7fd1-4d7e-b6e8-195ae1757591)
+![Diagramas-s3](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/aea5ed03-7fd1-4d7e-b6e8-195ae1757591)
 
 
 Asi mismo se agrega monitoreo de los registros de la aplicación correspondiente en la capa web y batch, esto para facilitar el seguimiento de los logs de la aplicación, y poder identificar errores o distintos estados en la aplicación. También se agrega un sistema de monitoreo de los recursos de la aplicación, para poder identificar la utilización de la CPU, la memoria de cada instancia, y validar el comportamiento de la aplicación de acuerdo a la politica de auto escalado.
@@ -73,7 +82,7 @@ Importante que revise la wiki de este proyecto para poder realizar la correcta c
 
 
 Solución desplegada y actualizada.
-![image](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/30fc87a0-4671-4d1d-a090-e8c5555c5ab4)
+![Diagramas-s2](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/30fc87a0-4671-4d1d-a090-e8c5555c5ab4)
 
 
 ---
