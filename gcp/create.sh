@@ -167,11 +167,12 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud compute addresses create $VPC_PEERING_NAME \
     --global \
     --purpose=VPC_PEERING \
-    --prefix-length 24 \
+    --prefix-length 16 \
     --description "peering range for Google" \
     --network default
 
-gcloud services vpc-peerings connect --service=servicenetworking.googleapis.com \
+gcloud services vpc-peerings connect \
+    --service=servicenetworking.googleapis.com \
     --ranges $VPC_PEERING_NAME \
     --network default
 
@@ -197,15 +198,14 @@ gcloud sql instances create $DB_INSTANCE_NAME \
     --edition $DB_EDITION \
     --region $REGION \
     --storage-size $DATABASE_STORAGE_SIZE \
-    --enable-private-service-connect \
     --no-storage-auto-increase \
     --memory 3.75GB \
     --cpu 1 \
     --no-assign-ip \
     --network default
 
-## SOLO CONEXIONES SEGURAS
-# gcloud sql instances patch $DB_INSTANCE_NAME --require-ssl
+# ESPERAR A QUE SE CREE LA INSTANCIA
+sleep 60
 
 # Obtener la IP privada de la instancia de Cloud SQL
 DB_PRIVATE_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format="value(ipAddresses.ipAddress)" --filter="type:PRIVATE")
