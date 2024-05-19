@@ -187,7 +187,7 @@ gcloud sql instances create $DB_INSTANCE_NAME \
     --edition $DB_EDITION \
     --region $REGION \
     --storage-size $DATABASE_STORAGE_SIZE \
-    --enable-private-service-connec \
+    --enable-private-service-connect \
     --no-storage-auto-increase \
     --memory 3.75GB \
     --cpu 1 \
