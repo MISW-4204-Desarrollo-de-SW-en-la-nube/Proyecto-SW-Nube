@@ -77,8 +77,8 @@ gcloud compute networks vpc-access connectors delete $VPC_CONNECTOR_NAME \
     --region $REGION \
     --quiet
 
-cloud compute addresses delete $VPC_PEERING_NAME \
-    --region $REGION \
+gcloud compute addresses delete $VPC_PEERING_NAME \
+    --global \
     --quiet
 
 
