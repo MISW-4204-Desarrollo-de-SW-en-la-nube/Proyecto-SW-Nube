@@ -102,17 +102,6 @@ gcloud pubsub topics create $FAIL_TOPIC_NAME
 # # GET ALL TOPICS LIST
 gcloud pubsub topics list
 
-# # CREATE SUBSCRIPTION
-# gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription --topic misw-4204-cloud-topic-fpv-task  --max-delivery-attempts 5 --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
-gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
-    --topic $TOPIC_NAME \
-    --max-delivery-attempts 5 \
-    --dead-letter-topic $FAIL_TOPIC_NAME
-
-
-# # GET ALL SUBSCRIPTIONS LIST
-gcloud pubsub subscriptions list
-
 # # PUBLISH MESSAGE
 # gcloud pubsub topics publish misw-4204-cloud-topic-fpv-task --message "Hello, World!" 
 # gcloud pubsub topics publish $TOPIC_NAME --message "Hello, World!"
@@ -160,6 +149,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/logging.admin
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.editor
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/pubsub.admin
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/run.invoker
 
 # ## ==================== CREAR RANDO IP PARA LA INSTANCIA ====================
 
@@ -353,3 +343,18 @@ BATCH_APP_URL=$(gcloud run services describe $BATCH_APP_NAME --region $REGION --
 
 echo "WEB APP URL: $WEB_APP_URL"
 echo "BATCH APP URL: $BATCH_APP_URL"
+
+
+## ====================== CREAR SUSCRIPCION ===================
+
+# # CREATE SUBSCRIPTION
+# gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription --topic misw-4204-cloud-topic-fpv-task  --max-delivery-attempts 5 --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
+gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
+    --topic $TOPIC_NAME \
+    --max-delivery-attempts 5 \
+    --push-endpoint $BATCH_APP_URL \
+    --push-auth-service-accou $BUCKET_SA_EMAIL \
+    --dead-letter-topic $FAIL_TOPIC_NAME
+
+# # GET ALL SUBSCRIPTIONS LIST
+gcloud pubsub subscriptions list

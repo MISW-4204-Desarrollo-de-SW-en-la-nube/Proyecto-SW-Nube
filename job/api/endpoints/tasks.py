@@ -1,5 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
-from datetime import datetime, timedelta
+from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from job.core.logger_config import logger
@@ -9,15 +8,20 @@ from job.services.tasks import convert_file_by_id
 
 router = APIRouter()
 
-@router.get("/{id_task}")
-async def get_task(id_task: int, db: Session = Depends(get_db)):
+@router.post("/")
+async def get_task(request: Request, db: Session = Depends(get_db)):
     errorExeption = {
         "status_code": 500,
         "detail": "Error al obtener una tarea"
     }
     try:
-        logger.info('Obteniendo tarea')
-        task = convert_file_by_id(db, id_task)
+        envelope = await request.json()
+        message_data = envelope["message"]["data"]
+        print(f"Message data: {message_data}")
+        decoded_message = message_data.decode("utf-8")
+        task_id = int(decoded_message)
+        logger.info(f"Processing task ID: {task_id}")
+        task = convert_file_by_id(db, task_id)
         if task is None:
             logger.error('Tarea no encontrada')
             errorExeption["status_code"] = 404
