@@ -2,7 +2,7 @@
 
 PROJECT_ID="misw-4204-cloud"
 REGION="us-west1"
-ZONE="us-west1-b"
+# ZONE="us-west1-b"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 DB_NAME="db-test"
@@ -11,27 +11,66 @@ BUCKET_NAME="$PROJECT_ID-storage-fpv-bucket"
 BUCKET_ROLE_ID="custom.storage.admin"
 BUCKET_SA_NAME="storage-admin-sa"
 BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
-# TEMPLATE - INSTANCIA BATCH
-INSTANCE_NAME_BATCH_TEMPLATE="batch-server-template"
-FIREWALL_RULE_BATCH_TEMPLATE="fw-allow-health-check-batch"
-HEALTH_CHECK_VM_BATCH="http-check-vm-batch"
-INSTANCE_BATCH_SERVER_GROUP="batch-server-instance-group"
-
-# TEMPLATE - INSTANCIA WEB (BACK)
-INSTANCE_NAME_TEMPLATE="web-server-template"
-FIREWALL_RULE_TEMPLATE="fw-allow-health-check"
-HEALTH_CHECK_VM="http-check-vm"
-INSTANCE_WEB_SERVER_GROUP="web-server-instance-group"
-LB_IP_NAME="lb-ipv4-1"
-HEALTH_CHECK_LB="http-lb-check"
-BACKEND_SERVICE_NAME="web-backend-service"
-URL_MAP_NAME="web-server-map-http"
-TARGET_PROXY_NAME="http-server-lb-proxy"
-FORWARDING_RULE_NAME="http-server-forward-rule"
 # PUBSUB
 TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
 TOPIC_NAME_SUBSCRIPTION="$TOPIC_NAME-subscription"
 FAIL_TOPIC_NAME="$TOPIC_NAME-dead-letter"
+## REPOSITORIO DE ARTIFACTOS
+WEB_REPOSITORY_NAME="fpv-web-repository"
+BATCH_REPOSITORY_NAME="fpv-batch-repository"
+## IMAGENES DOCKER
+WEB_IMAGE="fastapi-back:latest"
+BATCH_IMAGE="worker-fpv:latest"
+DOCKER_WEB_IMAGE="nipoanz/$WEB_IMAGE"
+DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
+## CLOUD RUN APSS
+WEB_APP_NAME="web-app"
+BATCH_APP_NAME="batch-app"
+
+
+
+## =======================================================
+## =================== CLOUD RUN =========================
+## =======================================================
+
+gcloud run services delete $WEB_APP_NAME \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
+
+gcloud run services delete $BATCH_APP_NAME \
+    --project $PROJECT_ID \
+    --region $REGION \
+    --quiet
+
+#Eliminar imagenes de docker
+
+docker rmi $DOCKER_WEB_IMAGE
+
+docker rmi $DOCKER_BATCH_IMAGE
+
+#Eliminar imagenes de GCR
+
+docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
+
+docker rmi $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+
+#Eliminar repositorios de artefactos
+gcloud artifacts repositories delete $WEB_REPOSITORY_NAME \
+    --project $PROJECT_ID \
+    --location $REGION \
+    --quiet
+
+gcloud artifacts repositories delete $BATCH_REPOSITORY_NAME \
+    --project $PROJECT_ID \
+    --location $REGION \
+    --quiet
+
+
+
+## =======================================================
+## ====================== BUCKET =========================
+## =======================================================
 
 # ELIMINAR BUCKET
 gsutil rm -r gs://$BUCKET_NAME
@@ -87,100 +126,8 @@ gcloud iam roles delete $BUCKET_ROLE_ID \
 # ELIMINAR CUENTA DE SERVICIO PARA EL BUCKET
 gcloud iam service-accounts delete $BUCKET_SA_EMAIL --quiet
 
-# EKIMINAR REGLAS DEL FIREWALL
-gcloud compute forwarding-rules delete $FORWARDING_RULE_NAME \
-    --project $PROJECT_ID \
-    --global \
-    --quiet
-
-# ELIMINAR TARGET PROXY
-gcloud compute target-http-proxies delete $TARGET_PROXY_NAME \
-    --project $PROJECT_ID \
-    --quiet
-
-# ELIMINAR URL MAP
-gcloud compute url-maps delete $URL_MAP_NAME \
-    --project $PROJECT_ID \
-    --quiet
-
-# REMOVER SERVICIO BACKEND
-gcloud compute backend-services remove-backend $BACKEND_SERVICE_NAME \
-    --project $PROJECT_ID \
-    --instance-group $INSTANCE_WEB_SERVER_GROUP \
-    --instance-group-region $REGION \
-    --global \
-    --quiet
-
-
-# ELIMINAR SERVICIO BACK
-gcloud compute backend-services delete $BACKEND_SERVICE_NAME \
-    --project $PROJECT_ID \
-    --global \
-    --quiet
-
-# ELIMINAR HEALTH CHECK
-gcloud compute health-checks delete $HEALTH_CHECK_LB \
-    --project $PROJECT_ID \
-    --quiet
-
-# ELIMINAR IP DEL LB
-gcloud compute addresses delete $LB_IP_NAME \
-    --project $PROJECT_ID \
-    --global \
-    --quiet
-
-# ELIMINAR INSTANCIA DE GRUPO
-gcloud compute instance-groups managed delete $INSTANCE_WEB_SERVER_GROUP \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
-
-# ELIMINAR HEALTH CHECK DE VM
-gcloud compute health-checks delete $HEALTH_CHECK_VM \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
-
-# ELIMINAR REGLA DE FIREWALL
-gcloud compute firewall-rules delete $FIREWALL_RULE_TEMPLATE \
-    --project $PROJECT_ID \
-    --quiet
-
-# ELIMINAR INSTANCIA DE GRUPO
-gcloud compute instance-templates delete $INSTANCE_NAME_TEMPLATE \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
-
-## =======================================================
-## =======================================================
-## =======================================================
-## =======================================================
-## ==================== INSTANCIA BATCH ====================
-
-# ELIMINAR INSTANCIA DE GRUPO
-gcloud compute instance-groups managed delete $INSTANCE_BATCH_SERVER_GROUP \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
-
-# ELIMINAR INSTANCIA DE GRUPO
-gcloud compute instance-templates delete $INSTANCE_NAME_BATCH_TEMPLATE \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
-
-# ELIMINAR REGLA DE FIREWALL
-gcloud compute firewall-rules delete $FIREWALL_RULE_BATCH_TEMPLATE \
-    --project $PROJECT_ID \
-    --quiet
-
-# ELIMINAR HEALTH CHECK DE VM
-gcloud compute health-checks delete $HEALTH_CHECK_VM_BATCH \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --quiet
-
+ 
+ 
 ## =======================================================
 ## =======================================================
 ## =======================================================

@@ -9,52 +9,14 @@ fi
 PROJECT_ID="misw-4204-cloud"
 # INSTANCE_NAME="web-server"
 # INSTANCE_NAME_BATCH="worker"
-MACHINE_TYPE="e2-small"
-IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415"
+# MACHINE_TYPE="e2-small"
+# IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415"
 REGION="us-west1"
 ZONE="us-west1-b"
-INSTANCE_NAME_BATCH_TEMPLATE="batch-server-template"
-MACHINE_TAG_BATCH_TEMPLATE="lb-health-check,allow-health-check-batch"
-TARGET_FIREWALL_RULE_BATCH_TEMPLATE="allow-health-check-batch"
-FIREWALL_RULE_BATCH_TEMPLATE="fw-allow-health-check-batch"
-HEALTH_CHECK_VM_BATCH="http-check-vm-batch"
-INSTANCE_BATCH_SERVER_GROUP="batch-server-instance-group"
-PORT_BATCH="5556"
-INSTANCE_TYPE="SPOT"
-# TEMPLATE - INSTANCIA WEB (BACK)
-INSTANCE_NAME_TEMPLATE="web-server-template"
-# FIREWALL - TEMPLATE
-PORT_WEB="8080"
-TARGET_FIREWALL_RULE_TEMPLATE="allow-health-check"
-FIREWALL_RULE_TEMPLATE="fw-allow-health-check"
-# CHECK-IN - TEMPLATE
-HEALTH_CHECK_VM="http-check-vm"
-# INSTANCES GROUP
-INSTANCE_WEB_SERVER_GROUP="web-server-instance-group"
-# ZONE_INSTANCE_GROUP="us-west1-c"
-ZONES_INSTANCE_GROUP="us-west1-b,us-west1-c,us-west1-a"
-# IP FIJA DEL BALANCEADOR DE CARGA
-LB_IP_NAME="lb-ipv4-1"
-# HEALTH CHECK - LB
-HEALTH_CHECK_LB="http-lb-check"
-# BACKEND SERVICE
-BACKEND_SERVICE_NAME="web-backend-service"
-BACKEND_NAME_PORT="http"
-# URL PROXY
-URL_MAP_NAME="web-server-map-http"
-# TARGET PROXY
-TARGET_PROXY_NAME="http-server-lb-proxy"
-# FORWARDING RULE
-FORWARDING_RULE_NAME="http-server-forward-rule"
+# INSTANCE_TYPE="SPOT"
 ## ==================== INSTANCIA WEB (BACK) ====================
 # TAGS DE INSTANCIA WEB (BACK)
-MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check,allow-health-check"
-# REGLAS DE FIREWALL
-# FIREWALL_RULE_VM1_1="allow-fastapi-port"
-# FIREWALL_RULE_VM1_2="allow-perf-port"
-# FIREWALL_RULE_VM1_3="allow-nginx-port"
-# FIREWALL_RULE_VM2_4="allow-redis-port"
-# FIREWALL_RULE_VM2_5="allow-batch-port"
+# MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check,allow-health-check"
 # TAGS DE BASE DE DATOS
 DB_INSTANCE_NAME="mv2-db"
 POSTGRES_VERSION="POSTGRES_15"
@@ -72,6 +34,20 @@ BUCKET_SA_EMAIL="$BUCKET_SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 TOPIC_NAME="$PROJECT_ID-topic-fpv-task"
 TOPIC_NAME_SUBSCRIPTION="$TOPIC_NAME-subscription"
 FAIL_TOPIC_NAME="$TOPIC_NAME-dead-letter"
+## REPOSITORIO DE ARTIFACTOS
+WEB_REPOSITORY_NAME="fpv-web-repository"
+BATCH_REPOSITORY_NAME="fpv-batch-repository"
+## IMAGENES DOCKER
+WEB_IMAGE="fastapi-back:latest"
+BATCH_IMAGE="worker-fpv:latest"
+DOCKER_WEB_IMAGE="nipoanz/$WEB_IMAGE"
+DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
+## CLOUD RUN APSS
+WEB_APP_NAME="web-app"
+BATCH_APP_NAME="batch-app"
+PORT_WEB="8080"
+PORT_BATCH="5555"
+
 
 
 ## VALIDAR QUE EXISTE UN PROYECTO
@@ -85,6 +61,7 @@ fi
 gcloud auth list
 gcloud config list project
 gcloud config set project $PROJECT_ID
+gcloud config set core/project $PROJECT_ID
 #gcloud compute project-info describe --project $(gcloud config get-value project)
 gcloud config set compute/region $REGION
 gcloud config set compute/zone $ZONE
@@ -207,15 +184,16 @@ gcloud sql users set-password postgres \
 # OBTENER IP DE LA BASE DE DATOS
 DB_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format='value(ipAddresses.ipAddress)' | cut -d';' -f1)
 
-DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@$DB_IP:5432/$DB_NAME"
+DB_CONNECTION_URL="postgresql://postgres:$DB_PWD@127.0.0.1:3306/$DB_NAME"
 echo "DB CONNECTION URL: $DB_CONNECTION_URL"
 
 ## ==================== AUTORIZAR CONEXIONES A BASE DE DATOS ====================
 
 # SE DEJA ABIERTO PARA PRUEBAS
-gcloud sql instances patch $DB_INSTANCE_NAME \
-    --authorized-networks="0.0.0.0/0" \
-    --quiet
+# gcloud sql instances patch $DB_INSTANCE_NAME \
+#     --authorized-networks="0.0.0.0/0" \
+#     --quiet
+
 # gcloud sql instances patch mv2-db --authorized-networks=$(curl ifconfig.me.)  --quiet
 
 # # HACER PRUEBA DE CONEXION DE BASE DE DATOS DESDE LA INSTANCIA POR SSH
@@ -224,36 +202,12 @@ gcloud sql instances patch $DB_INSTANCE_NAME \
 
 ## ==================== INSTANCIA BATCH ====================
 
-echo "========================================================"
-echo "========================================================"
-DOCKER_COMMAND_BATCH="docker run -d -e DEBUG=False -e DB_URL=$DB_CONNECTION_URL -e BUCKET_NAME=$BUCKET_NAME -e SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION -e PROJECT_ID=$PROJECT_ID -p $PORT_BATCH:5555 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/worker-fpv:latest"
-echo "$DOCKER_COMMAND_BATCH"
-echo "========================================================"
-echo "========================================================"
+# echo "========================================================"
+# DOCKER_COMMAND_BATCH="docker run -d -e DEBUG=False -e DB_URL=$DB_CONNECTION_URL -e BUCKET_NAME=$BUCKET_NAME -e SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION -e PROJECT_ID=$PROJECT_ID -p $PORT_BATCH:5555 --log-driver=gcplogs -v ~/.config:/root/.config nipoanz/worker-fpv:latest"
+# echo "$DOCKER_COMMAND_BATCH"
+# echo "========================================================"
 
 # ## ==================== TEMPLATE - INSTANCIA BATCH ====================
-
-gcloud compute instance-templates create $INSTANCE_NAME_BATCH_TEMPLATE \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --network default \
-    --subnet default \
-    --instance-template-region $REGION \
-    --machine-type $MACHINE_TYPE \
-    --boot-disk-type pd-balanced \
-    --no-restart-on-failure \
-    --image $IMAGE \
-    --service-account $BUCKET_SA_EMAIL \
-    --provisioning-model $INSTANCE_TYPE \
-    --tags $MACHINE_TAG_BATCH_TEMPLATE \
-    --scopes=https://www.googleapis.com/auth/pubsub,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append,https://www.googleapis.com/auth/taskqueue \
-    --metadata=startup-script="#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io git
-    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo docker pull nipoanz/worker-fpv 
-    $DOCKER_COMMAND_BATCH
-    "
 
 # # CREAR INSTANCIA DE VM - PROCESOS DE BATCH
 # gcloud compute instances create $INSTANCE_NAME_BATCH \
@@ -272,111 +226,16 @@ gcloud compute instance-templates create $INSTANCE_NAME_BATCH_TEMPLATE \
 #     $DOCKER_COMMAND_BATCH
 #     "
 
-## ======================= FIREWALL =================================
-
-gcloud compute firewall-rules create $FIREWALL_RULE_BATCH_TEMPLATE \
-  --network default \
-  --action allow \
-  --direction ingress \
-  --source-ranges 0.0.0.0/0 \
-  --target-tags $TARGET_FIREWALL_RULE_BATCH_TEMPLATE \
-  --rules tcp:$PORT_BATCH
-
-
-## ==================== HEALTH CHECK (BATCH) ==============================
-
-gcloud compute health-checks create http $HEALTH_CHECK_VM_BATCH \
-    --region $REGION \
-    --description "Checks HTTP service on port 5556 - Batch" \
-    --enable-logging \
-    --check-interval 30s \
-    --healthy-threshold 2 \
-    --unhealthy-threshold 3 \
-    --request-path "/" \
-    --timeout 10s \
-    --port $PORT_BATCH
-
-# ## ==================== INSTANCES GROUP (BATCH) ====================
-
-gcloud beta compute instance-groups managed create $INSTANCE_BATCH_SERVER_GROUP \
-    --project $PROJECT_ID \
-    --base-instance-name $INSTANCE_BATCH_SERVER_GROUP \
-    --description "Instance group for batch server" \
-    --template projects/$PROJECT_ID/regions/$REGION/instanceTemplates/$INSTANCE_NAME_BATCH_TEMPLATE \
-    --size 1 \
-    --zones $ZONES_INSTANCE_GROUP \
-    --target-distribution-shape EVEN \
-    --instance-redistribution-type PROACTIVE \
-    --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM_BATCH \
-    --default-action-on-vm-failure repair \
-    --initial-delay 100 \
-    --no-force-update-on-repair \
-    --standby-policy-mode scale-out-pool \
-    --standby-policy-initial-delay 50 \
-    --list-managed-instances-results PAGELESS
-
-
-# ## ==================== POLITICA DE ESCALADO AUTOMATICO (BATCH) ====================
-
-gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_BATCH_SERVER_GROUP \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --description "Autoscaling policy for batch server" \
-    --mode on \
-    --min-num-replicas 1 \
-    --max-num-replicas 3 \
-    --scale-based-on-cpu \
-    --target-cpu-utilization 0.8 \
-    --cool-down-period 50
-
-
-
-## =============================================================
-## =============================================================
-## =============================================================
 ## =============================================================
 ## ==================== INSTANCIA WEB (BACK) ====================
+## =============================================================
 
-echo "========================================================"
-echo "========================================================"
-DOCKER_COMMAND_WEB="docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -e TOPIC_NAME=$TOPIC_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
-echo "$DOCKER_COMMAND_WEB"
-echo "========================================================"
-echo "========================================================"
-
-
-# CORRER DOCKER - COMANDO EJEMPLO
-# docker run  -e DB_URL=postgresql://postgres:password@34.127.86.181:5432/db-test -e SECRET_KEY=supreSecretKey123 -e REDIS_URL=redis://redis:6379 -e DEBUG=False -e BUCKET_NAME=misw-4204-storage-fpv-bucket -p 8080:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config fastapi-app
-# *EL simbolo & al final del comando permite que el proceso se ejecute en segundo plano
-# Validar con (ps aux | grep '[s]erver-agent') que el servicio está ejecutandose
+# echo "========================================================"
+# DOCKER_COMMAND_WEB="docker run -d -e DB_URL=$DB_CONNECTION_URL -e SECRET_KEY=supreSecretKey123 -e DEBUG=False -e BUCKET_NAME=$BUCKET_NAME -e TOPIC_NAME=$TOPIC_NAME -p $PORT_WEB:80 -p 6379:6379 --log-driver=gcplogs -v ~/.config:/root/.config -v /public:/app/public nipoanz/fastapi-back:latest"
+# echo "$DOCKER_COMMAND_WEB"
+# echo "========================================================"
 
 ## ==================== TEMPLATE - INSTANCIA WEB (BACK) ====================
-
-gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --network default \
-    --subnet default \
-    --instance-template-region $REGION \
-    --machine-type $MACHINE_TYPE \
-    --boot-disk-type pd-balanced \
-    --no-restart-on-failure \
-    --image $IMAGE \
-    --service-account $BUCKET_SA_EMAIL \
-    --provisioning-model $INSTANCE_TYPE \
-    --tags $MACHINE_TAG_TEMPLATE \
-    --scopes https://www.googleapis.com/auth/pubsub,https://www.googleapis.com/auth/sqlservice.admin,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/devstorage.full_control,https://www.googleapis.com/auth/trace.append,https://www.googleapis.com/auth/taskqueue \
-    --metadata=startup-script="#! /bin/bash
-    sudo apt update && sudo apt install -y docker.io
-    sudo curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo docker pull nipoanz/fastapi-back
-    sudo mkdir /public
-    sudo chmod -R 777 public/
-    $DOCKER_COMMAND_WEB
-    "
-
-
 
 # # CREAR INSTANCIA DE VM - BACK PRINCIPAL
 # gcloud compute instances create $INSTANCE_NAME \
@@ -401,166 +260,91 @@ gcloud compute instance-templates create $INSTANCE_NAME_TEMPLATE \
 #     "
 
 
-## ======================= FIREWALL =================================
+## ======================  HABILITAR SERVICIO DE ARTIFACT ===================
 
+gcloud services enable artifactregistry.googleapis.com  run.googleapis.com
 
-gcloud compute firewall-rules create $FIREWALL_RULE_TEMPLATE \
-  --network default \
-  --action allow \
-  --direction ingress \
-  --source-ranges 0.0.0.0/0 \
-  --target-tags $TARGET_FIREWALL_RULE_TEMPLATE \
-  --rules tcp:$PORT_WEB
+## ======================  CREAR REPOSITORIO ===================
 
-
-## ==================== HEALTH CHECK ==============================
-
-gcloud compute health-checks create http $HEALTH_CHECK_VM \
-    --region $REGION \
-    --description "Checks HTTP service on port 8080" \
-    --enable-logging \
-    --check-interval 30s \
-    --healthy-threshold 2 \
-    --unhealthy-threshold 3 \
-    --request-path "/" \
-    --timeout 10s \
-    --port $PORT_WEB
-
-
-# ## ==================== INSTANCES GROUP ====================
-
-gcloud beta compute instance-groups managed create $INSTANCE_WEB_SERVER_GROUP \
+gcloud artifacts repositories create $WEB_REPOSITORY_NAME \
     --project $PROJECT_ID \
-    --base-instance-name $INSTANCE_WEB_SERVER_GROUP \
-    --description "Instance group for web server" \
-    --template projects/$PROJECT_ID/regions/$REGION/instanceTemplates/$INSTANCE_NAME_TEMPLATE \
-    --size 1 \
-    --zones $ZONES_INSTANCE_GROUP \
-    --target-distribution-shape EVEN \
-    --instance-redistribution-type PROACTIVE \
-    --health-check projects/$PROJECT_ID/regions/$REGION/healthChecks/$HEALTH_CHECK_VM \
-    --default-action-on-vm-failure repair \
-    --initial-delay 100 \
-    --no-force-update-on-repair \
-    --standby-policy-mode scale-out-pool \
-    --standby-policy-initial-delay 50 \
-    --list-managed-instances-results PAGELESS
+    --repository-format docker \
+    --location $REGION \
+    --description "Repositorio de artefactos para la aplicacion web"
+
+# gcloud artifacts repositories create $BATCH_REPOSITORY_NAME \
+#     --project $PROJECT_ID \
+#     --repository-format docker \
+#     --location $REGION \
+#     --description "Repositorio de artefactos para la aplicacion batch"
+
+## ======================  JALAR LA IMAGEN DE DOCKER A USAR ===================
+
+docker pull $DOCKER_WEB_IMAGE
+
+# docker push $DOCKER_BATCH_IMAGE
+
+## ======================  ETIQUETAR LA IMAGEN ===================
+
+docker tag $DOCKER_WEB_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
+
+# docker tag $DOCKER_BATCH_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+
+## ======================  AUTENTICAR CON EL REPOSITORIO ===================
+
+gcloud auth configure-docker us-west1-docker.pkg.dev
+
+## ======================  SUBIR LA IMAGEN ===================
+
+docker push $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
+
+# docker push $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
+
+## ======================  CLOUD RUN ===================
+
+gcloud run deploy $WEB_APP_NAME \
+    --image $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE  \
+    --ingress all \
+    --port $PORT_WEB \
+    --region us-west1 \
+    --platform managed \
+    --set-env-vars "DB_URL=$DB_CONNECTION_URL" \
+    --set-env-vars "SECRET_KEY=supreSecretKey123" \
+    --set-env-vars "DEBUG=False" \
+    --set-env-vars "BUCKET_NAME=$BUCKET_NAME" \
+    --set-env-vars "TOPIC_NAME=$TOPIC_NAME" \
+    --service-account $BUCKET_SA_EMAIL \
+    --tag http-web-server \
+    --description "Servicios api rest - capa web" \
+    --allow-unauthenticated 
 
 
-# gcloud beta compute instance-groups managed create instance-group-1 \
-    # --project=misw-4204-cloud \
-    # --base-instance-name=instance-group-1 \
-    # --description=86867 \
-    # --template=projects/misw-4204-cloud/regions/us-west1/instanceTemplates/web-server-template \
-    # --size=1 \
-    # --zones=us-west1-b,us-west1-c,us-west1-a \
-    # --target-distribution-shape=EVEN \
-    # --instance-redistribution-type=PROACTIVE \
-    # --default-action-on-vm-failure=repair \
-    # --no-force-update-on-repair \
-    # --standby-policy-mode=manual \
-    # --list-managed-instances-results=PAGELESS
+# gcloud run deploy $BATCH_APP_NAME \
+#     --image $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE  \
+#     --ingress all \
+#     --port $PORT_BATCH \
+#     --region us-west1 \
+#     --platform managed \
+#     --set-env-vars "DEBUG=False" \
+#     --set-env-vars "DB_URL=$DB_CONNECTION_URL" \
+#     --set-env-vars "BUCKET_NAME=$BUCKET_NAME" \
+#     --set-env-vars "SUBSCRIPTION_ID=$TOPIC_NAME_SUBSCRIPTION" \
+#     --set-env-vars "PROJECT_ID=$PROJECT_ID" \
+#     --service-account $BUCKET_SA_EMAIL \
+#     --tag http-batch-server \
+#     --description "Servicio de procesamiento de tareas en segundo plano - capa batch" \
+#     --add-cloudsql-instances $DB_INSTANCE_NAME \
+#     --allow-unauthenticated
 
+## ======================  DESCRIBIR EL SERVICIO ===================
 
-# ## ==================== POLITICA DE ESCALADO AUTOMATICO ====================
+# gcloud run services describe $WEB_APP_NAME --region $REGION
+# gcloud run services describe $BATCH_APP_NAME --region $REGION
 
-gcloud beta compute instance-groups managed set-autoscaling $INSTANCE_WEB_SERVER_GROUP \
-    --project $PROJECT_ID \
-    --region $REGION \
-    --description "Autoscaling policy for web server" \
-    --mode on \
-    --min-num-replicas 1 \
-    --max-num-replicas 3 \
-    --scale-based-on-cpu \
-    --target-cpu-utilization 0.8 \
-    --cool-down-period 50
+## ======================  OBTENER LA IP DEL SERVICIO ===================
 
-# gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
-    # --project=misw-4204-cloud \
-    # --region=us-west1 \
-    # --mode=on \
-    # --min-num-replicas=1 \
-    # --max-num-replicas=10 \
-    # --target-cpu-utilization=0.6 \
-    # --cool-down-period=60
+WEB_APP_URL=$(gcloud run services describe $WEB_APP_NAME --region $REGION --format='value(status.url)')
+# BATCH_APP_URL=$(gcloud run services describe $BATCH_APP_NAME --region $REGION --format='value(status.url)')
 
-# ==================== IP FIJA PARA BALANCEADOR DE CARGA ====================
-
-gcloud compute addresses create $LB_IP_NAME \
-  --ip-version IPV4 \
-  --global
-
-# ==================== HEALTH CHECK ====================
-
-gcloud compute health-checks create http $HEALTH_CHECK_LB \
-    --description "Checks LB health on port 80" \
-    --enable-logging \
-    --check-interval 40s \
-    --healthy-threshold 2 \
-    --unhealthy-threshold 3 \
-    --timeout 25s \
-    --port $PORT_WEB
-
-#     --region $REGION \
-#     --description "Checks HTTP service on port 8080" \
-#     --enable-logging \
-#     --check-interval 30s \
-#     --healthy-threshold 2 \
-#     --unhealthy-threshold 3 \
-#     --request-path "/" \
-#     --timeout 10s \
-#     --port $PORT_WEB
-
-# ## ==================== BACKEND SERVICE - AUTOSCALING POLICY ====================
-
-gcloud compute backend-services create $BACKEND_SERVICE_NAME \
-    --description "Backend service for web server" \
-    --protocol HTTP \
-    --port-name $BACKEND_NAME_PORT \
-    --enable-logging \
-    --health-checks $HEALTH_CHECK_LB \
-    --timeout 45s \
-    --global
-
-gcloud compute instance-groups managed set-named-ports $INSTANCE_WEB_SERVER_GROUP \
-    --named-ports "$BACKEND_NAME_PORT:$PORT_WEB" \
-    --region $REGION
-
-# =================== ADD INSTANCES TO BACKEND SERVICE ====================
-
-gcloud compute backend-services add-backend $BACKEND_SERVICE_NAME \
-    --description "Backend service for web server" \
-    --instance-group $INSTANCE_WEB_SERVER_GROUP \
-    --instance-group-region $REGION \
-    --balancing-mode UTILIZATION \
-    --max-utilization 0.80 \
-    --global
-
-# SE ESPERA 1 MIN
-sleep 60
-
-# ## ==================== URL MAP - PROXY ====================
-
-gcloud compute url-maps create $URL_MAP_NAME \
-    --description "URL map for web server" \
-    --default-service $BACKEND_SERVICE_NAME \
-    --global
-
-gcloud compute target-http-proxies create $TARGET_PROXY_NAME \
-    --url-map $URL_MAP_NAME
-
-# gcloud compute target-http-proxies create http-lb-proxy \
-#     --url-map web-map-http
-
-gcloud compute forwarding-rules create $FORWARDING_RULE_NAME \
-   --address $LB_IP_NAME \
-   --global \
-   --target-http-proxy $TARGET_PROXY_NAME \
-   --ports $PORT_WEB
-
-# ================ MENSAJE DE CONEXION AL BALANCEADOR DE CARGA ================
-
-LB_IP=$(gcloud compute addresses describe lb-ipv4-1 \
-  --format "get(address)" \
-  --global)
-echo "Connect to IP: http://$LB_IP:$PORT_WEB"
+echo "WEB APP URL: $WEB_APP_URL"
+# echo "BATCH APP URL: $BATCH_APP_URL"
