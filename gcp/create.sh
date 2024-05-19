@@ -175,6 +175,16 @@ gcloud services vpc-peerings connect --service=servicenetworking.googleapis.com 
     --ranges $VPC_PEERING_NAME \
     --network default
 
+## Crear el conector de VPC
+
+gcloud compute networks vpc-access connectors create $VPC_CONNECTOR_NAME \
+    --region $REGION \
+    --network default \
+    --range "10.8.0.0/28"
+
+# Verificar la creación del conector VPC
+gcloud compute networks vpc-access connectors describe $VPC_CONNECTOR_NAME --region=$REGION
+
 # ## ==================== INSTANCIA DE BASE DE DATOS ====================
 
 # HABILITAR API DE SQL
@@ -200,16 +210,6 @@ gcloud sql instances create $DB_INSTANCE_NAME \
 # Obtener la IP privada de la instancia de Cloud SQL
 DB_PRIVATE_IP=$(gcloud sql instances describe $DB_INSTANCE_NAME --format="value(ipAddresses.ipAddress)" --filter="type:PRIVATE")
 echo "Private IP of Cloud SQL instance: $DB_PRIVATE_IP"
-
-## Crear el conector de VPC
-
-gcloud compute networks vpc-access connectors create $VPC_CONNECTOR_NAME \
-    --region $REGION \
-    --network default \
-    --range "10.8.0.0/28"
-
-# Verificar la creación del conector VPC
-gcloud compute networks vpc-access connectors describe $VPC_CONNECTOR_NAME --region=$REGION
 
 # ## ==================== BASE DE DATOS ====================
 
