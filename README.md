@@ -11,8 +11,10 @@ En esta entrega se hace la migración de Servicios IaaS a PaaS, mediante el uso 
 
 La siguiente imagen corresponde a la solución actualizada y desplegada en la nube de Google Cloud Platform:
 
-![Diagramas-s3](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/f00ea00f-3f79-47d9-a162-a7987a29b49a)
+![Diagramas-s5](https://github.com/MISW-4204-Desarrollo-de-SW-en-la-nube/Proyecto-SW-Nube/assets/142164473/3a77db6b-b6e8-482a-ac87-983507d3e05e)
 
+
+Se deja las politicas de autoescalamiento por defecto, y las instancias se configuran en minimo 0, esto dado que el servicio de Cloud Run cobra por las solicitudes que se realizan. Asi mismo el máximo permitido por instancia es de 80 solicitudes simultaneas, y el tiempo de espera es de 300 segundos. para evitar que las instancias se apaguen, o se cierren antes de tiempo. Asi mismo se utiliza http/2 para mejorar la velocidad de respuesta de la aplicación. y que no se tenga la limitación de memoria permitida para cada request, en el caso de que el archivo sea muy grande.
 
 ## Actualización - Entrega 4
 
