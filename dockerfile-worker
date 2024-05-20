@@ -34,25 +34,4 @@ RUN chmod +x /app/job/process.sh
 EXPOSE 5555
 
 # INCIALIZAR SUPERVISOR
-# CMD ["hypercorn", "job.main:app", "--worker-class",  "trio", "--reload", "--bind", "0.0.0.0:5555"]
-CMD ["uvicorn", "job.main:app", "--reload", "--workers", "1", "--host", "0.0.0.0", "--port", "5555"]
-
-# Use the official Python image.
-# https://hub.docker.com/_/python
-# FROM python:3.11
-
-# # set work directory
-# WORKDIR /app
-
-# Copy application dependency manifests to the container image.
-# Copying this separately prevents re-running pip install on every code change.
-# COPY /job/requirements.txt ./
-
-# Install production dependencies.
-# RUN pip install -r requirements.txt
-
-# COPY . ./
-
-# CMD ["hypercorn", "job.main:app", "--worker-class",  "trio", "--reload", "--bind", "0.0.0.0:5555"]
-# CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
-
+CMD ["gunicorn", "job.main:app", "--reload", "--workers", "2", "--bind", ":5555", "--timeout", "300"]

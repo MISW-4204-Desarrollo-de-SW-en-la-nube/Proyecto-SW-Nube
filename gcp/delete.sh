@@ -19,7 +19,7 @@ WEB_REPOSITORY_NAME="fpv-web-repository"
 BATCH_REPOSITORY_NAME="fpv-batch-repository"
 ## IMAGENES DOCKER
 WEB_IMAGE="fastapi-back:latest"
-BATCH_IMAGE="worker-fpv:6.0.1"
+BATCH_IMAGE="worker-fpv:6.0.5"
 DOCKER_WEB_IMAGE="nipoanz/$WEB_IMAGE"
 DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS

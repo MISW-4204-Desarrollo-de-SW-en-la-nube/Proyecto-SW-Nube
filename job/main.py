@@ -1,9 +1,31 @@
+# Copyright 2019 Google, LLC.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# [START cloudrun_pubsub_server]
+
+# import flast module
 from flask import Flask, request
 import base64
 from job.video_transform import transform_video
 
+
+# instance of flask application
 app = Flask(__name__)
 
+# [END cloudrun_pubsub_server]
+
+# [START cloudrun_pubsub_handler]
 @app.route("/", methods=["POST"])
 def index():
     """Receive and parse Pub/Sub messages."""
@@ -12,113 +34,31 @@ def index():
         msg = "no Pub/Sub message received"
         print(f"error: {msg}")
         return f"Bad Request: {msg}", 400
-
+    #print(f"envelope: {envelope}")
+    
     if not isinstance(envelope, dict) or "message" not in envelope:
         msg = "invalid Pub/Sub message format"
         print(f"error: {msg}")
         return f"Bad Request: {msg}", 400
 
     pubsub_message = envelope["message"]
+    print(f"pubsub_message: {pubsub_message}")
 
-    name = "World"
+    taskId = ""
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
-        name = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
+        taskId = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
 
-    print(f"Hello {name}!")
+    print(f"Processing task id: {taskId}")
 
     # Call the video transformation function
-    # transform_video(name)
+    if taskId != "":
+        transform_video(taskId)
 
     return ("", 204)
 
-# from fastapi import FastAPI
-# from concurrent.futures import TimeoutError
-# from google.cloud import pubsub_v1
-# from fastapi.middleware.cors import CORSMiddleware
-# import os
-# from sqlalchemy import inspect
-# # CONFIG
-# from job.core.config import settings
-# from job.core.logger_config import logger
-
-# from job.db.session import engine
-# from job.db.base import Base
-# #RUTAS DEL API
-# from job.api.routers import tasks
-# from job.worker import callbackProcces
-# import threading
-
-# # Crea una instancia de FastAPI
-# app = FastAPI(
-#     title=settings.APP_NAME,
-#     version=settings.APP_VERSION,
-#     description=settings.APP_DESCRIPTION,
-#     debug=settings.DEBUG
-# )
-
-# # Configurar CORS
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=settings.ALLOWED_HOSTS or ["*"],
-#     allow_credentials=True,
-#     allow_methods=["GET", "POST", "OPTIONS"],
-#     allow_headers=["*"],
-# )
-
-# def start_subscriber():
-#     subscription_id = settings.SUBSCRIPTION_ID
-#     project_id = settings.PROJECT_ID
-#     print("Project ID: " + project_id)
-#     print("Subscription ID: " + subscription_id)
-#     subscriber = pubsub_v1.SubscriberClient()
-#     subscription_path = subscriber.subscription_path(project_id, subscription_id)
-#     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callbackProcces)
-#     print("Listening for messages on " + subscription_path)
-#     # Wrap subscriber in a 'with' block to automatically call close() when done.
-#     with subscriber:
-#         try:
-#             streaming_pull_future.result()
-#         except TimeoutError:
-#             streaming_pull_future.cancel()
-#             streaming_pull_future.cancel()
-#         except KeyboardInterrupt:
-#             streaming_pull_future.cancel()
-#             streaming_pull_future.cancel()
+# [END cloudrun_pubsub_handler]
 
 
-# # Conexión a la base de datos
-# @app.on_event("startup")
-# async def startup():
-#     # Ejemplo de uso del logger
-#     logger.info('Levantando la aplicación en el puerto 5555')
-#     logger.info('Estado debug: ' + str(settings.DEBUG))
-#     inspector = inspect(engine)
-#     existing_tables = inspector.get_table_names()
-#     if not existing_tables:
-#         Base.metadata.create_all(bind=engine)
-#     else:
-#         logger.info('Las tablas ya existen en la base de datos.')
-        
-#     subscriber_thread = threading.Thread(target=start_subscriber)
-#     subscriber_thread.start()
-#     logger.info("Pub/Sub subscriber started")
 
-
-# # # desconexión de la base de datos  
-# @app.on_event("shutdown")
-# async def shutdown():
-#     logger.info('Apagando la aplicación')
-#     # Eliminar carpetas
-#     if os.path.exists(settings.PUBLIC_DIR_PROCESSED):
-#         os.rmdir(settings.PUBLIC_DIR_PROCESSED)
-#     if os.path.exists(settings.PUBLIC_DIR_NOT_PROCESSED):
-#         os.rmdir(settings.PUBLIC_DIR_NOT_PROCESSED)
-    
-
-# # Health Check
-# @app.get("/")
-# def read_root():
-#     return {"hello": "world"}
-
-
-# app.include_router(tasks.router)
+if __name__ == '__main__':  
+   app.run("main:app")

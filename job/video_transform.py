@@ -41,17 +41,6 @@ def connect_unix_socket():
         print("Error al conectarse a la base de datos PostgreSQL:", e)
         return None
 
-# def conectar_bd():
-#     motor = os.getenv("DB_URL", "postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev")
-#     print("motor: " + motor)
-    
-#         engine = create_engine(motor)
-        
-#         return engine
-#     except Exception as e:
-#         print("Error al conectarse a la base de datos PostgreSQL:", e)
-#         return None
-
 def transform_video(id: str):
     try:
         engine = connect_unix_socket()
@@ -59,7 +48,7 @@ def transform_video(id: str):
             # Realizar consultas, operaciones, etc. aquí
             connection = engine.connect()
             print("Querying for task with id: " + str(id))
-            stmt = text("SELECT * FROM tasks WHERE id = :id AND status='uploaded'").bindparams(id=id)
+            stmt = text("SELECT * FROM tasks WHERE id = :id AND status='uploaded'").bindparams(id=int(id))
             result = connection.execute(stmt)
             row = result.first()
 
@@ -113,7 +102,7 @@ def transform_video(id: str):
                 print("Eliminando archivo de video procesado")
                 os.remove(processed_url_local)
 
-                update_stmt = text("UPDATE tasks SET status='processed' WHERE id = :id").bindparams(id=id)
+                update_stmt = text("UPDATE tasks SET status='processed' WHERE id = :id").bindparams(id=int(id))
                 connection.execute(update_stmt)
                 connection.commit()
 

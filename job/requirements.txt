@@ -1,5 +1,4 @@
 Flask==3.0.3
-gunicorn==22.0.0
 Werkzeug==3.0.3
 gevent
 pydantic==2.5.2
@@ -8,5 +7,6 @@ python-jose
 python-multipart==0.0.9
 google-cloud-pubsub
 SQLAlchemy
-uvicorn
+gunicorn
 pg8000
+starlette

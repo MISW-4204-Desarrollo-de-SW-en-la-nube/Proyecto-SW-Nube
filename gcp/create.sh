@@ -32,7 +32,7 @@ WEB_REPOSITORY_NAME="fpv-web-repository"
 BATCH_REPOSITORY_NAME="fpv-batch-repository"
 ## IMAGENES DOCKER
 WEB_IMAGE="fastapi-back:latest"
-BATCH_IMAGE="worker-fpv:6.0.1"
+BATCH_IMAGE="worker-fpv:6.0.5"
 DOCKER_WEB_IMAGE="nipoanz/$WEB_IMAGE"
 DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS
@@ -237,14 +237,14 @@ gcloud artifacts repositories create $BATCH_REPOSITORY_NAME \
 docker pull $DOCKER_WEB_IMAGE
 
 docker pull $DOCKER_BATCH_IMAGE
-# docker pull nipoanz/worker-fpv:latest
+# docker pull nipoanz/worker-fpv:6.0.3
 
 ## ======================  ETIQUETAR LA IMAGEN ===================
 
 docker tag $DOCKER_WEB_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
 docker tag $DOCKER_BATCH_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
-# docker tag nipoanz/worker-fpv:4.0.0 us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:4.0.0
+# docker tag nipoanz/worker-fpv:6.0.5 us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:6.0.5
 
 ## ======================  AUTENTICAR CON EL REPOSITORIO ===================
 
@@ -256,7 +256,7 @@ gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 docker push $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
 docker push $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
-# docker push us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest
+# docker push us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:6.0.5
 
 ## ======================  CLOUD RUN ===================
 
@@ -325,19 +325,18 @@ gcloud run deploy $BATCH_APP_NAME \
     --add-cloudsql-instances $CONECTION_NAME \
     --vpc-egress=all-traffic \
     --vpc-connector $VPC_CONNECTOR_NAME \
-    --allow-unauthenticated \
-    --use-http2
+    --allow-unauthenticated
 
 # gcloud run deploy batch-app \
 #     --project misw-4204-cloud \
-#     --image us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:4.0.0 \
+#     --image us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:6.0.5 \
 #     --ingress all \
 #     --port 5555 \
 #     --region us-west1 \
 #     --platform managed \
-#     --set-env-vars "INSTANCE_HOST=10.50.0.3" \
+#     --set-env-vars "INSTANCE_HOST=172.18.0.3" \
 #     --set-env-vars "DB_USER=postgres" \
-#     --set-env-vars "DB_PASS=pwsafdsdf124" \
+#     --set-env-vars "DB_PASS=passqwe2343456" \
 #     --set-env-vars "DB_NAME=db-test" \
 #     --set-env-vars "DB_PORT=5432" \
 #     --set-env-vars "INSTANCE_CONNECTION_NAME=misw-4204-cloud:us-west1:mv2-db" \
@@ -354,8 +353,7 @@ gcloud run deploy $BATCH_APP_NAME \
 #     --add-cloudsql-instances misw-4204-cloud:us-west1:mv2-db \
 #     --vpc-egress=all-traffic \
 #     --vpc-connector fpv-connector \
-#     --allow-unauthenticated \
-#     --use-http2
+#     --allow-unauthenticated
 
 ## ======================  DESCRIBIR EL SERVICIO ===================
 
@@ -366,6 +364,7 @@ gcloud run deploy $BATCH_APP_NAME \
 
 WEB_APP_URL=$(gcloud run services describe $WEB_APP_NAME --region $REGION --format='value(status.url)')
 BATCH_APP_URL=$(gcloud run services describe $BATCH_APP_NAME --region $REGION --format='value(status.url)')
+#  gcloud run services describe batch-app  --region us-west1 --format='value(status.url)'
 
 echo "WEB APP URL: $WEB_APP_URL"
 echo "BATCH APP URL: $BATCH_APP_URL"
@@ -386,11 +385,12 @@ gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
 #     --topic misw-4204-cloud-topic-fpv-task \
 #     --ack-deadline 600 \
 #     --max-delivery-attempts 5 \
-#     --push-endpoint https://batch-app-n7h4t3ddea-uw.a.run.app/api/tasks/ \
+#     --push-endpoint https://batch-app-n7h4t3ddea-uw.a.run.app \
 #     --push-auth-service-account storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com \
 #     --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
 
 # gcloud pubsub topics publish misw-4204-cloud-topic-fpv-task --message="12345"
+# gcloud pubsub topics publish misw-4204-cloud-topic-fpv-task --message "Runner"
 # eliminar suscripcion
 # gcloud pubsub subscriptions delete misw-4204-cloud-topic-fpv-task-subscription --quiet
 
