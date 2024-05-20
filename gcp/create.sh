@@ -7,17 +7,9 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_ID="misw-4204-cloud"
-# INSTANCE_NAME="web-server"
-# INSTANCE_NAME_BATCH="worker"
-# MACHINE_TYPE="e2-small"
-# IMAGE="projects/debian-cloud/global/images/debian-11-bullseye-v20240415"
 REGION="us-west1"
 ZONE="us-west1-b"
-# INSTANCE_TYPE="SPOT"
-## ==================== INSTANCIA WEB (BACK) ====================
-# TAGS DE INSTANCIA WEB (BACK)
-# MACHINE_TAG_TEMPLATE="http-server,https-server,lb-health-check,allow-health-check"
-# TAGS DE BASE DE DATOS
+## ===================================================
 DB_INSTANCE_NAME="mv2-db"
 POSTGRES_VERSION="POSTGRES_15"
 DB_PWD=$1
@@ -40,7 +32,7 @@ WEB_REPOSITORY_NAME="fpv-web-repository"
 BATCH_REPOSITORY_NAME="fpv-batch-repository"
 ## IMAGENES DOCKER
 WEB_IMAGE="fastapi-back:latest"
-BATCH_IMAGE="worker-fpv:latest"
+BATCH_IMAGE="worker-fpv:6.0.1"
 DOCKER_WEB_IMAGE="nipoanz/$WEB_IMAGE"
 DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS
@@ -51,8 +43,6 @@ PORT_BATCH="5555"
 ## VPC PEERING
 VPC_PEERING_NAME="google-managed-services-default"
 VPC_CONNECTOR_NAME="fpv-connector"
-
-
 
 ## VALIDAR QUE EXISTE UN PROYECTO
 EXISTING_PROJECT=$(gcloud projects describe $PROJECT_ID 2>&1)
@@ -150,6 +140,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCK
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/cloudsql.editor
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/pubsub.admin
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/run.invoker
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$BUCKET_SA_EMAIL --role=roles/iam.serviceAccountTokenCreator
 
 # ## ==================== CREAR RANDO IP PARA LA INSTANCIA ====================
 
@@ -253,7 +244,7 @@ docker pull $DOCKER_BATCH_IMAGE
 docker tag $DOCKER_WEB_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$WEB_REPOSITORY_NAME/$WEB_IMAGE
 
 docker tag $DOCKER_BATCH_IMAGE $REGION-docker.pkg.dev/$PROJECT_ID/$BATCH_REPOSITORY_NAME/$BATCH_IMAGE
-# docker tag nipoanz/worker-fpv:latest us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest
+# docker tag nipoanz/worker-fpv:4.0.0 us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:4.0.0
 
 ## ======================  AUTENTICAR CON EL REPOSITORIO ===================
 
@@ -339,14 +330,14 @@ gcloud run deploy $BATCH_APP_NAME \
 
 # gcloud run deploy batch-app \
 #     --project misw-4204-cloud \
-#     --image us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:latest \
+#     --image us-west1-docker.pkg.dev/misw-4204-cloud/fpv-batch-repository/worker-fpv:4.0.0 \
 #     --ingress all \
 #     --port 5555 \
 #     --region us-west1 \
 #     --platform managed \
-#     --set-env-vars "INSTANCE_HOST=10.97.0.3" \
+#     --set-env-vars "INSTANCE_HOST=10.50.0.3" \
 #     --set-env-vars "DB_USER=postgres" \
-#     --set-env-vars "DB_PASS=sdcsdcsdc2432" \
+#     --set-env-vars "DB_PASS=pwsafdsdf124" \
 #     --set-env-vars "DB_NAME=db-test" \
 #     --set-env-vars "DB_PORT=5432" \
 #     --set-env-vars "INSTANCE_CONNECTION_NAME=misw-4204-cloud:us-west1:mv2-db" \
@@ -379,20 +370,21 @@ BATCH_APP_URL=$(gcloud run services describe $BATCH_APP_NAME --region $REGION --
 echo "WEB APP URL: $WEB_APP_URL"
 echo "BATCH APP URL: $BATCH_APP_URL"
 
-
 ## ====================== CREAR SUSCRIPCION ===================
 
 # # CREATE SUBSCRIPTION
 # gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription --topic misw-4204-cloud-topic-fpv-task  --max-delivery-attempts 5 --dead-letter-topic misw-4204-cloud-topic-fpv-task-dead-letter
 gcloud pubsub subscriptions create $TOPIC_NAME_SUBSCRIPTION \
     --topic $TOPIC_NAME \
+    --ack-deadline 600 \
     --max-delivery-attempts 5 \
-    --push-endpoint $BATCH_APP_URL/api/task/ \
+    --push-endpoint $BATCH_APP_URL \
     --push-auth-service-account $BUCKET_SA_EMAIL \
     --dead-letter-topic $FAIL_TOPIC_NAME
 
 # gcloud pubsub subscriptions create misw-4204-cloud-topic-fpv-task-subscription \
 #     --topic misw-4204-cloud-topic-fpv-task \
+#     --ack-deadline 600 \
 #     --max-delivery-attempts 5 \
 #     --push-endpoint https://batch-app-n7h4t3ddea-uw.a.run.app/api/tasks/ \
 #     --push-auth-service-account storage-admin-sa@misw-4204-cloud.iam.gserviceaccount.com \

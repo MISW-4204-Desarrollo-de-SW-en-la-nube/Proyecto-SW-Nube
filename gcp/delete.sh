@@ -19,7 +19,7 @@ WEB_REPOSITORY_NAME="fpv-web-repository"
 BATCH_REPOSITORY_NAME="fpv-batch-repository"
 ## IMAGENES DOCKER
 WEB_IMAGE="fastapi-back:latest"
-BATCH_IMAGE="worker-fpv:latest"
+BATCH_IMAGE="worker-fpv:6.0.1"
 DOCKER_WEB_IMAGE="nipoanz/$WEB_IMAGE"
 DOCKER_BATCH_IMAGE="nipoanz/$BATCH_IMAGE"
 ## CLOUD RUN APSS
@@ -140,6 +140,9 @@ gcloud projects remove-iam-policy-binding $PROJECT_ID \
 gcloud projects remove-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$BUCKET_SA_EMAIL \
     --role=roles/run.invoker --quiet
+gcloud projects remove-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:$BUCKET_SA_EMAIL \
+    --role=roles/iam.serviceAccountTokenCreator
 
 # REMOVER PERMISOS DEL ROL
 gcloud iam roles update $BUCKET_ROLE_ID \

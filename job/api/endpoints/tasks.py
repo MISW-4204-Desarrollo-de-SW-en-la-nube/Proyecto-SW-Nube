@@ -11,19 +11,15 @@ router = APIRouter()
 
 @router.post("/")
 async def get_task(request: Request, db: Session = Depends(get_db)) -> None:
-    errorExeption = {
-        "status_code": 500,
-        "detail": "Error al obtener una tarea"
-    }
     try:
         envelope = await request.json()
-        logger.info(f"Task With data: {envelope}")
+        print("Task With data: " + str(envelope))
         message_data = envelope["message"]["data"]
         decoded_message = base64.b64decode(message_data).decode('utf-8')
         task_id = int(decoded_message)
-        logger.info(f"Processing task ID: {task_id}")
+        print("Processing task ID: " + str(task_id))
         convert_file_by_id(db, task_id)
     except Exception as e:
-        logger.error('Error al obtener tarea')
-        logger.error(e)
-        raise HTTPException(errorExeption["status_code"], detail=errorExeption["detail"])
+        print('Error al obtener tarea')
+        print(e)
+        raise HTTPException(500, detail="Error al obtener una tarea")

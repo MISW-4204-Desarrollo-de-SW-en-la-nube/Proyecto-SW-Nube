@@ -6,11 +6,13 @@ WORKDIR /app
 RUN apk add --update py-pip
 # RUN pip --version
 
+# Allow statements and log messages to immediately appear in the Cloud Run logs
+ENV PYTHONUNBUFFERED True
+
 #  Install the required dependencies
 RUN pip install --upgrade pip --break-system-packages
-COPY requirements.txt requirements.txt
+COPY /job/requirements.txt requirements.txt
 RUN pip install --no-cache-dir --upgrade -r requirements.txt --break-system-packages
-RUN pip install "hypercorn[trio]" --break-system-packages
 
 # Instalar psycopg2 para interactuar con PostgreSQL
 RUN apk add --no-cache postgresql-libs && \
@@ -32,4 +34,25 @@ RUN chmod +x /app/job/process.sh
 EXPOSE 5555
 
 # INCIALIZAR SUPERVISOR
-CMD ["hypercorn", "job.main:app", "--worker-class",  "trio", "--reload", "--bind", "0.0.0.0:5555"]
+# CMD ["hypercorn", "job.main:app", "--worker-class",  "trio", "--reload", "--bind", "0.0.0.0:5555"]
+CMD ["uvicorn", "job.main:app", "--reload", "--workers", "1", "--host", "0.0.0.0", "--port", "5555"]
+
+# Use the official Python image.
+# https://hub.docker.com/_/python
+# FROM python:3.11
+
+# # set work directory
+# WORKDIR /app
+
+# Copy application dependency manifests to the container image.
+# Copying this separately prevents re-running pip install on every code change.
+# COPY /job/requirements.txt ./
+
+# Install production dependencies.
+# RUN pip install -r requirements.txt
+
+# COPY . ./
+
+# CMD ["hypercorn", "job.main:app", "--worker-class",  "trio", "--reload", "--bind", "0.0.0.0:5555"]
+# CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
+

@@ -1,24 +1,60 @@
-from sqlalchemy import create_engine, text, update
+import sqlalchemy
+from sqlalchemy import text, update, create_engine
 from dotenv import load_dotenv
 import subprocess
 import os
 
 load_dotenv()
 
-def conectar_bd():
-    motor = os.getenv("DB_URL", "postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev")
-    print("motor: " + motor)
+def connect_unix_socket():
+    """Initializes a Unix socket connection pool for a Cloud SQL instance of Postgres."""
+    db_host = os.getenv("INSTANCE_HOST")
+    # db_host = settings.INSTANCE_HOST  # e.g. '127.0.0.1' ('172.17.0.1' if deployed to GAE Flex)
+    db_user = os.getenv("DB_USER")
+    # db_user = settings.DB_USER  # e.g. 'my-database-user'
+    db_pass = os.getenv("DB_PASS")
+    # db_pass = settings.DB_PASS  # e.g. 'my-database-password'
+    db_name = os.getenv("DB_NAME")
+    # db_name = settings.DB_NAME  # e.g. 'my-database-name'
+    db_port = os.getenv("DB_PORT")
+    # db_port = settings.DB_PORT  # e.g. 5432
+    print("db_host: " + db_host)
+    print("db_user: " + db_user)
+    print("db_pass: " + db_pass)
+    print("db_name: " + db_name)
+    print("db_port: " + db_port)
+
     try:
-        engine = create_engine(motor)
+        pool = create_engine(
+            sqlalchemy.engine.url.URL.create(
+                drivername="postgresql+pg8000",
+                username=db_user,
+                password=db_pass,
+                host=db_host,
+                port=db_port,
+                database=db_name,
+            ),
+        )
         print("Conexión exitosa a la base de datos PostgreSQL.")
-        return engine
+        return pool
     except Exception as e:
         print("Error al conectarse a la base de datos PostgreSQL:", e)
         return None
 
+# def conectar_bd():
+#     motor = os.getenv("DB_URL", "postgresql://fpv_user_dev:pfv_user_pwd@postgres:5432/fpv_db_dev")
+#     print("motor: " + motor)
+    
+#         engine = create_engine(motor)
+        
+#         return engine
+#     except Exception as e:
+#         print("Error al conectarse a la base de datos PostgreSQL:", e)
+#         return None
+
 def transform_video(id: str):
     try:
-        engine = conectar_bd()
+        engine = connect_unix_socket()
         if engine is not None:
             # Realizar consultas, operaciones, etc. aquí
             connection = engine.connect()
