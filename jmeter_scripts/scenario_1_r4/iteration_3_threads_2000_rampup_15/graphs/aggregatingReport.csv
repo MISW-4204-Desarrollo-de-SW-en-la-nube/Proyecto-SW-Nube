@@ -1,0 +1,5 @@
+Label,# Samples,Average,Median,90% Line,95% Line,99% Line,Min,Max,Error %,Throughput,Received KB/sec,Std. Dev.
+HTTP Request -Crear Tarea  (Video),2000,1920,1814,2967,3584,4631,212,5145,0.00%,99.3,82.8,821.20
+HTTP Request -Crear Tarea  (Video)-0,2000,100,91,139,154,204,64,302,0.00%,106.4,30.7,30.65
+HTTP Request -Crear Tarea  (Video)-1,2000,1819,1709,2866,3477,4539,119,5071,0.00%,100.0,54.5,817.34
+TOTAL,6000,1279,1315,2565,3082,4468,64,5145,0.00%,297.9,165.5,1070.26
