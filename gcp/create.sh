@@ -290,13 +290,16 @@ gcloud run deploy $WEB_APP_NAME \
     --service-account $BUCKET_SA_EMAIL \
     --tag http-web-server \
     --description "Servicios api rest - capa web" \
-    --cpu 2 \
-    --memory 3.75Gi \
+    --cpu 4 \
+    --memory 4Gi \
     --add-cloudsql-instances $CONECTION_NAME \
     --vpc-egress=all-traffic \
     --vpc-connector $VPC_CONNECTOR_NAME \
     --allow-unauthenticated \
-    --use-http2
+    --use-http2 \
+    --min-instances 2 \
+    --concurrency 120 \
+    --cpu-boost
 
 
 gcloud run deploy $BATCH_APP_NAME \
