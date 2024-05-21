@@ -1,0 +1,5 @@
+Label,# Samples,Average,Median,90% Line,95% Line,99% Line,Min,Max,Error %,Throughput,Received KB/sec,Std. Dev.
+Consultar Videos,1500,1892,1908,3906,4617,5880,167,12326,0.00%,55.5,35.7,1455.72
+Consultar Videos-0,1500,218,120,322,615,1846,65,12200,0.00%,55.7,16.8,497.28
+Consultar Videos-1,1500,1631,1581,3583,4415,5649,100,6451,0.00%,55.9,19.1,1386.34
+TOTAL,4500,1247,427,3120,4262,5647,65,12326,0.00%,166.4,71.3,1403.61
