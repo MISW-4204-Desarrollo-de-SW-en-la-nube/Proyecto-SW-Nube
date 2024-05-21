@@ -1,0 +1,51 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1716259367999,5066,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-5,text,false,,3096,0,21,21,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,40
+1716259370082,40364,Petición HTTP,200,OK,Grupo de Hilos 1-12,text,true,,400,36861256,49,49,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,40358,0,15
+1716259369785,48659,Petición HTTP,200,OK,Grupo de Hilos 1-11,text,true,,401,36861274,48,48,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,48659,0,23
+1716259367122,73399,Petición HTTP,200,OK,Grupo de Hilos 1-2,text,true,,404,36861268,47,47,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,73399,0,174
+1716259368887,73807,Petición HTTP,200,OK,Grupo de Hilos 1-8,text,true,,401,36861268,46,46,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,73807,0,21
+1716259366954,83234,Petición HTTP,200,OK,Grupo de Hilos 1-1,text,true,,403,36861283,45,45,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,83233,0,343
+1716259367400,89738,Petición HTTP,200,OK,Grupo de Hilos 1-3,text,true,,401,36861277,44,44,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,89737,0,30
+1716259367700,91669,Petición HTTP,200,OK,Grupo de Hilos 1-4,text,true,,400,36861268,43,43,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,91668,0,24
+1716259371872,91708,Petición HTTP,200,OK,Grupo de Hilos 1-18,text,true,,401,36861283,42,42,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,91708,0,12
+1716259368598,101997,Petición HTTP,200,OK,Grupo de Hilos 1-7,text,true,,401,36861268,41,41,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,101997,0,19
+1716259372770,104242,Petición HTTP,200,OK,Grupo de Hilos 1-21,text,true,,400,36861283,40,40,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,104242,0,15
+1716259368299,108747,Petición HTTP,200,OK,Grupo de Hilos 1-6,text,true,,400,36861280,39,39,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,108747,0,19
+1716259369487,112822,Petición HTTP,200,OK,Grupo de Hilos 1-10,text,true,,401,36861256,38,38,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,112821,0,25
+1716259369187,123231,Petición HTTP,200,OK,Grupo de Hilos 1-9,text,true,,400,36861280,37,37,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,123231,0,18
+1716259370382,126537,Petición HTTP,200,OK,Grupo de Hilos 1-13,text,true,,400,36861259,36,36,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,126536,0,21
+1716259370677,126248,Petición HTTP,200,OK,Grupo de Hilos 1-14,text,true,,400,36861274,35,35,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,126248,0,46
+1716259371575,125362,Petición HTTP,200,OK,Grupo de Hilos 1-17,text,true,,400,36861262,34,34,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,125362,0,24
+1716259370972,139152,Petición HTTP,200,OK,Grupo de Hilos 1-15,text,true,,400,36861259,33,33,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,139152,0,16
+1716259371273,138861,Petición HTTP,200,OK,Grupo de Hilos 1-16,text,true,,400,36861277,32,32,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,138861,0,31
+1716259372171,140556,Petición HTTP,200,OK,Grupo de Hilos 1-19,text,true,,401,36861265,31,31,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,140556,0,15
+1716259374857,149993,Petición HTTP,200,OK,Grupo de Hilos 1-28,text,true,,401,36861259,30,30,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,149993,0,14
+1716259373069,160313,Petición HTTP,200,OK,Grupo de Hilos 1-22,text,true,,400,36861262,29,29,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,160312,0,14
+1716259376055,166506,Petición HTTP,200,OK,Grupo de Hilos 1-32,text,true,,401,36861256,28,28,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,166506,0,78
+1716259376359,174767,Petición HTTP,200,OK,Grupo de Hilos 1-33,text,true,,400,36861259,27,27,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,174767,0,32
+1716259372472,187879,Petición HTTP,200,OK,Grupo de Hilos 1-20,text,true,,401,36861286,26,26,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,187879,0,30
+1716259376658,191911,Petición HTTP,200,OK,Grupo de Hilos 1-34,text,true,,400,36861286,25,25,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,191911,0,44
+1716259378452,199015,Petición HTTP,200,OK,Grupo de Hilos 1-40,text,true,,401,36861268,24,24,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,199015,0,315
+1716259373666,213202,Petición HTTP,200,OK,Grupo de Hilos 1-24,text,true,,401,36861268,23,23,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,213202,0,15
+1716259377255,225633,Petición HTTP,200,OK,Grupo de Hilos 1-36,text,true,,403,36861280,22,22,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,225633,0,74
+1716259373964,228939,Petición HTTP,200,OK,Grupo de Hilos 1-25,text,true,,400,36861283,21,21,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,228938,0,41
+1716259375760,236862,Petición HTTP,200,OK,Grupo de Hilos 1-31,text,true,,401,36861256,20,20,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,236862,0,76
+1716259375156,245704,Petición HTTP,200,OK,Grupo de Hilos 1-29,text,true,,401,36861283,19,19,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,245704,0,12
+1716259373367,255638,Petición HTTP,200,OK,Grupo de Hilos 1-23,text,true,,401,36861274,18,18,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,255638,0,24
+1716259379051,258357,Petición HTTP,200,OK,Grupo de Hilos 1-42,text,true,,400,36861271,17,17,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,258357,0,35
+1716259376955,268406,Petición HTTP,200,OK,Grupo de Hilos 1-35,text,true,,401,36861262,16,16,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,268405,0,41
+1716259379353,274365,Petición HTTP,200,OK,Grupo de Hilos 1-43,text,true,,401,36861259,15,15,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,274364,0,17
+1716259377853,292530,Petición HTTP,200,OK,Grupo de Hilos 1-38,text,true,,401,36861268,14,14,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,292530,0,21
+1716259374558,295845,Petición HTTP,200,OK,Grupo de Hilos 1-27,text,true,,401,36861262,13,13,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,295845,0,14
+1716259374265,301100,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-26,text,false,,399,36861283,12,12,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301099,0,34
+1716259375458,301110,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-30,text,false,,399,36861277,11,11,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301110,0,26
+1716259381450,296789,Petición HTTP,200,OK,Grupo de Hilos 1-50,text,true,,400,36861256,10,10,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,296789,0,14
+1716259377553,301103,Petición HTTP,408,Request Timeout,Grupo de Hilos 1-37,text,false,,399,36861274,9,9,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301102,0,19
+1716259378153,301130,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-39,text,false,,399,36861268,8,8,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301130,0,64
+1716259378752,301117,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-41,text,false,,399,36861259,7,7,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301116,0,33
+1716259379652,301087,Petición HTTP,408,Request Timeout,Grupo de Hilos 1-44,text,false,,400,36861280,6,6,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301087,0,19
+1716259379951,301106,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-45,text,false,,400,36861283,5,5,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301106,0,38
+1716259380251,301098,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-46,text,false,,400,36861262,4,4,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301097,0,16
+1716259380553,301112,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-47,text,false,,399,36861274,3,3,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301111,0,29
+1716259380851,301078,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-48,text,false,,400,36861265,2,2,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301078,0,13
+1716259381150,301082,Petición HTTP,408,Request Timeout,Grupo de Hilos 1-49,text,false,,399,36861262,1,1,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301082,0,14

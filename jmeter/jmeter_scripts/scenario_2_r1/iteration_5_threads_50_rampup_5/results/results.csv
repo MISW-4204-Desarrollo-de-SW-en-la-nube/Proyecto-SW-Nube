@@ -1,0 +1,51 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1716260069205,238,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-28,text,false,,3096,0,30,30,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,49
+1716260067841,1614,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-14,text,false,,3096,0,29,29,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,78
+1716260068321,1204,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-19,text,false,,3096,0,29,29,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,157
+1716260066712,2816,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-2,text,false,,3096,0,28,28,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,402
+1716260069006,521,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-26,text,false,,3096,0,27,27,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,43
+1716260067550,1975,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-11,text,false,,3096,0,26,26,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,62
+1716260068023,1512,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-16,text,false,,3096,0,25,25,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,95
+1716260068221,1319,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-18,text,false,,3096,0,24,24,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,69
+1716260067354,2194,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-9,text,false,,3096,0,23,23,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,126
+1716260068566,988,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-21,text,false,,3096,0,22,22,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,114
+1716260069105,428,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-27,text,false,,3096,0,22,22,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,68
+1716260068439,1121,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-20,text,false,,3096,0,22,22,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,80
+1716260068611,938,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-22,text,false,,3096,0,22,22,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,83
+1716260067924,1611,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-15,text,false,,3096,0,24,24,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,115
+1716260068818,711,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-24,text,false,,3096,0,17,17,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,24
+1716260068710,855,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-23,text,false,,3096,0,16,16,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,60
+1716260067742,1823,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-13,text,false,,3096,0,15,15,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,66
+1716260066714,2853,Petición HTTP,Non HTTP response code: java.net.SocketException,Non HTTP response message: Broken pipe (Write failed),Grupo de Hilos 1-1,text,false,,3096,0,14,14,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,0,0,409
+1716260069404,86905,Petición HTTP,200,OK,Grupo de Hilos 1-30,text,true,,400,36861274,32,32,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,86899,0,61
+1716260070697,95327,Petición HTTP,200,OK,Grupo de Hilos 1-43,text,true,,401,36861277,31,31,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,95327,0,48
+1716260070612,104816,Petición HTTP,200,OK,Grupo de Hilos 1-42,text,true,,401,36861262,30,30,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,104816,0,59
+1716260066862,115945,Petición HTTP,200,OK,Grupo de Hilos 1-4,text,true,,404,36861265,29,29,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,115945,0,237
+1716260067254,122836,Petición HTTP,200,OK,Grupo de Hilos 1-8,text,true,,401,36861286,28,28,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,122836,0,110
+1716260071094,126426,Petición HTTP,200,OK,Grupo de Hilos 1-47,text,true,,400,36861283,27,27,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,126426,0,21
+1716260069996,135716,Petición HTTP,200,OK,Grupo de Hilos 1-36,text,true,,401,36861280,26,26,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,135715,0,49
+1716260070810,144167,Petición HTTP,200,OK,Grupo de Hilos 1-44,text,true,,401,36861277,25,25,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,144167,0,21
+1716260066961,156160,Petición HTTP,200,OK,Grupo de Hilos 1-5,text,true,,400,36861277,24,24,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,156160,0,145
+1716260070099,161812,Petición HTTP,200,OK,Grupo de Hilos 1-37,text,true,,401,36861265,23,23,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,161812,0,36
+1716260070193,169390,Petición HTTP,200,OK,Grupo de Hilos 1-38,text,true,,400,36861274,22,22,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,169390,0,21
+1716260067648,180041,Petición HTTP,200,OK,Grupo de Hilos 1-12,text,true,,401,36861268,21,21,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,180041,0,17
+1716260067459,187811,Petición HTTP,200,OK,Grupo de Hilos 1-10,text,true,,400,36861283,20,20,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,187811,0,133
+1716260066773,195564,Petición HTTP,200,OK,Grupo de Hilos 1-3,text,true,,400,36861259,19,19,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,195564,0,343
+1716260067058,202665,Petición HTTP,200,OK,Grupo de Hilos 1-6,text,true,,401,36861265,18,18,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,202665,0,56
+1716260069601,207864,Petición HTTP,200,OK,Grupo de Hilos 1-32,text,true,,401,36861277,17,17,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,207864,0,33
+1716260068122,216695,Petición HTTP,200,OK,Grupo de Hilos 1-17,text,true,,401,36861262,16,16,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,216694,0,79
+1716260069706,223205,Petición HTTP,200,OK,Grupo de Hilos 1-33,text,true,,400,36861259,15,15,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,223205,0,39
+1716260069303,231716,Petición HTTP,200,OK,Grupo de Hilos 1-29,text,true,,401,36861280,14,14,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,231716,0,62
+1716260070495,238132,Petición HTTP,200,OK,Grupo de Hilos 1-41,text,true,,401,36861268,13,13,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,238131,0,39
+1716260070393,253122,Petición HTTP,200,OK,Grupo de Hilos 1-40,text,true,,400,36861286,12,12,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,253122,0,21
+1716260071200,252341,Petición HTTP,200,OK,Grupo de Hilos 1-48,text,true,,401,36861274,11,11,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,252341,0,65
+1716260070900,260242,Petición HTTP,200,OK,Grupo de Hilos 1-45,text,true,,401,36861277,10,10,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,260241,0,60
+1716260070295,268352,Petición HTTP,200,OK,Grupo de Hilos 1-39,text,true,,400,36861280,9,9,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,268352,0,18
+1716260069501,276241,Petición HTTP,200,OK,Grupo de Hilos 1-31,text,true,,401,36861259,8,8,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,276241,0,1108
+1716260070994,282025,Petición HTTP,200,OK,Grupo de Hilos 1-46,text,true,,400,36861283,7,7,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,282024,0,43
+1716260071297,289107,Petición HTTP,200,OK,Grupo de Hilos 1-49,text,true,,401,36861256,6,6,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,289107,0,27
+1716260067156,301142,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-7,text,false,,399,36861259,5,5,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301141,0,73
+1716260068915,301153,Petición HTTP,408,Request Timeout,Grupo de Hilos 1-25,text,false,,400,36861277,4,4,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301152,0,59
+1716260069818,301118,Petición HTTP,408,Request Timeout,Grupo de Hilos 1-34,text,false,,400,36861271,3,3,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301118,0,52
+1716260069895,301098,Petición HTTP,408,Request Timeout,Grupo de Hilos 1-35,text,false,,400,36861274,2,2,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301098,0,29
+1716260071395,301112,Petición HTTP,504,Gateway Timeout,Grupo de Hilos 1-50,text,false,,400,36861280,1,1,https://web-app-n7h4t3ddea-uw.a.run.app/api/tasks/,301112,0,26

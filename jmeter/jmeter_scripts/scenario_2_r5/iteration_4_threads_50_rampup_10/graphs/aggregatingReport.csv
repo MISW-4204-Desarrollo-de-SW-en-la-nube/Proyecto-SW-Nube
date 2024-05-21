@@ -1,0 +1,3 @@
+Label,# Samples,Average,Median,90% Line,95% Line,99% Line,Min,Max,Error %,Throughput,Received KB/sec,Std. Dev.
+Petición HTTP,50,51187,47327,70339,79834,98368,19963,98368,0.00%,.5,.2,16714.54
+TOTAL,50,51187,47327,70339,79834,98368,19963,98368,0.00%,.5,.2,16714.54
