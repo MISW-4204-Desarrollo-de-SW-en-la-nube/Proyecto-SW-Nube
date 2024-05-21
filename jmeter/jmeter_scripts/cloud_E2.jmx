@@ -313,7 +313,7 @@
           </elementProp>
           <elementProp name="" elementType="Header">
             <stringProp name="Header.name">Authorization</stringProp>
-            <stringProp name="Header.value">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjEsInVzZXJuYW1lIjoiSm9zZUx1aXMyIn0sImV4cCI6MTcxNjE4NDM2N30.rEMNR_l9qLVniEeyQARDBcN9qYD4wdgAYT5tC7Oz5xc</stringProp>
+            <stringProp name="Header.value">Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjEsInVzZXJuYW1lIjoiSm9zZUx1aXMyIn0sImV4cCI6MTcxNjI2ODU4MX0.N-QAeBVGJNXIOpjiYNiEmn2eKdcwNKcbsyIMXeOJ8Fg</stringProp>
           </elementProp>
         </collectionProp>
       </HeaderManager>
